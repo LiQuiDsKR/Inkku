@@ -1,0 +1,18 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+.DS_Store
+Thumbs.db
+
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# vite-plugin-pwa 생성물 (Phase 5에서 추가)
+dev-dist

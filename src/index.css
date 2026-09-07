@@ -1,0 +1,63 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-ink-bg: #111113;
+  --color-ink-panel: #1c1c20;
+  --color-ink-line: #2e2e34;
+  --color-ink-text: #f2f2f4;
+  --color-ink-muted: #8c8c96;
+  --color-ink-accent: #ff4d4d;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/*
+ * overscroll-behavior는 overflow와 달리 body에서 뷰포트로 전파되지 않는다(CSS 명세의 예외).
+ * body에만 걸면 안드로이드 크롬의 당겨서 새로고침과 iOS 바운스가 그대로 남으므로
+ * 반드시 루트 요소에 건다.
+ */
+html {
+  overscroll-behavior: none;
+  /* 편집 화면은 문서 스크롤이 없다. 스크롤 자체를 없애 주소창 숨김/노출로 높이가 흔들리는 것도 막는다 */
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--color-ink-bg);
+  color: var(--color-ink-text);
+  font-family:
+    'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/*
+ * 패널 내부 스크롤이 뷰포트로 연쇄되지 않게 한다.
+ * 스티커 그리드처럼 스크롤되는 영역에 붙여 쓴다.
+ */
+.scroll-contain {
+  overscroll-behavior: contain;
+}
+
+/*
+ * viewport-fit=cover를 쓰면 내용이 노치와 홈 인디케이터 아래로 들어간다.
+ * 상단 바와 하단 툴바가 가려지지 않도록 안전 영역만큼 밀어 준다.
+ */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* 캔버스 위에서는 브라우저의 확대/스크롤 제스처를 완전히 차단한다 */
+.canvas-surface {
+  touch-action: none;
+}
