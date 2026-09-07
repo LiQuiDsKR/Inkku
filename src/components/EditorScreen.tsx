@@ -6,6 +6,7 @@ import DrawPanel from './DrawPanel';
 import EditorToolbar from './EditorToolbar';
 import EditorTopBar from './EditorTopBar';
 import LayerContextBar from './LayerContextBar';
+import LayerPanel from './LayerPanel';
 import PhotoPanel from './PhotoPanel';
 import ShapePanel from './ShapePanel';
 import StickerPanel from './StickerPanel';
@@ -90,6 +91,7 @@ export default function EditorScreen({ onExit }: EditorScreenProps) {
       {panel === 'draw' && <DrawPanel onClose={closePanel} />}
       {panel === 'background' && <BackgroundPanel onClose={closePanel} />}
       {panel === 'photo' && <PhotoPanel onClose={closePanel} />}
+      {panel === 'layers' && <LayerPanel onClose={closePanel} />}
 
       {/*
         컨텍스트 바는 툴바 위에 떠 있는다(absolute).

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 /** 하단 툴바가 여는 패널. 한 번에 하나만 열린다. */
-export type PanelKind = 'sticker' | 'draw' | 'shape' | 'background' | 'photo';
+export type PanelKind = 'sticker' | 'draw' | 'shape' | 'background' | 'photo' | 'layers';
 
 /**
  * 텍스트 편집은 패널이 아니라 전체 모달이다.

@@ -1,6 +1,7 @@
 import { useCanRedo, useCanUndo } from '@/store/historyStore';
 import { useProjectStore } from '@/store/projectStore';
 import { useSelectionStore } from '@/store/selectionStore';
+import { useToolStore } from '@/store/toolStore';
 
 interface EditorTopBarProps {
   onBack: () => void;
@@ -12,6 +13,8 @@ export default function EditorTopBar({ onBack, onExport, exporting }: EditorTopB
   const undo = useProjectStore((state) => state.undo);
   const redo = useProjectStore((state) => state.redo);
   const clearSelection = useSelectionStore((state) => state.clear);
+  const panel = useToolStore((state) => state.panel);
+  const togglePanel = useToolStore((state) => state.togglePanel);
   const canUndo = useCanUndo();
   const canRedo = useCanRedo();
 
@@ -36,9 +39,17 @@ export default function EditorTopBar({ onBack, onExport, exporting }: EditorTopB
         뒤로
       </button>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center">
         <HistoryButton label="실행취소" onClick={handleUndo} disabled={!canUndo} />
         <HistoryButton label="다시실행" onClick={handleRedo} disabled={!canRedo} />
+        {/* 레이어 목록은 툴바가 아니라 여기에 둔다. 하단 여섯 칸에 더 넣으면 글자가 줄바꿈된다 */}
+        <button
+          type="button"
+          onClick={() => togglePanel('layers')}
+          className={`px-2 py-3 text-sm ${panel === 'layers' ? 'text-ink-accent' : 'text-ink-text'}`}
+        >
+          레이어
+        </button>
       </div>
 
       <button
@@ -67,7 +78,7 @@ function HistoryButton({ label, onClick, disabled }: HistoryButtonProps) {
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`px-3 py-3 text-sm ${disabled ? 'text-ink-muted opacity-40' : 'text-ink-text'}`}
+      className={`px-2 py-3 text-sm ${disabled ? 'text-ink-muted opacity-40' : 'text-ink-text'}`}
     >
       {label}
     </button>
