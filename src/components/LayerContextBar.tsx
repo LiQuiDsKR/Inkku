@@ -4,11 +4,15 @@ import { useProjectStore } from '@/store/projectStore';
 import { useSelectionStore } from '@/store/selectionStore';
 import type { Layer } from '@/layers/types';
 
+/**
+ * 라벨을 앞/뒤가 아니라 위/아래로 쓴다.
+ * 상단 바에도 "뒤로"(편집 나가기)가 있어서 같은 화면에 같은 글자가 두 개 보이면 헷갈린다.
+ */
 const ORDER_ACTIONS: readonly { command: ReorderCommand; label: string }[] = [
-  { command: 'back', label: '맨뒤' },
-  { command: 'backward', label: '뒤로' },
-  { command: 'forward', label: '앞으로' },
-  { command: 'front', label: '맨앞' },
+  { command: 'back', label: '맨 아래' },
+  { command: 'backward', label: '아래로' },
+  { command: 'forward', label: '위로' },
+  { command: 'front', label: '맨 위' },
 ];
 
 const OPACITY_STEPS = 100;
@@ -60,7 +64,12 @@ export default function LayerContextBar({ layer }: LayerContextBarProps) {
   };
 
   return (
-    <div className="relative z-40 shrink-0 border-t border-ink-line bg-ink-panel px-3 py-2">
+    /*
+     * 흐름에서 빠져 툴바 위에 떠 있는다.
+     * 흐름에 두면 레이어를 고를 때마다 바가 나타났다 사라지면서 캔버스가 위아래로 튄다.
+     * 손으로 맞춰 둔 위치가 매번 움직이는 것처럼 보여서 편집이 어렵다.
+     */
+    <div className="absolute inset-x-0 bottom-full z-40 border-t border-ink-line bg-ink-panel/95 px-3 py-2">
       <label className="mb-2 flex items-center gap-3 text-[11px] text-ink-muted">
         <span className="w-10 shrink-0">투명도</span>
         <input

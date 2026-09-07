@@ -14,6 +14,18 @@ import { useSelectionStore } from '@/store/selectionStore';
 import type { BrushSettings } from '@/store/toolStore';
 import type { Layer, Project } from '@/layers/types';
 
+/**
+ * 이미 파괴된 Konva 노드인지 본다.
+ *
+ * StrictMode는 마운트를 한 번 되감았다가 다시 한다. 그때 앞선 마운트에서 만든 스테이지가 파괴되는데,
+ * 그 노드를 가리키던 상태는 새 ref가 들어오기 전까지 잠깐 남아 있다.
+ * 그 틈에 비동기로 도착한 이미지가 콜백을 부르면 파괴된 Transformer의 앵커를 건드려 터진다.
+ * (이어서 편집으로 들어올 때 실제로 났던 오류다)
+ */
+function isLive(node: Konva.Node | null): boolean {
+  return Boolean(node?.getStage());
+}
+
 interface EditorStageProps {
   project: Project;
   /** 더블탭으로 편집을 요청한 레이어. 어떤 편집 화면을 띄울지는 UI 쪽이 정한다. */
@@ -21,6 +33,8 @@ interface EditorStageProps {
   /** 그리기 도구가 켜져 있으면 붓 설정이 온다. null이면 평소의 선택/이동 모드다. */
   brush: BrushSettings | null;
   onStrokeEnd: (points: readonly Point[], brush: BrushSettings) => void;
+  /** 내보내기가 스테이지를 직접 다시 그려야 해서 위로 넘긴다. */
+  onStageReady: (stage: Konva.Stage | null) => void;
 }
 
 export default function EditorStage({
@@ -28,6 +42,7 @@ export default function EditorStage({
   onRequestEdit,
   brush,
   onStrokeEnd,
+  onStageReady,
 }: EditorStageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const nodesRef = useRef(new Map<string, Konva.Group>());
@@ -50,6 +65,14 @@ export default function EditorStage({
     [project.layers],
   );
 
+  const handleStageRef = useCallback(
+    (node: Konva.Stage | null) => {
+      setStage(node);
+      onStageReady(node);
+    },
+    [onStageReady],
+  );
+
   const registerNode = useCallback((id: string, node: Konva.Group | null) => {
     if (node) nodesRef.current.set(id, node);
     else nodesRef.current.delete(id);
@@ -63,8 +86,9 @@ export default function EditorStage({
    *    사진이 보이는데도 클릭이 뒤 배경으로 떨어진다. 배경 클릭은 선택 해제라 포커스가 풀린다.
    */
   const handleContentReady = useCallback(() => {
+    if (!isLive(konvaLayer)) return;
     konvaLayer?.drawHit();
-    transformer?.forceUpdate();
+    if (isLive(transformer)) transformer?.forceUpdate();
     konvaLayer?.batchDraw();
   }, [konvaLayer, transformer]);
 
@@ -72,7 +96,7 @@ export default function EditorStage({
   // 레이어 목록이 바뀌면 노드 인스턴스가 새로 생기므로 다시 찾아야 한다.
   // 그리는 중에는 붙이지 않는다. 획을 긋는 손이 핸들에 걸리면 그리기가 끊긴다.
   useEffect(() => {
-    if (!transformer) return;
+    if (!isLive(transformer) || !transformer) return;
     const node = selectedId && !brush ? nodesRef.current.get(selectedId) : undefined;
     transformer.nodes(node ? [node] : []);
     transformer.getLayer()?.batchDraw();
@@ -90,7 +114,9 @@ export default function EditorStage({
     [selectedId, updateLayerTransform],
   );
 
-  const refreshTransformer = useCallback(() => transformer?.forceUpdate(), [transformer]);
+  const refreshTransformer = useCallback(() => {
+    if (isLive(transformer)) transformer?.forceUpdate();
+  }, [transformer]);
 
   useTwoFingerGesture({
     stage,
@@ -133,7 +159,7 @@ export default function EditorStage({
     >
       {size && (
         <Stage
-          ref={setStage}
+          ref={handleStageRef}
           width={size.width}
           height={size.height}
           scaleX={size.scale}

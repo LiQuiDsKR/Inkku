@@ -36,6 +36,8 @@ const DEFAULT_BACKGROUND: Background = { type: 'solid', color: '#ffffff' };
 interface ProjectState {
   project: Project | null;
   createProject: (ratio: Ratio) => void;
+  /** 저장해 둔 작업물을 이어서 연다. */
+  openProject: (project: Project) => void;
   closeProject: () => void;
   addLayers: (layers: readonly Layer[]) => void;
   setBackground: (background: Background) => void;
@@ -91,6 +93,12 @@ export const useProjectStore = create<ProjectState>((set, get) => {
           updatedAt: now,
         },
       });
+    },
+
+    openProject: (project) => {
+      // 저장된 작업물에는 히스토리가 없다. 이전 작업의 기록이 남아 있으면 남의 상태로 되돌아간다.
+      useHistoryStore.getState().reset();
+      set({ project });
     },
 
     closeProject: () => {

@@ -4,9 +4,11 @@ import { useSelectionStore } from '@/store/selectionStore';
 
 interface EditorTopBarProps {
   onBack: () => void;
+  onExport: () => void;
+  exporting: boolean;
 }
 
-export default function EditorTopBar({ onBack }: EditorTopBarProps) {
+export default function EditorTopBar({ onBack, onExport, exporting }: EditorTopBarProps) {
   const undo = useProjectStore((state) => state.undo);
   const redo = useProjectStore((state) => state.redo);
   const clearSelection = useSelectionStore((state) => state.clear);
@@ -39,8 +41,14 @@ export default function EditorTopBar({ onBack }: EditorTopBarProps) {
         <HistoryButton label="다시실행" onClick={handleRedo} disabled={!canRedo} />
       </div>
 
-      {/* 완료(내보내기)는 Phase 4 */}
-      <button type="button" disabled className="px-3 py-3 text-sm text-ink-muted opacity-40">
+      <button
+        type="button"
+        onClick={onExport}
+        disabled={exporting}
+        className={`px-3 py-3 text-sm font-semibold ${
+          exporting ? 'text-ink-muted opacity-40' : 'text-ink-accent'
+        }`}
+      >
         완료
       </button>
     </header>
