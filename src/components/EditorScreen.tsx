@@ -6,6 +6,7 @@ import DrawPanel from './DrawPanel';
 import EditorToolbar from './EditorToolbar';
 import EditorTopBar from './EditorTopBar';
 import LayerContextBar from './LayerContextBar';
+import PhotoPanel from './PhotoPanel';
 import ShapePanel from './ShapePanel';
 import StickerPanel from './StickerPanel';
 import TextEditorModal from './TextEditorModal';
@@ -32,6 +33,7 @@ export default function EditorScreen({ onExit }: EditorScreenProps) {
 
   const panel = useToolStore((state) => state.panel);
   const closePanel = useToolStore((state) => state.closePanel);
+  const openPanel = useToolStore((state) => state.openPanel);
   const brush = useToolStore((state) => state.brush);
   const textEditor = useToolStore((state) => state.textEditor);
   const openTextEditor = useToolStore((state) => state.openTextEditor);
@@ -63,9 +65,10 @@ export default function EditorScreen({ onExit }: EditorScreenProps) {
 
   if (!project) return null;
 
-  /** 더블탭 편집. 지금은 글자만 다시 열 수 있고, 사진 자르기는 나중이다. */
+  /** 더블탭 편집. 글자는 입력 모달, 사진은 보정 패널을 연다. */
   const handleRequestEdit = (layer: Layer) => {
     if (layer.type === 'text') openTextEditor({ mode: 'edit', layerId: layer.id });
+    else if (layer.type === 'photo') openPanel('photo');
   };
 
   const drawing = panel === 'draw';
@@ -86,6 +89,7 @@ export default function EditorScreen({ onExit }: EditorScreenProps) {
       {panel === 'shape' && <ShapePanel onClose={closePanel} />}
       {panel === 'draw' && <DrawPanel onClose={closePanel} />}
       {panel === 'background' && <BackgroundPanel onClose={closePanel} />}
+      {panel === 'photo' && <PhotoPanel onClose={closePanel} />}
 
       {/*
         컨텍스트 바는 툴바 위에 떠 있는다(absolute).

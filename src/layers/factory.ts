@@ -3,7 +3,13 @@ import { findFont } from '@/fonts/catalog';
 import { SHAPE_BASE_SIZE, SHAPE_FILL_RATIO, type ShapeKind } from './shapeStyle';
 import { defaultTextShadow, defaultTextStroke } from './textStyle';
 import type { TextDraft } from './textDraft';
-import type { PhotoLayer, ShapeLayer, StickerLayer, TextLayer } from './types';
+import type {
+  PhotoLayer,
+  PresetLineLayer,
+  ShapeLayer,
+  StickerLayer,
+  TextLayer,
+} from './types';
 
 /** 새 사진이 캔버스 가로폭에서 차지할 비율. 꾸밀 여백이 남을 만큼만 크게 넣는다. */
 const PHOTO_FILL_RATIO = 0.7;
@@ -54,6 +60,9 @@ export function createPhotoLayer(params: CreatePhotoLayerParams): PhotoLayer {
 
 /** 스티커가 캔버스 가로폭에서 차지할 기본 비율. 처음부터 크게 넣으면 줄이는 손이 한 번 더 간다. */
 const STICKER_FILL_RATIO = 0.32;
+
+/** 꾸밈선은 글 아래에 긋는 용도라 처음부터 가로로 길게 놓는다. */
+const LINE_FILL_RATIO = 0.72;
 
 export interface CreateStickerLayerParams {
   assetId: string;
@@ -170,5 +179,43 @@ export function createShapeLayer(params: CreateShapeLayerParams): ShapeLayer {
     zIndex,
     shape,
     fill,
+  };
+}
+
+export interface CreatePresetLineLayerParams {
+  assetId: string;
+  assetUrl: string;
+  naturalWidth: number;
+  naturalHeight: number;
+  canvasWidth: number;
+  canvasHeight: number;
+  zIndex: number;
+  cascadeIndex?: number;
+}
+
+export function createPresetLineLayer(params: CreatePresetLineLayerParams): PresetLineLayer {
+  const { assetId, assetUrl, naturalWidth, naturalHeight, canvasWidth, canvasHeight, zIndex } =
+    params;
+
+  const scale = Math.min(
+    (canvasWidth * LINE_FILL_RATIO) / naturalWidth,
+    (canvasHeight * LINE_FILL_RATIO) / naturalHeight,
+  );
+  const offset = (params.cascadeIndex ?? 0) * CASCADE_STEP;
+
+  return {
+    id: createId(),
+    type: 'presetLine',
+    x: canvasWidth / 2 + offset,
+    y: canvasHeight / 2 + offset,
+    scaleX: scale,
+    scaleY: scale,
+    rotation: 0,
+    opacity: 1,
+    zIndex,
+    assetId,
+    assetUrl,
+    naturalWidth,
+    naturalHeight,
   };
 }

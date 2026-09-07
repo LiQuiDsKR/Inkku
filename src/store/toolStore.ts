@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 /** 하단 툴바가 여는 패널. 한 번에 하나만 열린다. */
-export type PanelKind = 'sticker' | 'draw' | 'shape' | 'background';
+export type PanelKind = 'sticker' | 'draw' | 'shape' | 'background' | 'photo';
 
 /**
  * 텍스트 편집은 패널이 아니라 전체 모달이다.
@@ -24,6 +24,8 @@ interface ToolState {
   brush: BrushSettings;
   setBrush: (patch: Partial<BrushSettings>) => void;
   togglePanel: (panel: PanelKind) => void;
+  /** 토글이 아니라 무조건 연다. 더블탭 같은 "이걸 열어라" 동작에 쓴다. */
+  openPanel: (panel: PanelKind) => void;
   closePanel: () => void;
   openTextEditor: (target: TextEditorTarget) => void;
   closeTextEditor: () => void;
@@ -46,6 +48,8 @@ export const useToolStore = create<ToolState>((set) => ({
 
   // 같은 버튼을 다시 누르면 닫힌다. 폰에서는 닫기 버튼을 따로 찾는 것보다 이쪽이 빠르다.
   togglePanel: (panel) => set((state) => ({ panel: state.panel === panel ? null : panel })),
+
+  openPanel: (panel) => set({ panel }),
 
   closePanel: () => set({ panel: null }),
 

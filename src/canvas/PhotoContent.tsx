@@ -1,12 +1,34 @@
-import { useEffect } from 'react';
-import { Image as KonvaImage } from 'react-konva';
+import { useEffect, useRef } from 'react';
+import { Group, Image as KonvaImage, Rect } from 'react-konva';
+import type Konva from 'konva';
+import { toFilterConfig } from './photoFilters';
 import { useLayerImage } from './useLayerImage';
+import { BORDER_RATIO, POLAROID_BOTTOM_RATIO } from '@/layers/photoStyle';
 import type { PhotoLayer } from '@/layers/types';
 
 interface PhotoContentProps {
   layer: PhotoLayer;
   /** 이미지가 도착해 크기가 정해진 순간을 알린다. */
   onReady: () => void;
+}
+
+interface Frame {
+  padX: number;
+  padTop: number;
+  padBottom: number;
+}
+
+/** 테두리가 차지하는 여백(사진 짧은 변 기준). 없으면 0이라 나머지 계산이 그대로 통한다. */
+function frameOf(layer: PhotoLayer): Frame {
+  const style = layer.border?.style ?? 'none';
+  if (style === 'none') return { padX: 0, padTop: 0, padBottom: 0 };
+
+  const base = Math.min(layer.naturalWidth, layer.naturalHeight);
+  const pad = base * (layer.border?.width ?? BORDER_RATIO);
+  if (style === 'polaroid') {
+    return { padX: pad, padTop: pad, padBottom: base * POLAROID_BOTTOM_RATIO };
+  }
+  return { padX: pad, padTop: pad, padBottom: pad };
 }
 
 /**
@@ -16,24 +38,65 @@ interface PhotoContentProps {
  */
 export default function PhotoContent({ layer, onReady }: PhotoContentProps) {
   const image = useLayerImage(layer.imageId);
+  const imageRef = useRef<Konva.Image>(null);
 
-  // 이미지는 IndexedDB에서 비동기로 온다. 그전까지 Group은 크기가 0이라
-  // Transformer가 0짜리 박스를 잡고 앵커가 한 점에 뭉친다. 도착 시점에 다시 재게 한다.
+  const filter = toFilterConfig(layer.filter?.preset);
+
+  /**
+   * Konva 필터는 cache() 없이는 적용되지 않는다.
+   * 사진 한 장을 통째로 다시 굽는 비싼 연산이라, 프리셋이 바뀌는 순간에만 한 번 한다.
+   * 슬라이더로 실시간 조절을 붙일 때는 CSS filter 미리보기로 바꾸고 확정할 때만 여기로 와야 한다.
+   */
+  useEffect(() => {
+    const node = imageRef.current;
+    if (!node || !image) return;
+
+    if (filter) {
+      node.cache();
+    } else {
+      // 필터를 끄면 캐시도 버린다. 남겨 두면 원본 대신 마지막으로 구운 그림이 계속 보인다.
+      node.clearCache();
+    }
+    node.getLayer()?.batchDraw();
+  }, [image, filter?.filters.length, layer.filter?.preset, layer.naturalWidth, layer.naturalHeight]);
+
   useEffect(() => {
     if (image) onReady();
-  }, [image, onReady]);
+  }, [image, onReady, layer.border?.style]);
 
   if (!image) return null;
 
+  const frame = frameOf(layer);
+  const totalWidth = layer.naturalWidth + frame.padX * 2;
+  const totalHeight = layer.naturalHeight + frame.padTop + frame.padBottom;
+
   return (
-    <KonvaImage
-      image={image}
-      width={layer.naturalWidth}
-      height={layer.naturalHeight}
-      // 오프셋을 절반으로 두면 그룹 원점이 사진 한가운데가 된다. 회전축이 중심이어야 손맛이 자연스럽다.
-      offsetX={layer.naturalWidth / 2}
-      offsetY={layer.naturalHeight / 2}
-      scaleX={layer.flipX ? -1 : 1}
-    />
+    // 그룹 원점을 테두리까지 포함한 한가운데로 옮긴다. 회전축이 사진 중심이어야 손맛이 자연스럽다.
+    <Group offsetX={totalWidth / 2} offsetY={totalHeight / 2} scaleX={layer.flipX ? -1 : 1}>
+      {frame.padX > 0 && (
+        <Rect
+          width={totalWidth}
+          height={totalHeight}
+          fill={layer.border?.color ?? '#ffffff'}
+          // 종이 느낌을 내는 그림자. 값이 고정이라 필터와 달리 캐시가 필요 없다.
+          shadowColor="rgba(0,0,0,0.35)"
+          shadowBlur={totalWidth * 0.02}
+          shadowOffsetY={totalWidth * 0.006}
+        />
+      )}
+      <KonvaImage
+        ref={imageRef}
+        image={image}
+        x={frame.padX}
+        y={frame.padTop}
+        width={layer.naturalWidth}
+        height={layer.naturalHeight}
+        filters={filter?.filters}
+        brightness={filter?.brightness ?? 0}
+        contrast={filter?.contrast ?? 0}
+        hue={filter?.hue ?? 0}
+        saturation={filter?.saturation ?? 0}
+      />
+    </Group>
   );
 }

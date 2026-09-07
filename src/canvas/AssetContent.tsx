@@ -1,19 +1,21 @@
 import { useEffect } from 'react';
 import { Image as KonvaImage } from 'react-konva';
 import { useAssetImage } from './useAssetImage';
-import type { StickerLayer } from '@/layers/types';
+import type { PresetLineLayer, StickerLayer } from '@/layers/types';
 
-interface StickerContentProps {
-  layer: StickerLayer;
+/**
+ * 정적 에셋으로 그리는 레이어의 공통 렌더러.
+ *
+ * 스티커와 꾸밈선은 타입만 다르고 그리는 방식은 같다(처음 놓이는 크기만 다르다).
+ * 그리기를 두 벌 두면 한쪽만 고치는 실수가 난다.
+ */
+interface AssetContentProps {
+  layer: StickerLayer | PresetLineLayer;
   /** 이미지가 도착해 크기가 정해진 순간을 알린다. 히트 그래프와 Transformer를 다시 맞춰야 한다. */
   onReady: () => void;
 }
 
-/**
- * 스티커의 그리기만 담당한다. 이동/확대/회전은 상위 Group이 갖는다.
- * 사진과 구조가 같지만 픽셀 출처가 IndexedDB가 아니라 정적 URL이라는 점만 다르다.
- */
-export default function StickerContent({ layer, onReady }: StickerContentProps) {
+export default function AssetContent({ layer, onReady }: AssetContentProps) {
   const image = useAssetImage(layer.assetUrl);
 
   useEffect(() => {
@@ -27,7 +29,7 @@ export default function StickerContent({ layer, onReady }: StickerContentProps) 
       image={image}
       width={layer.naturalWidth}
       height={layer.naturalHeight}
-      // 오프셋을 절반으로 두면 그룹 원점이 스티커 한가운데가 된다. 회전축이 중심이어야 손맛이 자연스럽다.
+      // 오프셋을 절반으로 두면 그룹 원점이 한가운데가 된다. 회전축이 중심이어야 손맛이 자연스럽다.
       offsetX={layer.naturalWidth / 2}
       offsetY={layer.naturalHeight / 2}
       scaleX={layer.flipX ? -1 : 1}

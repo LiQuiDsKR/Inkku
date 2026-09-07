@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import type { ReorderCommand } from '@/layers/order';
 import { useProjectStore } from '@/store/projectStore';
+import { useToolStore } from '@/store/toolStore';
 import { useSelectionStore } from '@/store/selectionStore';
 import type { Layer } from '@/layers/types';
 
@@ -9,10 +10,10 @@ import type { Layer } from '@/layers/types';
  * 상단 바에도 "뒤로"(편집 나가기)가 있어서 같은 화면에 같은 글자가 두 개 보이면 헷갈린다.
  */
 const ORDER_ACTIONS: readonly { command: ReorderCommand; label: string }[] = [
-  { command: 'back', label: '맨 아래' },
-  { command: 'backward', label: '아래로' },
-  { command: 'forward', label: '위로' },
-  { command: 'front', label: '맨 위' },
+  { command: 'back', label: '맨아래' },
+  { command: 'backward', label: '아래' },
+  { command: 'forward', label: '위' },
+  { command: 'front', label: '맨위' },
 ];
 
 const OPACITY_STEPS = 100;
@@ -34,6 +35,7 @@ export default function LayerContextBar({ layer }: LayerContextBarProps) {
   const removeLayer = useProjectStore((state) => state.removeLayer);
   const setLayerOpacity = useProjectStore((state) => state.setLayerOpacity);
   const select = useSelectionStore((state) => state.select);
+  const openPanel = useToolStore((state) => state.openPanel);
   const clearSelection = useSelectionStore((state) => state.clear);
 
   /**
@@ -96,8 +98,13 @@ export default function LayerContextBar({ layer }: LayerContextBarProps) {
             onClick={() => reorderLayer(layer.id, action.command)}
           />
         ))}
+        {/* 보정은 사진에만 있다. 다른 타입에 눌러도 할 일이 없는 버튼을 띄우지 않는다 */}
+        {layer.type === 'photo' && (
+          <ContextButton label="보정" onClick={() => openPanel('photo')} />
+        )}
         <ContextButton label="복제" onClick={handleDuplicate} />
-        <ContextButton label="좌우반전" onClick={() => toggleFlipX(layer.id)} />
+        {/* 라벨은 짧게 두되 화면 낭독기에는 온전한 이름을 준다. 여덟 칸이 한 줄에 들어가야 한다 */}
+        <ContextButton label="반전" title="좌우반전" onClick={() => toggleFlipX(layer.id)} />
         <ContextButton label="삭제" onClick={handleDelete} danger />
       </div>
     </div>
@@ -108,14 +115,17 @@ interface ContextButtonProps {
   label: string;
   onClick: () => void;
   danger?: boolean;
+  /** 라벨을 줄인 버튼의 온전한 이름. */
+  title?: string;
 }
 
-function ContextButton({ label, onClick, danger = false }: ContextButtonProps) {
+function ContextButton({ label, onClick, danger = false, title }: ContextButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`shrink-0 rounded-lg px-3 py-2 text-xs active:opacity-60 ${
+      aria-label={title ?? label}
+      className={`shrink-0 rounded-lg px-2.5 py-2 text-[11px] active:opacity-60 ${
         danger ? 'bg-ink-accent text-white' : 'bg-ink-bg text-ink-text'
       }`}
     >

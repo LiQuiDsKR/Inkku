@@ -1,9 +1,9 @@
 import { Group } from 'react-konva';
 import type Konva from 'konva';
+import AssetContent from './AssetContent';
 import DrawingContent from './DrawingContent';
 import PhotoContent from './PhotoContent';
 import ShapeContent from './ShapeContent';
-import StickerContent from './StickerContent';
 import TextContent from './TextContent';
 import type { NodeTransform } from './gestureMath';
 import type { Layer } from '@/layers/types';
@@ -38,7 +38,8 @@ function LayerContent({ layer, onReady }: { layer: Layer; onReady: () => void })
     case 'photo':
       return <PhotoContent layer={layer} onReady={onReady} />;
     case 'sticker':
-      return <StickerContent layer={layer} onReady={onReady} />;
+    case 'presetLine':
+      return <AssetContent layer={layer} onReady={onReady} />;
     case 'text':
       return <TextContent layer={layer} onReady={onReady} />;
     case 'shape':
@@ -46,7 +47,7 @@ function LayerContent({ layer, onReady }: { layer: Layer; onReady: () => void })
     case 'drawing':
       return <DrawingContent layer={layer} onReady={onReady} />;
     default:
-      // 프리셋 선은 에셋이 나오면 채운다
+      // 유니온이 늘어나면 여기서 걸린다. 새 타입은 반드시 위 스위치에 한 줄을 더한다.
       return null;
   }
 }

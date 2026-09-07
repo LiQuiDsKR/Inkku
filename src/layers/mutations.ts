@@ -1,6 +1,6 @@
 import { createId } from '@/utils/id';
 import { nextZIndex } from './order';
-import type { BaseLayer, Layer, ShapeLayer, TextLayer } from './types';
+import type { BaseLayer, Layer, PhotoLayer, ShapeLayer, TextLayer } from './types';
 
 /**
  * 레이어 배열을 다루는 순수 함수 모음.
@@ -62,6 +62,17 @@ export function patchShapeLayer(
 ): Layer[] {
   return layers.map((layer) =>
     layer.id === id && layer.type === 'shape' ? { ...layer, ...patch } : layer,
+  );
+}
+
+/** 사진 전용 패치(보정, 테두리). 대상이 사진이 아니면 아무것도 하지 않는다. */
+export function patchPhotoLayer(
+  layers: readonly Layer[],
+  id: string,
+  patch: Partial<Omit<PhotoLayer, 'id' | 'type'>>,
+): Layer[] {
+  return layers.map((layer) =>
+    layer.id === id && layer.type === 'photo' ? { ...layer, ...patch } : layer,
   );
 }
 

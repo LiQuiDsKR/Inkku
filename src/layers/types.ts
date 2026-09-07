@@ -91,10 +91,13 @@ export interface ShapeLayer extends BaseLayer {
   stroke?: { color: string; width: number };
 }
 
+/** 꾸밈선. 스티커와 그리는 방식은 같고, 처음 놓이는 크기만 다르다(가로로 길게). */
 export interface PresetLineLayer extends BaseLayer {
   type: 'presetLine';
   assetId: string;
   assetUrl: string;
+  naturalWidth: number;
+  naturalHeight: number;
 }
 
 export type Layer =

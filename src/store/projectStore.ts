@@ -4,6 +4,7 @@ import { getRatioSize } from '@/layers/ratio';
 import {
   duplicateLayerById,
   patchBaseLayer,
+  patchPhotoLayer,
   patchShapeLayer,
   patchTextLayer,
   removeLayerById,
@@ -15,6 +16,7 @@ import type {
   BaseLayer,
   Background,
   Layer,
+  PhotoLayer,
   Project,
   Ratio,
   ShapeLayer,
@@ -30,6 +32,7 @@ export type LayerTransform = Pick<BaseLayer, 'x' | 'y' | 'scaleX' | 'scaleY' | '
 
 export type TextPatch = Partial<Omit<TextLayer, 'id' | 'type'>>;
 export type ShapePatch = Partial<Omit<ShapeLayer, 'id' | 'type'>>;
+export type PhotoPatch = Partial<Omit<PhotoLayer, 'id' | 'type'>>;
 
 const DEFAULT_BACKGROUND: Background = { type: 'solid', color: '#ffffff' };
 
@@ -50,6 +53,7 @@ interface ProjectState {
   toggleFlipX: (id: string) => void;
   updateTextLayer: (id: string, patch: TextPatch) => void;
   updateShapeLayer: (id: string, patch: ShapePatch) => void;
+  updatePhotoLayer: (id: string, patch: PhotoPatch) => void;
   reorderLayer: (id: string, command: ReorderCommand) => void;
   /** 복제본을 바로 선택할 수 있도록 새 id를 돌려준다. */
   duplicateLayer: (id: string) => string | null;
@@ -149,6 +153,12 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       const project = get().project;
       if (!project) return;
       applyLayers(patchShapeLayer(project.layers, id, patch));
+    },
+
+    updatePhotoLayer: (id, patch) => {
+      const project = get().project;
+      if (!project) return;
+      applyLayers(patchPhotoLayer(project.layers, id, patch));
     },
 
     reorderLayer: (id, command) => {

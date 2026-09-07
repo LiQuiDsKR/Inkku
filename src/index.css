@@ -61,3 +61,24 @@ body {
 .canvas-surface {
   touch-action: none;
 }
+
+/*
+ * 에셋 목록의 칸 배경.
+ *
+ * 스티커와 꾸밈선은 배경이 투명하고 흰색이나 검은색 하나로 그려진 것이 많다.
+ * 단색 배경에 두면 그중 절반이 안 보인다. 체커 무늬를 깔면 밝은 것도 어두운 것도 보인다.
+ */
+.asset-checker {
+  background-color: #eeeef2;
+  background-image:
+    linear-gradient(45deg, #d3d3da 25%, transparent 25%),
+    linear-gradient(-45deg, #d3d3da 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #d3d3da 75%),
+    linear-gradient(-45deg, transparent 75%, #d3d3da 75%);
+  background-size: 12px 12px;
+  background-position:
+    0 0,
+    0 6px,
+    6px -6px,
+    -6px 0;
+}

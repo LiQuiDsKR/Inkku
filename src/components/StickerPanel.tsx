@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import PanelSheet from './PanelSheet';
-import { STICKER_CATEGORIES, type StickerAsset } from '@/assets/stickerCatalog';
-import { createStickerLayer } from '@/layers/factory';
+import { LINE_CATEGORY_ID, STICKER_CATEGORIES, type StickerAsset } from '@/assets/stickerCatalog';
+import { createPresetLineLayer, createStickerLayer } from '@/layers/factory';
 import { getRatioSize } from '@/layers/ratio';
 import { useProjectStore } from '@/store/projectStore';
 import { useSelectionStore } from '@/store/selectionStore';
@@ -30,7 +30,7 @@ export default function StickerPanel({ onClose }: StickerPanelProps) {
     if (!ratio) return;
     const size = getRatioSize(ratio);
 
-    const layer = createStickerLayer({
+    const common = {
       assetId: asset.id,
       assetUrl: asset.url,
       naturalWidth: asset.width,
@@ -39,7 +39,14 @@ export default function StickerPanel({ onClose }: StickerPanelProps) {
       canvasHeight: size.height,
       zIndex: peekNextZIndex(),
       cascadeIndex: addedCount.current % CASCADE_CYCLE,
-    });
+    };
+
+    // 꾸밈선은 레이어 타입이 다르다. 지금은 그리기가 같지만, 나중에 선만 늘리거나
+    // 양끝을 잡아 늘이는 조작이 붙으면 타입이 갈라져 있어야 한다.
+    const layer =
+      category?.id === LINE_CATEGORY_ID
+        ? createPresetLineLayer(common)
+        : createStickerLayer(common);
 
     addLayers([layer]);
     // 붙이자마자 선택해 두면 패널을 닫지 않고도 바로 옮길 수 있다
@@ -48,7 +55,7 @@ export default function StickerPanel({ onClose }: StickerPanelProps) {
   };
 
   return (
-    <PanelSheet title="스티커" onClose={onClose}>
+    <PanelSheet title="스티커와 꾸밈선" onClose={onClose}>
       <div className="scroll-contain flex gap-2 overflow-x-auto px-4 pb-2">
         {STICKER_CATEGORIES.map((item) => (
           <button
@@ -64,14 +71,21 @@ export default function StickerPanel({ onClose }: StickerPanelProps) {
         ))}
       </div>
 
-      <div className="grid grid-cols-4 gap-2 p-4 pt-2">
+      {/* 꾸밈선은 가로로 길어서 정사각형 칸에 넣으면 실물이 거의 안 보인다. 칸을 넓게 준다 */}
+      <div
+        className={`grid gap-2 p-4 pt-2 ${
+          category?.id === LINE_CATEGORY_ID ? 'grid-cols-2' : 'grid-cols-4'
+        }`}
+      >
         {category?.items.map((asset) => (
           <button
             key={asset.id}
             type="button"
             onClick={() => handlePick(asset)}
             aria-label={asset.label}
-            className="flex aspect-square items-center justify-center rounded-xl bg-ink-bg p-2 active:opacity-60"
+            className={`asset-checker flex items-center justify-center rounded-xl p-2 active:opacity-60 ${
+              category?.id === LINE_CATEGORY_ID ? 'aspect-[4/1]' : 'aspect-square'
+            }`}
           >
             {/* 목록은 원본 SVG를 그대로 쓴다. 썸네일을 따로 만들 만큼 무겁지 않다 */}
             <img src={asset.url} alt={asset.label} className="h-full w-full object-contain" />

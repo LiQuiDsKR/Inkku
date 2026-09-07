@@ -8,6 +8,10 @@
 /** 목업 스티커는 전부 256 정사각형 SVG다. 개별 크기가 생기면 항목마다 값을 넣는다. */
 const MOCK_SIZE = 256;
 
+/** 꾸밈선은 가로로 긴 512x128이다. */
+const LINE_WIDTH = 512;
+const LINE_HEIGHT = 128;
+
 export interface StickerAsset {
   id: string;
   label: string;
@@ -30,6 +34,16 @@ function assetUrl(file: string): string {
 function sticker(id: string, label: string): StickerAsset {
   return { id, label, url: assetUrl(`${id}.svg`), width: MOCK_SIZE, height: MOCK_SIZE };
 }
+
+function line(id: string, label: string): StickerAsset {
+  return { id, label, url: assetUrl(`${id}.svg`), width: LINE_WIDTH, height: LINE_HEIGHT };
+}
+
+/**
+ * 꾸밈선은 별도 레이어 타입이지만 고르는 곳은 스티커 패널과 같다.
+ * 툴바에 칸을 하나 더 만들면 여섯 칸이 일곱 칸이 되어 폰에서 글자가 줄바꿈된다.
+ */
+export const LINE_CATEGORY_ID = 'line';
 
 export const STICKER_CATEGORIES: readonly StickerCategory[] = [
   {
@@ -62,6 +76,18 @@ export const STICKER_CATEGORIES: readonly StickerCategory[] = [
       sticker('halo', '후광'),
       sticker('ribbon', '리본'),
       sticker('dots', '점무늬'),
+    ],
+  },
+  {
+    id: LINE_CATEGORY_ID,
+    label: '꾸밈선',
+    items: [
+      line('line-wave', '물결선'),
+      line('line-dashed', '점선'),
+      line('line-double', '두 줄'),
+      line('line-star', '별 구분선'),
+      line('line-arrowed', '화살표 선'),
+      line('line-tape', '테이프'),
     ],
   },
   {
