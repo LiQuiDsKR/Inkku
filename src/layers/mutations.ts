@@ -1,6 +1,6 @@
 import { createId } from '@/utils/id';
 import { nextZIndex } from './order';
-import type { BaseLayer, Layer, TextLayer } from './types';
+import type { BaseLayer, Layer, ShapeLayer, TextLayer } from './types';
 
 /**
  * 레이어 배열을 다루는 순수 함수 모음.
@@ -51,6 +51,17 @@ export function patchTextLayer(
 ): Layer[] {
   return layers.map((layer) =>
     layer.id === id && layer.type === 'text' ? { ...layer, ...patch } : layer,
+  );
+}
+
+/** 도형 전용 패치. 대상이 도형이 아니면 아무것도 하지 않는다. */
+export function patchShapeLayer(
+  layers: readonly Layer[],
+  id: string,
+  patch: Partial<Omit<ShapeLayer, 'id' | 'type'>>,
+): Layer[] {
+  return layers.map((layer) =>
+    layer.id === id && layer.type === 'shape' ? { ...layer, ...patch } : layer,
   );
 }
 

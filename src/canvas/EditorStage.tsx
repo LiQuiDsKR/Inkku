@@ -1,30 +1,34 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Layer as KonvaLayer, Rect, Stage } from 'react-konva';
+import { Layer as KonvaLayer, Line, Stage } from 'react-konva';
 import type Konva from 'konva';
+import BackgroundContent, { BACKGROUND_NAME } from './BackgroundContent';
 import LayerNode from './LayerNode';
 import SelectionTransformer from './SelectionTransformer';
 import { useStageSize } from './useStageSize';
+import { useBrushDrawing } from './useBrushDrawing';
 import { useTwoFingerGesture } from './useTwoFingerGesture';
 import { useWheelGesture } from './useWheelGesture';
-import type { NodeTransform } from './gestureMath';
+import type { NodeTransform, Point } from './gestureMath';
 import { useProjectStore } from '@/store/projectStore';
 import { useSelectionStore } from '@/store/selectionStore';
-import type { Background, Layer, Project } from '@/layers/types';
-
-const BACKGROUND_NAME = 'background';
-
-function backgroundFill(background: Background): string {
-  // 그라데이션, 텍스처, 사진 블러는 Phase 3에서 채운다. 그전까지는 단색만 그린다.
-  return background.type === 'solid' ? background.color : '#ffffff';
-}
+import type { BrushSettings } from '@/store/toolStore';
+import type { Layer, Project } from '@/layers/types';
 
 interface EditorStageProps {
   project: Project;
   /** 더블탭으로 편집을 요청한 레이어. 어떤 편집 화면을 띄울지는 UI 쪽이 정한다. */
   onRequestEdit: (layer: Layer) => void;
+  /** 그리기 도구가 켜져 있으면 붓 설정이 온다. null이면 평소의 선택/이동 모드다. */
+  brush: BrushSettings | null;
+  onStrokeEnd: (points: readonly Point[], brush: BrushSettings) => void;
 }
 
-export default function EditorStage({ project, onRequestEdit }: EditorStageProps) {
+export default function EditorStage({
+  project,
+  onRequestEdit,
+  brush,
+  onStrokeEnd,
+}: EditorStageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const nodesRef = useRef(new Map<string, Konva.Group>());
 
@@ -33,6 +37,7 @@ export default function EditorStage({ project, onRequestEdit }: EditorStageProps
   const [stage, setStage] = useState<Konva.Stage | null>(null);
   const [konvaLayer, setKonvaLayer] = useState<Konva.Layer | null>(null);
   const [transformer, setTransformer] = useState<Konva.Transformer | null>(null);
+  const [previewLine, setPreviewLine] = useState<Konva.Line | null>(null);
 
   const updateLayerTransform = useProjectStore((state) => state.updateLayerTransform);
   const selectedId = useSelectionStore((state) => state.selectedId);
@@ -65,12 +70,13 @@ export default function EditorStage({ project, onRequestEdit }: EditorStageProps
 
   // 선택된 노드에 Transformer를 붙인다.
   // 레이어 목록이 바뀌면 노드 인스턴스가 새로 생기므로 다시 찾아야 한다.
+  // 그리는 중에는 붙이지 않는다. 획을 긋는 손이 핸들에 걸리면 그리기가 끊긴다.
   useEffect(() => {
     if (!transformer) return;
-    const node = selectedId ? nodesRef.current.get(selectedId) : undefined;
+    const node = selectedId && !brush ? nodesRef.current.get(selectedId) : undefined;
     transformer.nodes(node ? [node] : []);
     transformer.getLayer()?.batchDraw();
-  }, [transformer, selectedId, layers]);
+  }, [transformer, selectedId, layers, brush]);
 
   const getTargetNode = useCallback(
     () => (selectedId ? (nodesRef.current.get(selectedId) ?? null) : null),
@@ -101,7 +107,18 @@ export default function EditorStage({ project, onRequestEdit }: EditorStageProps
     onCommit: commitSelected,
   });
 
+  useBrushDrawing({
+    stage,
+    previewLine,
+    enabled: brush !== null,
+    onStrokeEnd: (points) => {
+      if (brush) onStrokeEnd(points, brush);
+    },
+  });
+
   const handleStagePointerDown = (event: Konva.KonvaEventObject<PointerEvent>) => {
+    // 그리는 중에 배경을 눌렀다고 선택을 건드릴 필요가 없다
+    if (brush) return;
     // 레이어를 눌렀으면 그 레이어가 스스로 선택된다. 배경이나 빈 곳일 때만 해제한다.
     const target = event.target;
     if (target === target.getStage() || target.name() === BACKGROUND_NAME) {
@@ -123,12 +140,12 @@ export default function EditorStage({ project, onRequestEdit }: EditorStageProps
           scaleY={size.scale}
           onPointerDown={handleStagePointerDown}
         >
-          <KonvaLayer ref={setKonvaLayer}>
-            <Rect
-              name={BACKGROUND_NAME}
+          {/* 그리는 동안에는 레이어가 이벤트를 받지 않아야 획이 레이어 선택으로 새지 않는다 */}
+          <KonvaLayer ref={setKonvaLayer} listening={brush === null}>
+            <BackgroundContent
+              background={project.background}
               width={size.logicalWidth}
               height={size.logicalHeight}
-              fill={backgroundFill(project.background)}
             />
             {layers.map((layer) => (
               <LayerNode
@@ -143,6 +160,22 @@ export default function EditorStage({ project, onRequestEdit }: EditorStageProps
             ))}
             <SelectionTransformer onRef={setTransformer} />
           </KonvaLayer>
+
+          {/*
+            미리보기 획은 별도 레이어에 둔다.
+            같은 레이어에 두면 점이 늘어날 때마다 사진과 스티커까지 전부 다시 그려진다.
+          */}
+          {brush && (
+            <KonvaLayer listening={false}>
+              <Line
+                ref={setPreviewLine}
+                stroke={brush.color}
+                strokeWidth={brush.width}
+                lineCap="round"
+                lineJoin="round"
+              />
+            </KonvaLayer>
+          )}
         </Stage>
       )}
     </div>

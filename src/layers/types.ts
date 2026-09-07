@@ -75,6 +75,13 @@ export interface TextLayer extends BaseLayer {
 export interface DrawingLayer extends BaseLayer {
   type: 'drawing';
   imageId: string;
+  /**
+   * 논리 좌표에서 차지하는 크기.
+   * 저장된 이미지는 내보내기 화질을 위해 이보다 크게 굽는다. 그래서 사진처럼
+   * 원본 픽셀 크기를 그대로 쓰지 않고 그릴 크기를 따로 들고 있는다.
+   */
+  width: number;
+  height: number;
 }
 
 export interface ShapeLayer extends BaseLayer {

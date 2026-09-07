@@ -4,13 +4,22 @@ import { getRatioSize } from '@/layers/ratio';
 import {
   duplicateLayerById,
   patchBaseLayer,
+  patchShapeLayer,
   patchTextLayer,
   removeLayerById,
 } from '@/layers/mutations';
 import { nextZIndex, reorderLayers, type ReorderCommand } from '@/layers/order';
 import { applySnapshot, isSameLayerList, takeSnapshot } from '@/layers/snapshot';
 import { useHistoryStore } from './historyStore';
-import type { BaseLayer, Background, Layer, Project, Ratio, TextLayer } from '@/layers/types';
+import type {
+  BaseLayer,
+  Background,
+  Layer,
+  Project,
+  Ratio,
+  ShapeLayer,
+  TextLayer,
+} from '@/layers/types';
 
 /**
  * 이동/확대/회전만 담은 부분 타입.
@@ -20,6 +29,7 @@ import type { BaseLayer, Background, Layer, Project, Ratio, TextLayer } from '@/
 export type LayerTransform = Pick<BaseLayer, 'x' | 'y' | 'scaleX' | 'scaleY' | 'rotation'>;
 
 export type TextPatch = Partial<Omit<TextLayer, 'id' | 'type'>>;
+export type ShapePatch = Partial<Omit<ShapeLayer, 'id' | 'type'>>;
 
 const DEFAULT_BACKGROUND: Background = { type: 'solid', color: '#ffffff' };
 
@@ -28,6 +38,7 @@ interface ProjectState {
   createProject: (ratio: Ratio) => void;
   closeProject: () => void;
   addLayers: (layers: readonly Layer[]) => void;
+  setBackground: (background: Background) => void;
   updateLayerTransform: (id: string, patch: Partial<LayerTransform>) => void;
   /**
    * 슬라이더처럼 연속으로 값이 바뀌는 조작은 첫 변경만 기록한다.
@@ -36,6 +47,7 @@ interface ProjectState {
   setLayerOpacity: (id: string, opacity: number, record?: boolean) => void;
   toggleFlipX: (id: string) => void;
   updateTextLayer: (id: string, patch: TextPatch) => void;
+  updateShapeLayer: (id: string, patch: ShapePatch) => void;
   reorderLayer: (id: string, command: ReorderCommand) => void;
   /** 복제본을 바로 선택할 수 있도록 새 id를 돌려준다. */
   duplicateLayer: (id: string) => string | null;
@@ -86,6 +98,13 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       set({ project: null });
     },
 
+    setBackground: (background) => {
+      const project = get().project;
+      if (!project) return;
+      useHistoryStore.getState().record(takeSnapshot(project));
+      set({ project: { ...project, background, updatedAt: Date.now() } });
+    },
+
     addLayers: (layers) => {
       const project = get().project;
       if (!project || layers.length === 0) return;
@@ -116,6 +135,12 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       const project = get().project;
       if (!project) return;
       applyLayers(patchTextLayer(project.layers, id, patch));
+    },
+
+    updateShapeLayer: (id, patch) => {
+      const project = get().project;
+      if (!project) return;
+      applyLayers(patchShapeLayer(project.layers, id, patch));
     },
 
     reorderLayer: (id, command) => {

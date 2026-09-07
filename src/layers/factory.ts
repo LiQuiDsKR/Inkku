@@ -1,8 +1,9 @@
 import { createId } from '@/utils/id';
 import { findFont } from '@/fonts/catalog';
+import { SHAPE_BASE_SIZE, SHAPE_FILL_RATIO, type ShapeKind } from './shapeStyle';
 import { defaultTextShadow, defaultTextStroke } from './textStyle';
 import type { TextDraft } from './textDraft';
-import type { PhotoLayer, StickerLayer, TextLayer } from './types';
+import type { PhotoLayer, ShapeLayer, StickerLayer, TextLayer } from './types';
 
 /** 새 사진이 캔버스 가로폭에서 차지할 비율. 꾸밀 여백이 남을 만큼만 크게 넣는다. */
 const PHOTO_FILL_RATIO = 0.7;
@@ -135,5 +136,39 @@ export function createTextLayer(params: CreateTextLayerParams): TextLayer {
     lineHeight: DEFAULT_LINE_HEIGHT,
     stroke: draft.stroke ? defaultTextStroke(draft.fontSize) : undefined,
     shadow: draft.shadow ? defaultTextShadow(draft.fontSize) : undefined,
+  };
+}
+
+export interface CreateShapeLayerParams {
+  shape: ShapeKind;
+  fill: string;
+  canvasWidth: number;
+  canvasHeight: number;
+  zIndex: number;
+  cascadeIndex?: number;
+}
+
+export function createShapeLayer(params: CreateShapeLayerParams): ShapeLayer {
+  const { shape, fill, canvasWidth, canvasHeight, zIndex } = params;
+
+  // 도형은 원본 픽셀이 없어서 기준 크기(256)를 캔버스 비율에 맞춰 줄인다
+  const scale = Math.min(
+    (canvasWidth * SHAPE_FILL_RATIO) / SHAPE_BASE_SIZE,
+    (canvasHeight * SHAPE_FILL_RATIO) / SHAPE_BASE_SIZE,
+  );
+  const offset = (params.cascadeIndex ?? 0) * CASCADE_STEP;
+
+  return {
+    id: createId(),
+    type: 'shape',
+    x: canvasWidth / 2 + offset,
+    y: canvasHeight / 2 + offset,
+    scaleX: scale,
+    scaleY: scale,
+    rotation: 0,
+    opacity: 1,
+    zIndex,
+    shape,
+    fill,
   };
 }

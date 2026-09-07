@@ -1,6 +1,8 @@
 import { Group } from 'react-konva';
 import type Konva from 'konva';
+import DrawingContent from './DrawingContent';
 import PhotoContent from './PhotoContent';
+import ShapeContent from './ShapeContent';
 import StickerContent from './StickerContent';
 import TextContent from './TextContent';
 import type { NodeTransform } from './gestureMath';
@@ -39,8 +41,12 @@ function LayerContent({ layer, onReady }: { layer: Layer; onReady: () => void })
       return <StickerContent layer={layer} onReady={onReady} />;
     case 'text':
       return <TextContent layer={layer} onReady={onReady} />;
+    case 'shape':
+      return <ShapeContent layer={layer} onReady={onReady} />;
+    case 'drawing':
+      return <DrawingContent layer={layer} onReady={onReady} />;
     default:
-      // 낙서, 도형, 프리셋 선은 Phase 3에서 채운다
+      // 프리셋 선은 에셋이 나오면 채운다
       return null;
   }
 }
