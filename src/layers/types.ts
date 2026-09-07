@@ -20,6 +20,12 @@ export interface BaseLayer {
   rotation: number; // degree
   opacity: number; // 0~1
   zIndex: number;
+  /**
+   * 좌우반전. scaleX의 부호로 표현하지 않는다.
+   * 제스처 계산이 음수 배율을 만나면 회전축이 뒤집혀 손가락과 반대로 돈다.
+   * 모든 타입이 뒤집을 수 있어야 하므로 공통 속성으로 둔다.
+   */
+  flipX?: boolean;
 }
 
 /**
@@ -35,22 +41,31 @@ export interface PhotoLayer extends BaseLayer {
   crop?: { x: number; y: number; width: number; height: number };
   border?: { style: 'none' | 'plain' | 'polaroid'; color: string; width: number };
   filter?: { preset: string; intensity: number };
-  flipX?: boolean;
 }
 
 export interface StickerLayer extends BaseLayer {
   type: 'sticker';
   assetId: string;
   assetUrl: string;
+  /**
+   * 에셋 원본 크기를 레이어에 복사해 둔다.
+   * 이미지가 도착하기 전에도 그룹 크기가 정해져야 Transformer가 0짜리 박스를 잡지 않는다.
+   */
+  naturalWidth: number;
+  naturalHeight: number;
 }
+
+export type TextAlign = 'left' | 'center' | 'right';
 
 export interface TextLayer extends BaseLayer {
   type: 'text';
   content: string;
+  /** 폰트 카탈로그의 id. 실제 CSS family는 로더가 해석한다. */
+  fontId: string;
   fontFamily: string;
   fontSize: number;
   color: string;
-  align: 'left' | 'center' | 'right';
+  align: TextAlign;
   lineHeight: number;
   stroke?: { color: string; width: number };
   shadow?: { color: string; blur: number; offsetX: number; offsetY: number };

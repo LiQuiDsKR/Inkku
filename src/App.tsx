@@ -5,6 +5,7 @@ import HomeScreen from '@/components/HomeScreen';
 import RatioScreen from '@/components/RatioScreen';
 import { useProjectStore } from '@/store/projectStore';
 import { useSelectionStore } from '@/store/selectionStore';
+import { useToolStore } from '@/store/toolStore';
 import type { Ratio } from '@/layers/types';
 
 type Screen = 'home' | 'ratio';
@@ -19,15 +20,18 @@ export default function App() {
   const createProject = useProjectStore((state) => state.createProject);
   const closeProject = useProjectStore((state) => state.closeProject);
   const clearSelection = useSelectionStore((state) => state.clear);
+  const resetTools = useToolStore((state) => state.reset);
 
   const handleSelectRatio = (ratio: Ratio) => {
     createProject(ratio);
     clearSelection();
+    resetTools();
   };
 
   const handleExitEditor = () => {
     closeProject();
     clearSelection();
+    resetTools();
     setScreen('home');
   };
 

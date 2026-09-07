@@ -1,23 +1,42 @@
+import { useCanRedo, useCanUndo } from '@/store/historyStore';
+import { useProjectStore } from '@/store/projectStore';
+import { useSelectionStore } from '@/store/selectionStore';
+
 interface EditorTopBarProps {
   onBack: () => void;
 }
 
 export default function EditorTopBar({ onBack }: EditorTopBarProps) {
+  const undo = useProjectStore((state) => state.undo);
+  const redo = useProjectStore((state) => state.redo);
+  const clearSelection = useSelectionStore((state) => state.clear);
+  const canUndo = useCanUndo();
+  const canRedo = useCanRedo();
+
+  /**
+   * 되돌린 뒤에는 선택을 푼다.
+   * 되돌리기로 사라진 레이어가 선택된 채로 남으면 Transformer가 없는 노드를 잡고 있게 되고,
+   * 컨텍스트 바도 사라진 레이어를 계속 가리킨다.
+   */
+  const handleUndo = () => {
+    undo();
+    clearSelection();
+  };
+
+  const handleRedo = () => {
+    redo();
+    clearSelection();
+  };
+
   return (
     <header className="safe-top flex shrink-0 items-center justify-between border-b border-ink-line px-2">
       <button type="button" onClick={onBack} className="px-3 py-3 text-sm">
         뒤로
       </button>
 
-      {/* 실행취소와 다시실행은 히스토리가 들어오는 Phase 2에서 연결한다.
-          지금 자리를 잡아 둬야 상단 바 높이를 실기기에서 미리 확인할 수 있다. */}
       <div className="flex items-center gap-1">
-        <button type="button" disabled className="px-3 py-3 text-sm text-ink-muted opacity-40">
-          실행취소
-        </button>
-        <button type="button" disabled className="px-3 py-3 text-sm text-ink-muted opacity-40">
-          다시실행
-        </button>
+        <HistoryButton label="실행취소" onClick={handleUndo} disabled={!canUndo} />
+        <HistoryButton label="다시실행" onClick={handleRedo} disabled={!canRedo} />
       </div>
 
       {/* 완료(내보내기)는 Phase 4 */}
@@ -25,5 +44,24 @@ export default function EditorTopBar({ onBack }: EditorTopBarProps) {
         완료
       </button>
     </header>
+  );
+}
+
+interface HistoryButtonProps {
+  label: string;
+  onClick: () => void;
+  disabled: boolean;
+}
+
+function HistoryButton({ label, onClick, disabled }: HistoryButtonProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`px-3 py-3 text-sm ${disabled ? 'text-ink-muted opacity-40' : 'text-ink-text'}`}
+    >
+      {label}
+    </button>
   );
 }

@@ -9,7 +9,7 @@ import { useWheelGesture } from './useWheelGesture';
 import type { NodeTransform } from './gestureMath';
 import { useProjectStore } from '@/store/projectStore';
 import { useSelectionStore } from '@/store/selectionStore';
-import type { Background, Project } from '@/layers/types';
+import type { Background, Layer, Project } from '@/layers/types';
 
 const BACKGROUND_NAME = 'background';
 
@@ -20,9 +20,11 @@ function backgroundFill(background: Background): string {
 
 interface EditorStageProps {
   project: Project;
+  /** 더블탭으로 편집을 요청한 레이어. 어떤 편집 화면을 띄울지는 UI 쪽이 정한다. */
+  onRequestEdit: (layer: Layer) => void;
 }
 
-export default function EditorStage({ project }: EditorStageProps) {
+export default function EditorStage({ project, onRequestEdit }: EditorStageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const nodesRef = useRef(new Map<string, Konva.Group>());
 
@@ -136,6 +138,7 @@ export default function EditorStage({ project }: EditorStageProps) {
                 onTransformCommit={updateLayerTransform}
                 registerNode={registerNode}
                 onContentReady={handleContentReady}
+                onRequestEdit={onRequestEdit}
               />
             ))}
             <SelectionTransformer onRef={setTransformer} />
