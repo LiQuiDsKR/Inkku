@@ -19,10 +19,12 @@ export default function DebugOverlay() {
   const errorCount = entries.filter((entry) => entry.kind === 'error').length;
 
   return (
-    // 하단 툴바 위로 띄운다. bottom-0에 두면 사진 버튼과 겹쳐 눌러진다.
-    // z는 패널보다 낮게 둔다. 같은 자리에 스티커 그리드가 올라오면 이 버튼이 탭을 가로채서
-    // 왼쪽 아래 스티커가 눌리지 않는다(실제로 겪은 문제다).
-    <div className="pointer-events-none fixed inset-x-0 bottom-20 z-30 flex flex-col items-start p-2">
+    /*
+     * 하단 툴바와 컨텍스트 바 위로 띄운다. 더 낮게 두면 레이어를 고른 동안 바에 가려 누를 수 없다.
+     * z는 패널보다 낮게 둔다. 같은 자리에 스티커 그리드가 올라오면 이 버튼이 탭을 가로채서
+     * 왼쪽 아래 스티커가 눌리지 않는다(실제로 겪은 문제다).
+     */
+    <div className="pointer-events-none fixed inset-x-0 bottom-40 z-30 flex flex-col items-start p-2">
       {open && <DebugPanel entries={entries} watches={watches} />}
       <button
         type="button"
