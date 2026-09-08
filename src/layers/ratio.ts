@@ -33,6 +33,17 @@ export function getRatioSize(ratio: Ratio): RatioSize {
   return { width: Math.round(CANVAS_LONG_EDGE * aspect), height: CANVAS_LONG_EDGE };
 }
 
+/**
+ * 실제로 저장되는 결과물의 픽셀 크기.
+ * 논리 좌표(긴 변 1080)는 내부 단위라 사용자에게 보여줄 숫자가 아니다.
+ * 화면에는 내보내기 배율을 반영한 크기를 적어야 "이 정도 화질이구나"가 전달된다.
+ */
+export function getPixelSize(ratio: Ratio, longEdge: number): RatioSize {
+  const size = getRatioSize(ratio);
+  const scale = longEdge / Math.max(size.width, size.height);
+  return { width: Math.round(size.width * scale), height: Math.round(size.height * scale) };
+}
+
 /** 논리 캔버스를 주어진 화면 영역 안에 여백 없이 담기 위한 축소 배율. */
 export function getFitScale(ratio: Ratio, viewportWidth: number, viewportHeight: number): number {
   const size = getRatioSize(ratio);

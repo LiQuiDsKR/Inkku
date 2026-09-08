@@ -40,10 +40,15 @@ export async function shareImage(blob: Blob, fileName: string): Promise<ShareOut
 }
 
 /** 파일 이름에 시각을 넣어 여러 장을 저장해도 덮어쓰지 않게 한다. */
-export function exportFileName(date: Date = new Date()): string {
+export function exportFileName(extension: string, date: Date = new Date()): string {
   const pad = (value: number) => String(value).padStart(2, '0');
   const stamp = `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-${pad(
     date.getHours(),
   )}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
-  return `inkku-${stamp}.jpg`;
+  return `inkku-${stamp}.${extension}`;
+}
+
+/** 파일만 저장한다. 공유 시트를 거치지 않고 바로 내려받고 싶을 때 쓴다. */
+export function downloadImage(blob: Blob, fileName: string): void {
+  download(blob, fileName);
 }

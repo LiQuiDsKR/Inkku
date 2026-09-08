@@ -56,14 +56,16 @@ export default function StickerPanel({ onClose }: StickerPanelProps) {
 
   return (
     <PanelSheet title="스티커와 꾸밈선" onClose={onClose}>
-      <div className="scroll-contain flex gap-2 overflow-x-auto px-4 pb-2">
+      <div className="scroll-contain no-scrollbar flex gap-2 overflow-x-auto px-4 pb-2">
         {STICKER_CATEGORIES.map((item) => (
           <button
             key={item.id}
             type="button"
             onClick={() => setCategoryId(item.id)}
-            className={`shrink-0 rounded-full px-3 py-1 text-xs ${
-              item.id === category?.id ? 'bg-ink-accent text-white' : 'bg-ink-bg text-ink-muted'
+            className={`shrink-0 rounded-full px-3 py-1.5 text-label-lg transition-colors ${
+              item.id === category?.id
+                ? 'bg-tertiary-fixed text-on-tertiary-fixed'
+                : 'bg-surface-high text-muted'
             }`}
           >
             {item.label}

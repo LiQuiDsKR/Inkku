@@ -1,7 +1,10 @@
+import Icon from './icons/Icon';
+import SaveStatusChip from './SaveStatusChip';
 import { useCanRedo, useCanUndo } from '@/store/historyStore';
 import { useProjectStore } from '@/store/projectStore';
 import { useSelectionStore } from '@/store/selectionStore';
 import { useToolStore } from '@/store/toolStore';
+import type { IconName } from './icons/paths';
 
 interface EditorTopBarProps {
   onBack: () => void;
@@ -34,53 +37,65 @@ export default function EditorTopBar({ onBack, onExport, exporting }: EditorTopB
   };
 
   return (
-    <header className="safe-top flex shrink-0 items-center justify-between border-b border-ink-line px-2">
-      <button type="button" onClick={onBack} className="px-3 py-3 text-sm">
-        뒤로
-      </button>
+    <header className="safe-top z-40 flex shrink-0 items-center justify-between gap-2 bg-surface-low px-3 py-2">
+      <div className="flex min-w-0 items-center gap-1.5">
+        <RoundButton icon="back" label="뒤로" onClick={onBack} />
+        <RoundButton icon="undo" label="실행취소" onClick={handleUndo} disabled={!canUndo} />
+        <RoundButton icon="redo" label="다시실행" onClick={handleRedo} disabled={!canRedo} />
+        <SaveStatusChip />
+      </div>
 
-      <div className="flex items-center">
-        <HistoryButton label="실행취소" onClick={handleUndo} disabled={!canUndo} />
-        <HistoryButton label="다시실행" onClick={handleRedo} disabled={!canRedo} />
-        {/* 레이어 목록은 툴바가 아니라 여기에 둔다. 하단 여섯 칸에 더 넣으면 글자가 줄바꿈된다 */}
+      <div className="flex shrink-0 items-center gap-1.5">
         <button
           type="button"
           onClick={() => togglePanel('layers')}
-          className={`px-2 py-3 text-sm ${panel === 'layers' ? 'text-ink-accent' : 'text-ink-text'}`}
+          aria-label="레이어 목록"
+          className={`flex h-9 w-9 items-center justify-center rounded-full transition-transform active:scale-90 ${
+            panel === 'layers'
+              ? 'bg-primary-container text-on-primary-container'
+              : 'bg-surface-high text-on-surface'
+          }`}
         >
-          레이어
+          <Icon name="layers" size={18} />
+        </button>
+        <button
+          type="button"
+          onClick={onExport}
+          disabled={exporting}
+          className={`flex shrink-0 items-center gap-1 rounded-full px-4 py-2 text-title-md whitespace-nowrap transition-transform active:scale-95 ${
+            exporting
+              ? 'bg-surface-high text-muted'
+              : 'bg-primary-container text-on-primary-container shadow-md'
+          }`}
+        >
+          완료
+          <Icon name="check" size={16} />
         </button>
       </div>
-
-      <button
-        type="button"
-        onClick={onExport}
-        disabled={exporting}
-        className={`px-3 py-3 text-sm font-semibold ${
-          exporting ? 'text-ink-muted opacity-40' : 'text-ink-accent'
-        }`}
-      >
-        완료
-      </button>
     </header>
   );
 }
 
-interface HistoryButtonProps {
+interface RoundButtonProps {
+  icon: IconName;
   label: string;
   onClick: () => void;
-  disabled: boolean;
+  disabled?: boolean;
 }
 
-function HistoryButton({ label, onClick, disabled }: HistoryButtonProps) {
+/** 44px 원형 버튼은 폰에서 확실히 눌린다. 36px 아래로 내려가면 자꾸 빗나간다. */
+function RoundButton({ icon, label, onClick, disabled = false }: RoundButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`px-2 py-3 text-sm ${disabled ? 'text-ink-muted opacity-40' : 'text-ink-text'}`}
+      aria-label={label}
+      className={`flex h-9 w-9 items-center justify-center rounded-full bg-surface-high transition-transform active:scale-90 ${
+        disabled ? 'text-muted opacity-40' : 'text-on-surface'
+      }`}
     >
-      {label}
+      <Icon name={icon} size={18} />
     </button>
   );
 }

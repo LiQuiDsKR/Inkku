@@ -25,11 +25,11 @@ export default function PhotoPanel({ onClose }: PhotoPanelProps) {
   return (
     <PanelSheet title="사진 보정" onClose={onClose}>
       {!photo ? (
-        <p className="px-4 pb-4 text-xs text-ink-muted">사진을 먼저 고른다</p>
+        <p className="px-4 pb-4 text-body-md text-muted">사진을 먼저 고른다</p>
       ) : (
         <div className="px-4 pb-4">
-          <p className="pb-2 text-[11px] text-ink-muted">보정</p>
-          <div className="scroll-contain flex gap-2 overflow-x-auto pb-3">
+          <p className="pb-2 text-label-md text-muted">보정</p>
+          <div className="scroll-contain no-scrollbar flex gap-2 overflow-x-auto pb-3">
             {FILTER_PRESETS.map((preset) => (
               <button
                 key={preset.id}
@@ -40,20 +40,20 @@ export default function PhotoPanel({ onClose }: PhotoPanelProps) {
                 className="flex shrink-0 flex-col items-center gap-1"
               >
                 <span
-                  className={`block h-14 w-14 rounded-xl border-2 ${
-                    preset.id === currentFilter ? 'border-ink-accent' : 'border-ink-line'
+                  className={`block h-14 w-14 rounded-2xl border-2 ${
+                    preset.id === currentFilter ? 'border-primary-container' : 'border-white/10'
                   }`}
                   style={{
                     background: 'linear-gradient(135deg, #f7b267, #4dabf7 60%, #2f5d8c)',
                     filter: preset.css,
                   }}
                 />
-                <span className="text-[11px] text-ink-muted">{preset.label}</span>
+                <span className="text-label-md text-muted">{preset.label}</span>
               </button>
             ))}
           </div>
 
-          <p className="pb-2 text-[11px] text-ink-muted">테두리</p>
+          <p className="pb-2 text-label-md text-muted">테두리</p>
           <div className="flex gap-2">
             {BORDER_STYLES.map((item) => (
               <button
@@ -65,8 +65,10 @@ export default function PhotoPanel({ onClose }: PhotoPanelProps) {
                     border: item.style === 'none' ? undefined : defaultBorder(item.style),
                   })
                 }
-                className={`flex-1 rounded-xl py-2 text-xs ${
-                  item.style === currentBorder ? 'bg-ink-accent text-white' : 'bg-ink-bg text-ink-muted'
+                className={`flex-1 rounded-2xl py-2.5 text-label-lg transition-transform active:scale-95 ${
+                  item.style === currentBorder
+                    ? 'bg-primary-container text-on-primary-container'
+                    : 'bg-surface-high text-on-surface-variant'
                 }`}
               >
                 {item.label}

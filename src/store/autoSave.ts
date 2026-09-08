@@ -3,6 +3,7 @@ import { pruneImages } from '@/storage/imageStore';
 import { saveProject } from '@/storage/projectRepo';
 import { logDebug } from '@/utils/debugLog';
 import { useProjectStore } from './projectStore';
+import { useSaveStatusStore } from './saveStatusStore';
 import type { Project } from '@/layers/types';
 
 /**
@@ -23,10 +24,17 @@ function cancelPending(): void {
 
 function persist(project: Project | null): Promise<void> {
   if (!project) return Promise.resolve();
-  return saveProject(project).catch((error: unknown) => {
-    // 저장 실패로 편집을 막지는 않는다. 사파리의 저장 공간 부족이 대표적인 원인이다.
-    logDebug(`자동 저장 실패: ${error instanceof Error ? error.message : String(error)}`);
-  });
+  const setStatus = useSaveStatusStore.getState().setStatus;
+  setStatus('saving');
+
+  return saveProject(project)
+    .then(() => setStatus('saved'))
+    .catch((error: unknown) => {
+      // 저장 실패로 편집을 막지는 않는다. 사파리의 저장 공간 부족이 대표적인 원인이다.
+      // 다만 실패한 것을 성공처럼 보여 주면 안 된다. 상태로 남겨 상단 바에 드러낸다.
+      setStatus('failed');
+      logDebug(`자동 저장 실패: ${error instanceof Error ? error.message : String(error)}`);
+    });
 }
 
 /** 프로젝트 스토어를 구독해 저장을 건다. 앱 시작 시 한 번만 부른다. */

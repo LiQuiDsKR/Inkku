@@ -20,19 +20,26 @@ export default function EditorToolbar() {
   };
 
   return (
-    <nav className="safe-bottom relative z-40 flex shrink-0 items-stretch border-t border-ink-line bg-ink-panel">
+    <nav className="safe-bottom glass relative z-40 flex shrink-0 items-stretch px-2 pt-1.5">
       <PhotoImportButton />
       <ToolButton
         label="스티커"
+        icon="sticker"
         active={panel === 'sticker'}
         onClick={() => togglePanel('sticker')}
       />
       {/* 글자는 패널이 아니라 전체 모달이다. 입력 중에는 캔버스를 볼 필요가 없고, 키보드가 화면 절반을 먹는다 */}
-      <ToolButton label="글자" onClick={() => openTextEditor({ mode: 'create' })} />
-      <ToolButton label="그리기" active={panel === 'draw'} onClick={handleDraw} />
-      <ToolButton label="도형" active={panel === 'shape'} onClick={() => togglePanel('shape')} />
+      <ToolButton label="글자" icon="text" onClick={() => openTextEditor({ mode: 'create' })} />
+      <ToolButton label="그리기" icon="draw" active={panel === 'draw'} onClick={handleDraw} />
+      <ToolButton
+        label="도형"
+        icon="shape"
+        active={panel === 'shape'}
+        onClick={() => togglePanel('shape')}
+      />
       <ToolButton
         label="배경"
+        icon="background"
         active={panel === 'background'}
         onClick={() => togglePanel('background')}
       />

@@ -49,11 +49,11 @@ export default function PhotoImportButton() {
   return (
     <>
       {status && (
-        <div className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 rounded-full bg-black/80 px-3 py-1 text-xs">
+        <div className="glass-panel pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-label-md">
           {status}
         </div>
       )}
-      <ToolButton label="사진" onClick={() => inputRef.current?.click()} />
+      <ToolButton label="사진" icon="photo" onClick={() => inputRef.current?.click()} />
       <input
         ref={inputRef}
         type="file"

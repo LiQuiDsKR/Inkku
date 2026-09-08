@@ -13,22 +13,29 @@ export const EXPORT_LONG_EDGE = 2160;
 /** JPEG 품질. 0.95를 넘기면 용량만 커지고 눈으로는 차이가 없다. */
 const JPEG_QUALITY = 0.92;
 
+/**
+ * 결과 파일 형식.
+ * 배경이 항상 캔버스를 덮으므로 투명도는 필요 없다. 기본은 용량이 훨씬 작은 JPEG다.
+ * PNG는 글자와 선의 경계가 뭉개지지 않아서 화면 캡처처럼 또렷한 결과가 필요할 때 쓴다.
+ */
+export type ExportFormat = 'jpeg' | 'png';
+
 export interface ExportedImage {
   blob: Blob;
   width: number;
   height: number;
+  format: ExportFormat;
 }
 
-function toBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+function toBlob(canvas: HTMLCanvasElement, format: ExportFormat): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
         if (blob) resolve(blob);
         else reject(new Error('결과 이미지를 만들지 못했다'));
       },
-      // 배경이 항상 캔버스를 덮으므로 투명도가 필요 없다. JPEG가 용량이 훨씬 작다.
-      'image/jpeg',
-      JPEG_QUALITY,
+      format === 'png' ? 'image/png' : 'image/jpeg',
+      format === 'png' ? undefined : JPEG_QUALITY,
     );
   });
 }
@@ -50,6 +57,7 @@ export async function exportStage(
   stage: Konva.Stage,
   logicalWidth: number,
   logicalHeight: number,
+  format: ExportFormat = 'jpeg',
 ): Promise<ExportedImage> {
   const stageScale = stage.scaleX() || 1;
   const targetScale = EXPORT_LONG_EDGE / Math.max(logicalWidth, logicalHeight);
@@ -58,9 +66,10 @@ export async function exportStage(
   const canvas = stage.toCanvas({ pixelRatio });
   try {
     return {
-      blob: await toBlob(canvas),
+      blob: await toBlob(canvas, format),
       width: canvas.width,
       height: canvas.height,
+      format,
     };
   } finally {
     // 2160픽셀 캔버스는 20MB가 넘는다. 다 쓰면 즉시 반납해야 다음 내보내기가 실패하지 않는다.

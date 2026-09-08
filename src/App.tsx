@@ -77,11 +77,7 @@ export default function App() {
       ) : screen === 'ratio' ? (
         <RatioScreen onSelect={handleSelectRatio} onBack={() => setScreen('home')} />
       ) : (
-        <HomeScreen
-          onCreate={() => setScreen('ratio')}
-          onResume={handleResume}
-          savedLayerCount={saved?.layers.length ?? null}
-        />
+        <HomeScreen onCreate={() => setScreen('ratio')} onResume={handleResume} saved={saved} />
       )}
       {import.meta.env.DEV && <DebugOverlay />}
     </>

@@ -1,19 +1,21 @@
 import { useRef } from 'react';
+import Icon from './icons/Icon';
+import type { IconName } from './icons/paths';
 import type { ReorderCommand } from '@/layers/order';
 import { useProjectStore } from '@/store/projectStore';
-import { useToolStore } from '@/store/toolStore';
 import { useSelectionStore } from '@/store/selectionStore';
+import { useToolStore } from '@/store/toolStore';
 import type { Layer } from '@/layers/types';
 
 /**
- * 라벨을 앞/뒤가 아니라 위/아래로 쓴다.
- * 상단 바에도 "뒤로"(편집 나가기)가 있어서 같은 화면에 같은 글자가 두 개 보이면 헷갈린다.
+ * 순서 버튼은 아이콘으로 방향을 보여 준다.
+ * 상단 바에도 "뒤로"(편집 나가기)가 있어서 앞/뒤라는 말을 쓰면 같은 화면에 두 뜻이 생긴다.
  */
-const ORDER_ACTIONS: readonly { command: ReorderCommand; label: string }[] = [
-  { command: 'back', label: '맨아래' },
-  { command: 'backward', label: '아래' },
-  { command: 'forward', label: '위' },
-  { command: 'front', label: '맨위' },
+const ORDER_ACTIONS: readonly { command: ReorderCommand; icon: IconName; label: string }[] = [
+  { command: 'back', icon: 'bottom', label: '맨 아래로' },
+  { command: 'backward', icon: 'down', label: '한 칸 아래로' },
+  { command: 'forward', icon: 'up', label: '한 칸 위로' },
+  { command: 'front', icon: 'top', label: '맨 위로' },
 ];
 
 const OPACITY_STEPS = 100;
@@ -35,14 +37,16 @@ export default function LayerContextBar({ layer }: LayerContextBarProps) {
   const removeLayer = useProjectStore((state) => state.removeLayer);
   const setLayerOpacity = useProjectStore((state) => state.setLayerOpacity);
   const select = useSelectionStore((state) => state.select);
-  const openPanel = useToolStore((state) => state.openPanel);
   const clearSelection = useSelectionStore((state) => state.clear);
+  const openPanel = useToolStore((state) => state.openPanel);
 
   /**
    * 슬라이더를 끄는 동안은 첫 변경만 히스토리에 남긴다.
    * 매 프레임 남기면 한 번 드래그에 30단계가 다 차서 실행취소가 쓸모없어진다.
    */
   const dragging = useRef(false);
+
+  const percent = Math.round(layer.opacity * OPACITY_STEPS);
 
   const handleOpacity = (value: number) => {
     const record = !dragging.current;
@@ -71,65 +75,77 @@ export default function LayerContextBar({ layer }: LayerContextBarProps) {
      * 흐름에 두면 레이어를 고를 때마다 바가 나타났다 사라지면서 캔버스가 위아래로 튄다.
      * 손으로 맞춰 둔 위치가 매번 움직이는 것처럼 보여서 편집이 어렵다.
      */
-    <div className="absolute inset-x-0 bottom-full z-40 border-t border-ink-line bg-ink-panel/95 px-3 py-2">
-      <label className="mb-2 flex items-center gap-3 text-[11px] text-ink-muted">
-        <span className="w-10 shrink-0">투명도</span>
-        <input
-          type="range"
-          min={0}
-          max={OPACITY_STEPS}
-          value={Math.round(layer.opacity * OPACITY_STEPS)}
-          onChange={(event) => handleOpacity(Number(event.currentTarget.value))}
-          onPointerUp={endOpacityDrag}
-          onPointerCancel={endOpacityDrag}
-          onBlur={endOpacityDrag}
-          className="h-8 flex-1 accent-[var(--color-ink-accent)]"
-        />
-        <span className="w-8 shrink-0 text-right tabular-nums">
-          {Math.round(layer.opacity * OPACITY_STEPS)}
-        </span>
-      </label>
-
-      <div className="scroll-contain flex gap-1 overflow-x-auto">
-        {ORDER_ACTIONS.map((action) => (
-          <ContextButton
-            key={action.command}
-            label={action.label}
-            onClick={() => reorderLayer(layer.id, action.command)}
+    <div className="absolute inset-x-0 bottom-full z-40 px-3 pb-2">
+      <div className="glass-panel flex flex-col gap-2 rounded-3xl px-3 py-2.5">
+        <div className="flex items-center gap-2">
+          <span className="flex items-center gap-1 text-label-md text-tertiary">
+            <Icon name="opacity" size={14} />
+            {percent}%
+          </span>
+          <input
+            type="range"
+            min={0}
+            max={OPACITY_STEPS}
+            value={percent}
+            aria-label="투명도"
+            onChange={(event) => handleOpacity(Number(event.currentTarget.value))}
+            onPointerUp={endOpacityDrag}
+            onPointerCancel={endOpacityDrag}
+            onBlur={endOpacityDrag}
+            className="neo-slider flex-1"
           />
-        ))}
-        {/* 보정은 사진에만 있다. 다른 타입에 눌러도 할 일이 없는 버튼을 띄우지 않는다 */}
-        {layer.type === 'photo' && (
-          <ContextButton label="보정" onClick={() => openPanel('photo')} />
-        )}
-        <ContextButton label="복제" onClick={handleDuplicate} />
-        {/* 라벨은 짧게 두되 화면 낭독기에는 온전한 이름을 준다. 여덟 칸이 한 줄에 들어가야 한다 */}
-        <ContextButton label="반전" title="좌우반전" onClick={() => toggleFlipX(layer.id)} />
-        <ContextButton label="삭제" onClick={handleDelete} danger />
+        </div>
+
+        <div className="flex items-center justify-between gap-1">
+          <div className="flex items-center gap-0.5">
+            {ORDER_ACTIONS.map((action) => (
+              <ContextButton
+                key={action.command}
+                icon={action.icon}
+                label={action.label}
+                onClick={() => reorderLayer(layer.id, action.command)}
+              />
+            ))}
+          </div>
+
+          <span className="h-4 w-px bg-surface-highest" />
+
+          <div className="flex items-center gap-0.5">
+            {/* 보정은 사진에만 있다. 다른 타입에 눌러도 할 일이 없는 버튼을 띄우지 않는다 */}
+            {layer.type === 'photo' && (
+              <ContextButton icon="adjust" label="사진 보정" onClick={() => openPanel('photo')} />
+            )}
+            <ContextButton icon="copy" label="복제" onClick={handleDuplicate} />
+            <ContextButton icon="flip" label="좌우반전" onClick={() => toggleFlipX(layer.id)} />
+            <ContextButton icon="trash" label="삭제" onClick={handleDelete} danger />
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
 interface ContextButtonProps {
+  icon: IconName;
   label: string;
   onClick: () => void;
   danger?: boolean;
-  /** 라벨을 줄인 버튼의 온전한 이름. */
-  title?: string;
 }
 
-function ContextButton({ label, onClick, danger = false, title }: ContextButtonProps) {
+function ContextButton({ icon, label, onClick, danger = false }: ContextButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={title ?? label}
-      className={`shrink-0 rounded-lg px-2.5 py-2 text-[11px] active:opacity-60 ${
-        danger ? 'bg-ink-accent text-white' : 'bg-ink-bg text-ink-text'
+      aria-label={label}
+      title={label}
+      className={`flex h-9 w-9 items-center justify-center rounded-full transition-transform active:scale-90 ${
+        danger
+          ? 'bg-error-container text-on-error-container'
+          : 'bg-surface-high text-on-surface-variant'
       }`}
     >
-      {label}
+      <Icon name={icon} size={17} />
     </button>
   );
 }

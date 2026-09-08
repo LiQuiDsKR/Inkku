@@ -16,7 +16,7 @@ export default function DrawPanel({ onClose }: DrawPanelProps) {
 
   return (
     <PanelSheet title="그리기" onClose={onClose}>
-      <div className="scroll-contain flex gap-2 overflow-x-auto px-4 pb-2">
+      <div className="scroll-contain no-scrollbar flex gap-2 overflow-x-auto px-4 pb-2">
         {SHAPE_COLORS.map((color) => (
           <button
             key={color}
@@ -24,15 +24,15 @@ export default function DrawPanel({ onClose }: DrawPanelProps) {
             onClick={() => setBrush({ color })}
             aria-label={`붓 색 ${color}`}
             style={{ backgroundColor: color }}
-            className={`h-9 w-9 shrink-0 rounded-full border-2 ${
-              color === brush.color ? 'border-ink-accent' : 'border-ink-line'
+            className={`h-9 w-9 shrink-0 rounded-full border-2 transition-transform active:scale-90 ${
+              color === brush.color ? 'border-primary-container' : 'border-white/10'
             }`}
           />
         ))}
       </div>
 
       <div className="px-4 pb-4">
-        <label className="flex items-center gap-3 text-[11px] text-ink-muted">
+        <label className="flex items-center gap-3 text-label-md text-muted">
           <span className="w-8 shrink-0">굵기</span>
           <input
             type="range"
@@ -40,13 +40,13 @@ export default function DrawPanel({ onClose }: DrawPanelProps) {
             max={MAX_WIDTH}
             value={brush.width}
             onChange={(event) => setBrush({ width: Number(event.currentTarget.value) })}
-            className="h-9 flex-1 accent-[var(--color-ink-accent)]"
+            className="neo-slider flex-1"
           />
           <span className="w-6 shrink-0 text-right tabular-nums">{brush.width}</span>
         </label>
 
         {/* 실제 두께를 눈으로 확인할 수 있어야 한다. 숫자만으로는 감이 오지 않는다 */}
-        <div className="mt-2 flex h-12 items-center justify-center rounded-xl bg-ink-bg">
+        <div className="mt-2 flex h-12 items-center justify-center rounded-2xl bg-surface-lowest">
           <span
             className="block rounded-full"
             style={{
@@ -58,7 +58,7 @@ export default function DrawPanel({ onClose }: DrawPanelProps) {
           />
         </div>
 
-        <p className="mt-3 text-[11px] text-ink-muted">
+        <p className="mt-3 text-label-md text-muted">
           획 하나가 레이어 하나가 된다. 손을 떼면 이미지로 굳는다.
         </p>
       </div>

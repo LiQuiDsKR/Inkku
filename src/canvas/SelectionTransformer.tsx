@@ -26,8 +26,10 @@ export default function SelectionTransformer({ onRef }: SelectionTransformerProp
       anchorStrokeWidth={STROKE_WIDTH}
       borderStrokeWidth={STROKE_WIDTH}
       rotateAnchorOffset={ROTATE_OFFSET}
-      borderStroke="#ff4d4d"
-      anchorStroke="#ff4d4d"
+      // 선택 표시 색은 디자인 시스템의 주 색(피치핑크)이다.
+      // 사진 위 어떤 색과도 겹치지 않아 경계가 또렷하게 보인다.
+      borderStroke="#ff5376"
+      anchorStroke="#ff5376"
       anchorFill="#ffffff"
       ignoreStroke
       // 0에 가깝게 줄이면 다시 잡을 수 없게 된다

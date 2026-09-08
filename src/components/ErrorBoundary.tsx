@@ -37,15 +37,15 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
 
     return (
       <div className="safe-top safe-bottom flex h-full flex-col items-center justify-center gap-4 px-8 text-center">
-        <p className="text-base">화면을 그리지 못했다</p>
-        <p className="text-xs break-words text-ink-muted">{message}</p>
-        <p className="text-xs text-ink-muted">
+        <p className="text-headline-md text-on-surface">화면을 그리지 못했다</p>
+        <p className="text-body-md break-words text-muted">{message}</p>
+        <p className="text-body-md text-on-surface-variant">
           작업물은 자동으로 저장된다. 다시 열면 마지막 상태에서 이어서 편집할 수 있다.
         </p>
         <button
           type="button"
           onClick={() => window.location.reload()}
-          className="rounded-2xl bg-ink-accent px-6 py-3 text-sm font-semibold text-white"
+          className="rounded-full bg-primary-container px-6 py-3 text-title-md text-on-primary-container"
         >
           다시 열기
         </button>

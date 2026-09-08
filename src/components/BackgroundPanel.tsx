@@ -39,14 +39,16 @@ export default function BackgroundPanel({ onClose }: BackgroundPanelProps) {
 
   return (
     <PanelSheet title="배경" onClose={onClose}>
-      <div className="scroll-contain flex gap-2 overflow-x-auto px-4 pb-2">
+      <div className="scroll-contain no-scrollbar flex gap-2 overflow-x-auto px-4 pb-2">
         {TABS.map((item) => (
           <button
             key={item.id}
             type="button"
             onClick={() => setTab(item.id)}
-            className={`shrink-0 rounded-full px-3 py-1 text-xs ${
-              item.id === tab ? 'bg-ink-accent text-white' : 'bg-ink-bg text-ink-muted'
+            className={`shrink-0 rounded-full px-3 py-1.5 text-label-lg transition-colors ${
+              item.id === tab
+                ? 'bg-tertiary-fixed text-on-tertiary-fixed'
+                : 'bg-surface-high text-muted'
             }`}
           >
             {item.label}
@@ -56,7 +58,7 @@ export default function BackgroundPanel({ onClose }: BackgroundPanelProps) {
           <button
             type="button"
             onClick={() => setBackground(photoBlurBackground(firstPhotoId))}
-            className="shrink-0 rounded-full bg-ink-bg px-3 py-1 text-xs text-ink-muted"
+            className="shrink-0 rounded-full bg-surface-high px-3 py-1.5 text-label-lg text-on-surface-variant"
           >
             사진 흐리게
           </button>
@@ -72,7 +74,7 @@ export default function BackgroundPanel({ onClose }: BackgroundPanelProps) {
               onClick={() => setBackground(solidBackground(color))}
               aria-label={`배경 ${color}`}
               style={{ backgroundColor: color }}
-              className="aspect-square rounded-xl border border-ink-line"
+              className="aspect-square rounded-2xl border border-white/10 transition-transform active:scale-95"
             />
           ))}
 
@@ -88,7 +90,7 @@ export default function BackgroundPanel({ onClose }: BackgroundPanelProps) {
                 // CSS는 위쪽이 0도이고 Konva는 오른쪽이 0도다.
                 background: `linear-gradient(${preset.angle + 90}deg, ${preset.from}, ${preset.to})`,
               }}
-              className="aspect-square rounded-xl border border-ink-line"
+              className="aspect-square rounded-2xl border border-white/10 transition-transform active:scale-95"
             />
           ))}
 
@@ -99,7 +101,7 @@ export default function BackgroundPanel({ onClose }: BackgroundPanelProps) {
               type="button"
               onClick={() => setBackground(textureBackground(preset))}
               aria-label={preset.label}
-              className="aspect-square overflow-hidden rounded-xl border border-ink-line"
+              className="aspect-square overflow-hidden rounded-2xl border border-white/10 transition-transform active:scale-95"
             >
               <img src={preset.url} alt={preset.label} className="h-full w-full object-cover" />
             </button>

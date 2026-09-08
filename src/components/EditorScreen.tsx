@@ -5,6 +5,7 @@ import BackgroundPanel from './BackgroundPanel';
 import DrawPanel from './DrawPanel';
 import EditorToolbar from './EditorToolbar';
 import EditorTopBar from './EditorTopBar';
+import ExportScreen from './ExportScreen';
 import LayerContextBar from './LayerContextBar';
 import LayerPanel from './LayerPanel';
 import PhotoPanel from './PhotoPanel';
@@ -76,7 +77,7 @@ export default function EditorScreen({ onExit }: EditorScreenProps) {
 
   return (
     <div className="flex h-full flex-col">
-      <EditorTopBar onBack={onExit} onExport={exporter.run} exporting={exporter.busy} />
+      <EditorTopBar onBack={onExit} onExport={() => exporter.run()} exporting={exporter.busy} />
       <EditorStage
         project={project}
         onRequestEdit={handleRequestEdit}
@@ -103,11 +104,14 @@ export default function EditorScreen({ onExit }: EditorScreenProps) {
       </div>
 
       {textEditor && <TextEditorModal target={textEditor} onClose={closeTextEditor} />}
+      {exporter.result && <ExportScreen exporter={exporter} />}
 
       {/* 내보내기 상태. 공유 시트가 뜨기까지 몇 초 걸려서 아무 반응이 없으면 다시 누르게 된다 */}
       {exporter.status && (
         <div className="pointer-events-none fixed inset-x-0 top-16 z-50 flex justify-center">
-          <span className="rounded-full bg-black/85 px-4 py-2 text-sm">{exporter.status}</span>
+          <span className="glass-panel rounded-full px-4 py-2 text-body-lg text-on-surface">
+            {exporter.status}
+          </span>
         </div>
       )}
     </div>

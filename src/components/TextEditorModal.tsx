@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Icon from './icons/Icon';
 import TextStyleControls from './TextStyleControls';
 import { createTextLayer } from '@/layers/factory';
 import { getRatioSize } from '@/layers/ratio';
@@ -81,18 +82,25 @@ export default function TextEditorModal({ target, onClose }: TextEditorModalProp
   const shadow = draft.shadow ? defaultTextShadow(draft.fontSize) : null;
 
   return (
-    <div className="safe-top safe-bottom fixed inset-0 z-50 flex flex-col bg-ink-bg">
-      <header className="flex shrink-0 items-center justify-between border-b border-ink-line px-2">
-        <button type="button" onClick={onClose} className="px-3 py-3 text-sm text-ink-muted">
+    <div className="safe-top safe-bottom fixed inset-0 z-50 flex flex-col bg-surface">
+      <header className="flex shrink-0 items-center justify-between px-3 py-2">
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-full px-3 py-2 text-body-lg text-muted"
+        >
           취소
         </button>
-        <span className="text-sm">{editingId ? '글자 수정' : '글자 넣기'}</span>
+        <span className="text-title-md text-on-surface">
+          {editingId ? '글자 수정' : '글자 넣기'}
+        </span>
         <button
           type="button"
           onClick={handleConfirm}
-          className="px-3 py-3 text-sm font-semibold text-ink-accent"
+          className="flex items-center gap-1 rounded-full bg-primary-container px-4 py-2 text-title-md text-on-primary-container transition-transform active:scale-95"
         >
           완료
+          <Icon name="check" size={16} />
         </button>
       </header>
 
@@ -134,7 +142,7 @@ export default function TextEditorModal({ target, onClose }: TextEditorModalProp
           rows={3}
           autoFocus
           placeholder="글자를 입력한다"
-          className="mb-5 w-full resize-none rounded-2xl border border-ink-line bg-ink-panel p-3 text-base outline-none"
+          className="mb-5 w-full resize-none rounded-2xl border border-white/10 bg-surface-container p-4 text-body-lg text-on-surface outline-none focus:border-primary-container"
         />
 
         <TextStyleControls draft={draft} onChange={patch} />

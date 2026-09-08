@@ -1,8 +1,10 @@
+import Icon from './icons/Icon';
 import PanelSheet from './PanelSheet';
 import { describeLayer } from '@/layers/describe';
 import { sortByZIndex } from '@/layers/order';
 import { useProjectStore } from '@/store/projectStore';
 import { useSelectionStore } from '@/store/selectionStore';
+import type { IconName } from './icons/paths';
 import type { Layer } from '@/layers/types';
 
 interface LayerPanelProps {
@@ -27,7 +29,7 @@ export default function LayerPanel({ onClose }: LayerPanelProps) {
   return (
     <PanelSheet title="레이어" onClose={onClose}>
       {ordered.length === 0 ? (
-        <p className="px-4 pb-4 text-xs text-ink-muted">아직 넣은 것이 없다</p>
+        <p className="px-4 pb-4 text-body-md text-muted">아직 넣은 것이 없다</p>
       ) : (
         <ul className="flex flex-col gap-1 px-4 pb-4">
           {ordered.map((layer) => {
@@ -38,19 +40,23 @@ export default function LayerPanel({ onClose }: LayerPanelProps) {
                 <button
                   type="button"
                   onClick={() => select(layer.id)}
-                  className={`flex min-w-0 flex-1 items-baseline gap-2 rounded-lg px-3 py-2 text-left ${
-                    active ? 'bg-ink-accent text-white' : 'bg-ink-bg text-ink-text'
+                  className={`flex min-w-0 flex-1 items-baseline gap-2 rounded-2xl px-3 py-2.5 text-left transition-colors ${
+                    active
+                      ? 'border-l-4 border-secondary bg-surface-bright text-on-surface'
+                      : 'bg-surface-high text-on-surface-variant'
                   }`}
                 >
-                  <span className="shrink-0 text-xs">{kind}</span>
-                  <span
-                    className={`truncate text-[11px] ${active ? 'text-white/80' : 'text-ink-muted'}`}
-                  >
+                  <span className="shrink-0 text-label-lg">{kind}</span>
+                  <span className={`truncate text-label-md ${active ? 'text-primary' : 'text-muted'}`}>
                     {detail}
                   </span>
                 </button>
-                <OrderButton label="위" onClick={() => reorderLayer(layer.id, 'forward')} />
-                <OrderButton label="아래" onClick={() => reorderLayer(layer.id, 'backward')} />
+                <OrderButton icon="up" label="한 칸 위로" onClick={() => reorderLayer(layer.id, 'forward')} />
+                <OrderButton
+                  icon="down"
+                  label="한 칸 아래로"
+                  onClick={() => reorderLayer(layer.id, 'backward')}
+                />
               </li>
             );
           })}
@@ -60,14 +66,21 @@ export default function LayerPanel({ onClose }: LayerPanelProps) {
   );
 }
 
-function OrderButton({ label, onClick }: { label: string; onClick: () => void }) {
+interface OrderButtonProps {
+  icon: IconName;
+  label: string;
+  onClick: () => void;
+}
+
+function OrderButton({ icon, label, onClick }: OrderButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="shrink-0 rounded-lg bg-ink-bg px-2.5 py-2 text-[11px] text-ink-muted active:opacity-60"
+      aria-label={label}
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-high text-on-surface-variant transition-transform active:scale-90"
     >
-      {label}
+      <Icon name={icon} size={16} />
     </button>
   );
 }

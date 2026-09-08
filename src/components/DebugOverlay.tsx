@@ -24,13 +24,15 @@ export default function DebugOverlay() {
      * z는 패널보다 낮게 둔다. 같은 자리에 스티커 그리드가 올라오면 이 버튼이 탭을 가로채서
      * 왼쪽 아래 스티커가 눌리지 않는다(실제로 겪은 문제다).
      */
-    <div className="pointer-events-none fixed inset-x-0 bottom-40 z-30 flex flex-col items-start p-2">
+    <div className="pointer-events-none fixed inset-x-0 bottom-56 z-30 flex flex-col items-start p-2">
       {open && <DebugPanel entries={entries} watches={watches} />}
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`pointer-events-auto rounded-full px-3 py-1 text-[11px] font-mono ${
-          errorCount > 0 ? 'bg-ink-accent text-white' : 'bg-ink-panel/80 text-ink-muted'
+        className={`pointer-events-auto rounded-full px-3 py-1 font-mono text-label-md ${
+          errorCount > 0
+            ? 'bg-error-container text-on-error-container'
+            : 'bg-surface-container/80 text-muted'
         }`}
       >
         {errorCount > 0 ? `debug (${errorCount})` : 'debug'}
@@ -48,12 +50,12 @@ function DebugPanel({ entries, watches }: DebugPanelProps) {
   const watchKeys = Object.keys(watches);
 
   return (
-    <div className="pointer-events-auto mb-2 max-h-[40vh] w-full overflow-y-auto rounded-lg bg-black/85 p-2 font-mono text-[11px] leading-snug">
+    <div className="pointer-events-auto mb-2 max-h-[40vh] w-full overflow-y-auto rounded-2xl bg-black/85 p-2 font-mono text-label-md leading-snug">
       {watchKeys.length > 0 && (
-        <div className="mb-2 grid grid-cols-2 gap-x-3 border-b border-ink-line pb-2">
+        <div className="mb-2 grid grid-cols-2 gap-x-3 border-b border-white/10 pb-2">
           {watchKeys.map((key) => (
             <div key={key} className="flex justify-between gap-2">
-              <span className="text-ink-muted">{key}</span>
+              <span className="text-muted">{key}</span>
               <span className="truncate">{watches[key]}</span>
             </div>
           ))}
@@ -61,12 +63,12 @@ function DebugPanel({ entries, watches }: DebugPanelProps) {
       )}
 
       {entries.length === 0 ? (
-        <p className="text-ink-muted">기록 없음</p>
+        <p className="text-muted">기록 없음</p>
       ) : (
         entries.map((entry) => (
           <p
             key={entry.id}
-            className={entry.kind === 'error' ? 'break-words text-ink-accent' : 'break-words'}
+            className={entry.kind === 'error' ? 'break-words text-error' : 'break-words'}
           >
             {entry.message}
           </p>
@@ -76,7 +78,7 @@ function DebugPanel({ entries, watches }: DebugPanelProps) {
       <button
         type="button"
         onClick={clearDebug}
-        className="mt-2 rounded bg-ink-panel px-2 py-1 text-ink-muted"
+        className="mt-2 rounded-full bg-surface-high px-3 py-1 text-muted"
       >
         지우기
       </button>

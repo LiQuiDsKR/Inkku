@@ -54,7 +54,7 @@ export default function ShapePanel({ onClose }: ShapePanelProps) {
 
   return (
     <PanelSheet title="도형" onClose={onClose}>
-      <div className="scroll-contain flex gap-2 overflow-x-auto px-4 pb-2">
+      <div className="scroll-contain no-scrollbar flex gap-2 overflow-x-auto px-4 pb-2">
         {SHAPE_COLORS.map((item) => (
           <button
             key={item}
@@ -62,8 +62,8 @@ export default function ShapePanel({ onClose }: ShapePanelProps) {
             onClick={() => handleColor(item)}
             aria-label={`도형 색 ${item}`}
             style={{ backgroundColor: item }}
-            className={`h-9 w-9 shrink-0 rounded-full border-2 ${
-              item === color ? 'border-ink-accent' : 'border-ink-line'
+            className={`h-9 w-9 shrink-0 rounded-full border-2 transition-transform active:scale-90 ${
+              item === color ? 'border-primary-container' : 'border-white/10'
             }`}
           />
         ))}
@@ -75,7 +75,7 @@ export default function ShapePanel({ onClose }: ShapePanelProps) {
             key={item.kind}
             type="button"
             onClick={() => handleAdd(item.kind)}
-            className="rounded-xl bg-ink-bg py-4 text-xs active:opacity-60"
+            className="rounded-2xl bg-surface-high py-4 text-label-lg text-on-surface transition-transform active:scale-95"
           >
             {item.label}
           </button>

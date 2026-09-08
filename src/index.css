@@ -1,12 +1,96 @@
 @import 'tailwindcss';
 
+/*
+ * 디자인 시스템: Studio NeoDeco (ref/studio_neodeco/DESIGN.md)
+ *
+ * 색 이름을 용도로 짓는다(surface, primary, on-surface...). 값이 아니라 역할로 부르면
+ * 나중에 팔레트를 갈아 끼울 때 컴포넌트를 건드리지 않아도 된다.
+ */
 @theme {
-  --color-ink-bg: #111113;
-  --color-ink-panel: #1c1c20;
-  --color-ink-line: #2e2e34;
-  --color-ink-text: #f2f2f4;
-  --color-ink-muted: #8c8c96;
-  --color-ink-accent: #ff4d4d;
+  /* 바탕과 층. 숫자가 커질수록 위로 떠 있는 면이다 */
+  --color-surface: #131313;
+  --color-surface-lowest: #0e0e0e;
+  --color-surface-low: #1c1b1b;
+  --color-surface-container: #201f1f;
+  --color-surface-high: #2a2a2a;
+  --color-surface-highest: #353534;
+  --color-surface-bright: #393939;
+
+  /* 글자와 선 */
+  --color-on-surface: #e5e2e1;
+  --color-on-surface-variant: #e1bec1;
+  --color-muted: #90909a;
+  --color-outline: #a9898c;
+  --color-outline-variant: #5a4043;
+
+  /* 주 색. 피치핑크. 주요 동작, 선택 테두리, 변형 핸들 */
+  --color-primary: #ffb2ba;
+  --color-primary-container: #ff5376;
+  --color-on-primary-container: #5d001d;
+  --color-on-primary: #670021;
+
+  /* 보조. 사이버 민트. 성공과 저장 완료 */
+  --color-secondary: #40e2a8;
+  --color-secondary-container: #00c68e;
+  --color-on-secondary-container: #004b34;
+  --color-secondary-fixed: #61fdc0;
+  --color-on-secondary-fixed: #002115;
+
+  /* 3차. 버터 옐로. 활성 칩과 놀이 요소 */
+  --color-tertiary: #ddc749;
+  --color-tertiary-fixed: #fae362;
+  --color-on-tertiary-fixed: #211c00;
+
+  /* 오류와 삭제 */
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+
+  /* 타이포. 크기와 함께 행간, 자간, 굵기까지 한 벌로 묶는다 */
+  --text-display-lg: 36px;
+  --text-display-lg--line-height: 44px;
+  --text-display-lg--letter-spacing: -0.03em;
+  --text-display-lg--font-weight: 800;
+
+  --text-headline-lg: 22px;
+  --text-headline-lg--line-height: 28px;
+  --text-headline-lg--letter-spacing: -0.02em;
+  --text-headline-lg--font-weight: 700;
+
+  --text-headline-md: 20px;
+  --text-headline-md--line-height: 26px;
+  --text-headline-md--letter-spacing: -0.015em;
+  --text-headline-md--font-weight: 700;
+
+  --text-title-md: 16px;
+  --text-title-md--line-height: 22px;
+  --text-title-md--letter-spacing: -0.01em;
+  --text-title-md--font-weight: 600;
+
+  --text-body-lg: 15px;
+  --text-body-lg--line-height: 22px;
+  --text-body-lg--letter-spacing: -0.01em;
+  --text-body-lg--font-weight: 500;
+
+  --text-body-md: 13px;
+  --text-body-md--line-height: 18px;
+  --text-body-md--letter-spacing: -0.005em;
+  --text-body-md--font-weight: 400;
+
+  --text-label-lg: 12px;
+  --text-label-lg--line-height: 16px;
+  --text-label-lg--letter-spacing: 0.02em;
+  --text-label-lg--font-weight: 600;
+
+  --text-label-md: 11px;
+  --text-label-md--line-height: 14px;
+  --text-label-md--letter-spacing: 0.03em;
+  --text-label-md--font-weight: 600;
+
+  --text-label-sm: 10px;
+  --text-label-sm--line-height: 12px;
+  --text-label-sm--letter-spacing: 0.04em;
+  --text-label-sm--font-weight: 700;
 }
 
 html,
@@ -30,10 +114,16 @@ body {
   margin: 0;
   overflow: hidden;
   overscroll-behavior: none;
-  background: var(--color-ink-bg);
-  color: var(--color-ink-text);
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  /*
+   * 라틴은 Plus Jakarta Sans, 한글은 Pretendard가 앞에 오도록 둔다.
+   * Pretendard는 구글 폰트에 없어서 지금은 시스템 한글 폰트로 떨어진다.
+   * 자체 호스팅 여부를 정하기 전까지는 이 폴백이 실제로 쓰인다.
+   */
   font-family:
-    'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
+    'Plus Jakarta Sans', 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+    'Apple SD Gothic Neo', system-ui, sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -43,6 +133,15 @@ body {
  */
 .scroll-contain {
   overscroll-behavior: contain;
+}
+
+/* 가로 스크롤되는 칩 줄에서 스크롤바가 자리를 먹지 않게 한다 */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /*
@@ -60,6 +159,79 @@ body {
 /* 캔버스 위에서는 브라우저의 확대/스크롤 제스처를 완전히 차단한다 */
 .canvas-surface {
   touch-action: none;
+}
+
+/*
+ * 떠 있는 면(툴바, 컨텍스트 바, 시트).
+ * 캔버스 위를 덮되 아래가 비쳐 보여야 편집 중인 그림과의 거리감이 생긴다.
+ */
+.glass {
+  background: color-mix(in srgb, var(--color-surface-lowest) 82%, transparent);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.glass-panel {
+  background: color-mix(in srgb, var(--color-surface-container) 92%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow:
+    0 12px 32px -4px rgb(0 0 0 / 0.55),
+    0 2px 6px rgb(0 0 0 / 0.3);
+}
+
+/*
+ * 값 조절 슬라이더.
+ * accent-color만으로는 트랙 두께와 손잡이 크기를 정할 수 없어 직접 그린다.
+ * 손잡이는 20px 이상이어야 폰에서 잡힌다.
+ */
+.neo-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  height: 2.25rem;
+}
+
+.neo-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    var(--color-tertiary-fixed) 0%,
+    var(--color-primary-container) 100%
+  );
+}
+
+.neo-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    var(--color-tertiary-fixed) 0%,
+    var(--color-primary-container) 100%
+  );
+}
+
+.neo-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -8px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 2px solid var(--color-primary-container);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.4);
+}
+
+.neo-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-primary-container);
+  border-radius: 9999px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.4);
 }
 
 /*
