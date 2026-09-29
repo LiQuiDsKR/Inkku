@@ -60,8 +60,7 @@ export default function TextContent({ layer, onReady }: TextContentProps) {
       shadowColor={layer.shadow?.color}
       shadowBlur={layer.shadow?.blur ?? 0}
       shadowOffsetX={layer.shadow?.offsetX ?? 0}
-      shadowOffsetY={layer.shadow?.offsetY ?? 0}
-      scaleX={layer.flipX ? -1 : 1}
+      shadowOffsetY={layer.shadow?.offsetY ?? 0}
     />
   );
 }

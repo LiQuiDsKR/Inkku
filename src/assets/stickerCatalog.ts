@@ -45,19 +45,12 @@ function line(id: string, label: string): StickerAsset {
  */
 export const LINE_CATEGORY_ID = 'line';
 
+/**
+ * 기본 도형(하트, 별, 원...)은 여기에 두지 않는다.
+ * 요소 패널의 도형 탭이 같은 모양을 벡터로 그리는데, 그쪽은 색을 바꿀 수 있고 확대해도 또렷하다.
+ * 목록에 같은 것이 두 벌 있으면 어느 쪽을 골라야 하는지 알 수 없다.
+ */
 export const STICKER_CATEGORIES: readonly StickerCategory[] = [
-  {
-    id: 'shape',
-    label: '도형',
-    items: [
-      sticker('heart', '하트'),
-      sticker('star', '별'),
-      sticker('circle', '원'),
-      sticker('square', '사각형'),
-      sticker('triangle', '삼각형'),
-      sticker('blob', '덩어리'),
-    ],
-  },
   {
     id: 'bubble',
     label: '말풍선',
@@ -76,6 +69,8 @@ export const STICKER_CATEGORIES: readonly StickerCategory[] = [
       sticker('halo', '후광'),
       sticker('ribbon', '리본'),
       sticker('dots', '점무늬'),
+      // 덩어리는 기본 도형이 아니라 뒤에 까는 꾸밈이다. 도형 탭이 아니라 이쪽에 있어야 한다
+      sticker('blob', '덩어리'),
     ],
   },
   {

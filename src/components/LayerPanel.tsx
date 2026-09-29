@@ -4,6 +4,7 @@ import { describeLayer } from '@/layers/describe';
 import { sortByZIndex } from '@/layers/order';
 import { useProjectStore } from '@/store/projectStore';
 import { useSelectionStore } from '@/store/selectionStore';
+import { useSettingsStore } from '@/store/settingsStore';
 import type { IconName } from './icons/paths';
 import type { Layer } from '@/layers/types';
 
@@ -22,12 +23,33 @@ export default function LayerPanel({ onClose }: LayerPanelProps) {
   const reorderLayer = useProjectStore((state) => state.reorderLayer);
   const selectedId = useSelectionStore((state) => state.selectedId);
   const select = useSelectionStore((state) => state.select);
+  const autoFront = useSettingsStore((state) => state.autoFront);
+  const setAutoFront = useSettingsStore((state) => state.setAutoFront);
 
   // 화면에서 위에 보이는 것이 목록에서도 위에 오도록 뒤집는다
   const ordered: Layer[] = layers ? sortByZIndex(layers).reverse() : [];
 
   return (
     <PanelSheet title="레이어" onClose={onClose}>
+      {/*
+        순서에 관한 설정이라 순서를 다루는 이 화면에 둔다.
+        설정 화면을 따로 만들면 값 하나를 바꾸러 편집을 빠져나갔다 와야 한다.
+      */}
+      <label className="mx-4 mb-3 flex items-center gap-3 rounded-2xl bg-surface-high px-3 py-2.5">
+        <input
+          type="checkbox"
+          checked={autoFront}
+          onChange={(event) => setAutoFront(event.currentTarget.checked)}
+          className="neo-check"
+        />
+        <span className="min-w-0 flex-1">
+          <span className="block text-label-lg text-on-surface">고른 것을 맨 위로</span>
+          <span className="block text-label-md text-muted">
+            요소를 누르면 다른 것에 가리지 않게 올린다
+          </span>
+        </span>
+      </label>
+
       {ordered.length === 0 ? (
         <p className="px-4 pb-4 text-body-md text-muted">아직 넣은 것이 없다</p>
       ) : (

@@ -4,6 +4,7 @@ import { downloadImage, exportFileName, shareImage } from './share';
 import { exportStage, nextFrame, type ExportFormat, type ExportedImage } from './renderProject';
 import { getRatioSize } from '@/layers/ratio';
 import { useSelectionStore } from '@/store/selectionStore';
+import { useToolStore } from '@/store/toolStore';
 import { logDebug } from '@/utils/debugLog';
 import type { Ratio } from '@/layers/types';
 
@@ -42,6 +43,7 @@ export function useExport(stage: Konva.Stage | null, ratio: Ratio | undefined): 
   const [status, setStatus] = useState<string | null>(null);
   const [result, setResult] = useState<ExportResult | null>(null);
   const clearSelection = useSelectionStore((state) => state.clear);
+  const setExporting = useToolStore((state) => state.setExporting);
 
   const timer = useRef<number | null>(null);
   // 해제해야 할 URL을 ref로도 들고 있는다. 언마운트 시점에는 상태를 읽을 수 없다.
@@ -78,6 +80,8 @@ export function useExport(stage: Konva.Stage | null, ratio: Ratio | undefined): 
         setBusy(true);
         setStatus('고화질로 굽는 중');
         clearSelection();
+        // 편집용 표시(선택 테두리, 빈 사진 자리의 더하기)가 결과물에 찍히지 않게 한 프레임을 기다린다
+        setExporting(true);
         await nextFrame();
 
         try {
@@ -92,11 +96,12 @@ export function useExport(stage: Konva.Stage | null, ratio: Ratio | undefined): 
           logDebug(`내보내기 실패: ${error instanceof Error ? error.message : String(error)}`);
           showStatus('내보내지 못했다');
         } finally {
+          setExporting(false);
           setBusy(false);
         }
       })();
     },
-    [stage, ratio, busy, clearSelection, releasePreview, showStatus],
+    [stage, ratio, busy, clearSelection, setExporting, releasePreview, showStatus],
   );
 
   const share = useCallback(() => {

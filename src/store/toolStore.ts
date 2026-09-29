@@ -1,7 +1,10 @@
 import { create } from 'zustand';
 
-/** 하단 툴바가 여는 패널. 한 번에 하나만 열린다. */
-export type PanelKind = 'sticker' | 'draw' | 'shape' | 'background' | 'photo' | 'layers';
+/**
+ * 하단 툴바가 여는 패널. 한 번에 하나만 열린다.
+ * element는 스티커, 꾸밈선, 도형을 한데 모은 패널이다(툴바 칸이 여섯 개뿐이라 합쳤다).
+ */
+export type PanelKind = 'element' | 'draw' | 'template' | 'background' | 'photo' | 'layers';
 
 /**
  * 텍스트 편집은 패널이 아니라 전체 모달이다.
@@ -22,6 +25,20 @@ interface ToolState {
   panel: PanelKind | null;
   textEditor: TextEditorTarget | null;
   brush: BrushSettings;
+  /**
+   * 결과물을 굽는 중인지.
+   * 캔버스에는 편집용 표시가 섞여 있다(템플릿의 빈 사진 자리에 뜨는 더하기 표시).
+   * 굽기 직전에 켜서 그런 표시를 숨긴다. 선택 해제와 같은 이유다.
+   */
+  exporting: boolean;
+  setExporting: (exporting: boolean) => void;
+  /**
+   * 도형 안에서 사진을 맞추는 중인 레이어 id.
+   * 이 동안에는 요소를 옮기거나 고르지 못한다. 같은 손가락 동작이 두 가지 뜻을 가질 수 없다.
+   */
+  maskEdit: string | null;
+  openMaskEdit: (layerId: string) => void;
+  closeMaskEdit: () => void;
   setBrush: (patch: Partial<BrushSettings>) => void;
   togglePanel: (panel: PanelKind) => void;
   /** 토글이 아니라 무조건 연다. 더블탭 같은 "이걸 열어라" 동작에 쓴다. */
@@ -43,6 +60,15 @@ export const useToolStore = create<ToolState>((set) => ({
   textEditor: null,
   // 붓 설정은 프로젝트가 아니라 도구의 상태다. 실행취소로 되돌아가면 오히려 당황스럽다.
   brush: DEFAULT_BRUSH,
+  exporting: false,
+  maskEdit: null,
+
+  setExporting: (exporting) => set({ exporting }),
+
+  // 맞추는 동안 패널이 열려 있으면 캔버스가 반만 보인다
+  openMaskEdit: (layerId) => set({ maskEdit: layerId, panel: null }),
+
+  closeMaskEdit: () => set({ maskEdit: null }),
 
   setBrush: (patch) => set((state) => ({ brush: { ...state.brush, ...patch } })),
 
@@ -58,5 +84,5 @@ export const useToolStore = create<ToolState>((set) => ({
 
   closeTextEditor: () => set({ textEditor: null }),
 
-  reset: () => set({ panel: null, textEditor: null }),
+  reset: () => set({ panel: null, textEditor: null, exporting: false, maskEdit: null }),
 }));

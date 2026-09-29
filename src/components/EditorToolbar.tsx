@@ -22,20 +22,21 @@ export default function EditorToolbar() {
   return (
     <nav className="safe-bottom glass relative z-40 flex shrink-0 items-stretch px-2 pt-1.5">
       <PhotoImportButton />
+      {/* 스티커, 꾸밈선, 도형은 "붙일 것"이라는 한 목적이라 한 패널에 모았다 */}
       <ToolButton
-        label="스티커"
+        label="요소"
         icon="sticker"
-        active={panel === 'sticker'}
-        onClick={() => togglePanel('sticker')}
+        active={panel === 'element'}
+        onClick={() => togglePanel('element')}
       />
       {/* 글자는 패널이 아니라 전체 모달이다. 입력 중에는 캔버스를 볼 필요가 없고, 키보드가 화면 절반을 먹는다 */}
       <ToolButton label="글자" icon="text" onClick={() => openTextEditor({ mode: 'create' })} />
       <ToolButton label="그리기" icon="draw" active={panel === 'draw'} onClick={handleDraw} />
       <ToolButton
-        label="도형"
-        icon="shape"
-        active={panel === 'shape'}
-        onClick={() => togglePanel('shape')}
+        label="템플릿"
+        icon="template"
+        active={panel === 'template'}
+        onClick={() => togglePanel('template')}
       />
       <ToolButton
         label="배경"

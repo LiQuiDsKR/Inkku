@@ -15,6 +15,14 @@ export const ICON_PATHS = {
   shape: 'M12 2.5 16 9H8z M3.5 14.5h7v7h-7z M17.5 14a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z',
   background: 'M3.5 3.5h17v17h-17z M3.5 9.5h17 M9.5 3.5v17',
   layers: 'M12 3l9 5-9 5-9-5 9-5z M3 13l9 5 9-5 M3 17l9 5 9-5',
+  /*
+   * 보조선 버튼은 지금 켜진 눈금을 그대로 보여 준다.
+   * 아이콘 하나에 켜짐/꺼짐만 두면 몇 칸짜리인지 눌러 봐야 알 수 있다.
+   */
+  grid: 'M4 4h16v16H4z',
+  grid2: 'M4 4h16v16H4z M12 4v16 M4 12h16',
+  grid3: 'M4 4h16v16H4z M9.33 4v16 M14.67 4v16 M4 9.33h16 M4 14.67h16',
+  grid4: 'M4 4h16v16H4z M8 4v16 M12 4v16 M16 4v16 M4 8h16 M4 12h16 M4 16h16',
   undo: 'M9 14l-4-4 4-4 M5 10h9a5 5 0 0 1 0 10h-3',
   redo: 'M15 14l4-4-4-4 M19 10h-9a5 5 0 0 0 0 10h3',
   check: 'M4 12l5 5L20 6',
@@ -35,6 +43,8 @@ export const ICON_PATHS = {
   ratio: 'M3.5 5.5h17v13h-17z M8 5.5v13',
   plus: 'M12 5v14 M5 12h14',
   adjust: 'M5 21V14 M5 10V3 M12 21v-9 M12 8V3 M19 21v-5 M19 12V3 M2 14h6 M9 8h6 M16 16h6',
+  // 템플릿: 머리글과 사진 자리, 글줄이 짜여 있는 카드 한 장
+  template: 'M3.5 4.5h17v15h-17z M6.5 8h6v4.5h-6z M15 8.5h3 M15 11.5h3 M6.5 16h11',
   crop: 'M6 2v14a2 2 0 0 0 2 2h14 M2 6h14a2 2 0 0 1 2 2v14',
 } as const;
 

@@ -29,8 +29,7 @@ export default function DrawingContent({ layer, onReady }: DrawingContentProps) 
       width={layer.width}
       height={layer.height}
       offsetX={layer.width / 2}
-      offsetY={layer.height / 2}
-      scaleX={layer.flipX ? -1 : 1}
+      offsetY={layer.height / 2}
     />
   );
 }

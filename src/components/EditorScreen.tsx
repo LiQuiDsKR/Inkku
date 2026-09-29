@@ -5,13 +5,15 @@ import BackgroundPanel from './BackgroundPanel';
 import DrawPanel from './DrawPanel';
 import EditorToolbar from './EditorToolbar';
 import EditorTopBar from './EditorTopBar';
+import ElementPanel from './ElementPanel';
 import ExportScreen from './ExportScreen';
 import LayerContextBar from './LayerContextBar';
 import LayerPanel from './LayerPanel';
+import MaskAdjustBar from './MaskAdjustBar';
 import PhotoPanel from './PhotoPanel';
-import ShapePanel from './ShapePanel';
-import StickerPanel from './StickerPanel';
+import TemplatePanel from './TemplatePanel';
 import TextEditorModal from './TextEditorModal';
+import { useTemplateSlotPicker } from './useTemplateSlotPicker';
 import { useExport } from '@/export/useExport';
 import { commitStroke } from '@/layers/importDrawing';
 import { useLayerById, useProjectStore } from '@/store/projectStore';
@@ -38,10 +40,14 @@ export default function EditorScreen({ onExit }: EditorScreenProps) {
   const openPanel = useToolStore((state) => state.openPanel);
   const brush = useToolStore((state) => state.brush);
   const textEditor = useToolStore((state) => state.textEditor);
+  const maskEdit = useToolStore((state) => state.maskEdit);
+  const maskLayer = useLayerById(maskEdit);
   const openTextEditor = useToolStore((state) => state.openTextEditor);
   const closeTextEditor = useToolStore((state) => state.closeTextEditor);
 
   const exporter = useExport(stage, project?.ratio);
+  // 캔버스의 더하기 표시를 눌러 카드의 사진 자리를 채우는 통로
+  const slotPicker = useTemplateSlotPicker();
 
   /**
    * 획을 굳혀 레이어로 만든다.
@@ -74,6 +80,8 @@ export default function EditorScreen({ onExit }: EditorScreenProps) {
   };
 
   const drawing = panel === 'draw';
+  // 내보내기와 사진 넣기는 동시에 일어나지 않는다. 문구 자리를 하나만 둔다.
+  const status = exporter.status ?? (slotPicker.busy ? '사진을 넣는 중' : null);
 
   return (
     <div className="flex h-full flex-col">
@@ -81,14 +89,15 @@ export default function EditorScreen({ onExit }: EditorScreenProps) {
       <EditorStage
         project={project}
         onRequestEdit={handleRequestEdit}
+        onRequestSlot={slotPicker.open}
         brush={drawing ? brush : null}
         onStrokeEnd={handleStrokeEnd}
         onStageReady={setStage}
       />
 
       {/* 패널은 흐름에 둬서 캔버스를 줄인다. 고르는 동안 캔버스가 작아지는 건 자연스럽다 */}
-      {panel === 'sticker' && <StickerPanel onClose={closePanel} />}
-      {panel === 'shape' && <ShapePanel onClose={closePanel} />}
+      {panel === 'element' && <ElementPanel onClose={closePanel} />}
+      {panel === 'template' && <TemplatePanel onClose={closePanel} />}
       {panel === 'draw' && <DrawPanel onClose={closePanel} />}
       {panel === 'background' && <BackgroundPanel onClose={closePanel} />}
       {panel === 'photo' && <PhotoPanel onClose={closePanel} />}
@@ -99,18 +108,34 @@ export default function EditorScreen({ onExit }: EditorScreenProps) {
         패널이 열려 있으면 숨긴다. 둘을 함께 띄우면 폰에서 캔버스가 거의 안 보인다.
       */}
       <div className="relative shrink-0">
-        {selectedLayer && !panel && <LayerContextBar layer={selectedLayer} />}
+        {/* 사진을 맞추는 동안에는 그 조작만 남긴다. 두 바가 같이 뜨면 어느 쪽이 지금 일인지 모른다 */}
+        {maskLayer?.type === 'photo' ? (
+          <MaskAdjustBar layer={maskLayer} />
+        ) : (
+          selectedLayer && !panel && <LayerContextBar layer={selectedLayer} />
+        )}
         <EditorToolbar />
       </div>
 
       {textEditor && <TextEditorModal target={textEditor} onClose={closeTextEditor} />}
       {exporter.result && <ExportScreen exporter={exporter} />}
 
-      {/* 내보내기 상태. 공유 시트가 뜨기까지 몇 초 걸려서 아무 반응이 없으면 다시 누르게 된다 */}
-      {exporter.status && (
+      {/* 캔버스에서 카드의 사진 자리를 눌렀을 때 열리는 파일 고르기. 패널과 통로를 공유한다 */}
+      <input
+        ref={slotPicker.inputRef}
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={(event) => {
+          void slotPicker.handleChange(event);
+        }}
+      />
+
+      {/* 진행 상태. 공유 시트가 뜨기까지 몇 초 걸려서 아무 반응이 없으면 다시 누르게 된다 */}
+      {status && (
         <div className="pointer-events-none fixed inset-x-0 top-16 z-50 flex justify-center">
           <span className="glass-panel rounded-full px-4 py-2 text-body-lg text-on-surface">
-            {exporter.status}
+            {status}
           </span>
         </div>
       )}

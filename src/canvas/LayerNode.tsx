@@ -2,9 +2,11 @@ import { Group } from 'react-konva';
 import type Konva from 'konva';
 import AssetContent from './AssetContent';
 import DrawingContent from './DrawingContent';
+import ParticleContent from './ParticleContent';
 import PhotoContent from './PhotoContent';
 import ShapeContent from './ShapeContent';
 import TextContent from './TextContent';
+import { LAYER_NODE_NAME } from './useDragSnap';
 import type { NodeTransform } from './gestureMath';
 import type { Layer } from '@/layers/types';
 
@@ -17,6 +19,11 @@ interface LayerNodeProps {
   onContentReady: () => void;
   /** 더블탭. 텍스트는 다시 편집, 나머지는 아직 할 일이 없다. */
   onRequestEdit: (layer: Layer) => void;
+  /**
+   * 잠긴 상태(사진 맞추기 중).
+   * 그때는 어떤 요소도 옮기거나 고를 수 없다. 같은 손가락 동작이 두 가지 뜻을 가질 수 없다.
+   */
+  locked: boolean;
 }
 
 function readTransform(node: Konva.Node): NodeTransform {
@@ -33,7 +40,12 @@ function readTransform(node: Konva.Node): NodeTransform {
  * 타입별로 다른 건 "무엇을 그리는가"뿐이다. 변환은 전부 상위 Group이 갖는다.
  * 새 요소 타입을 추가할 때 이 스위치에 한 줄만 넣으면 이동/회전/삭제/순서변경이 따라온다.
  */
-function LayerContent({ layer, onReady }: { layer: Layer; onReady: () => void }) {
+interface LayerContentProps {
+  layer: Layer;
+  onReady: () => void;
+}
+
+function LayerContent({ layer, onReady }: LayerContentProps) {
   switch (layer.type) {
     case 'photo':
       return <PhotoContent layer={layer} onReady={onReady} />;
@@ -46,6 +58,8 @@ function LayerContent({ layer, onReady }: { layer: Layer; onReady: () => void })
       return <ShapeContent layer={layer} onReady={onReady} />;
     case 'drawing':
       return <DrawingContent layer={layer} onReady={onReady} />;
+    case 'particle':
+      return <ParticleContent layer={layer} onReady={onReady} />;
     default:
       // 유니온이 늘어나면 여기서 걸린다. 새 타입은 반드시 위 스위치에 한 줄을 더한다.
       return null;
@@ -64,21 +78,28 @@ export default function LayerNode({
   registerNode,
   onContentReady,
   onRequestEdit,
+  locked,
 }: LayerNodeProps) {
   return (
     <Group
       ref={(node) => {
         registerNode(layer.id, node);
       }}
+      // 스냅 계산이 "요소들"만 골라내는 표식. 배경과 카드는 이 이름이 없다.
+      name={LAYER_NODE_NAME}
+      // 꾹 누른 노드가 어느 레이어인지 알아내는 통로. Konva의 id는 스테이지 안에서 유일하다.
+      id={layer.id}
       x={layer.x}
       y={layer.y}
       scaleX={layer.scaleX}
       scaleY={layer.scaleY}
       rotation={layer.rotation}
       opacity={layer.opacity}
-      draggable
+      draggable={!locked}
       // 탭을 기다리지 않고 누르는 즉시 선택한다. 그래야 누른 채 바로 끌 수 있다.
-      onPointerDown={() => onSelect(layer.id)}
+      onPointerDown={() => {
+        if (!locked) onSelect(layer.id);
+      }}
       // 폰은 dbltap, PC는 dblclick으로 온다. 둘 다 걸어야 개발 중 마우스로도 확인된다.
       onDblTap={() => onRequestEdit(layer)}
       onDblClick={() => onRequestEdit(layer)}

@@ -3,16 +3,23 @@ import { Layer as KonvaLayer, Line, Stage } from 'react-konva';
 import type Konva from 'konva';
 import BackgroundContent, { BACKGROUND_NAME } from './BackgroundContent';
 import LayerNode from './LayerNode';
+import TemplateContent from './TemplateContent';
 import SelectionTransformer from './SelectionTransformer';
+import GridOverlay from './GridOverlay';
 import { useStageSize } from './useStageSize';
 import { useBrushDrawing } from './useBrushDrawing';
+import { useDragSnap } from './useDragSnap';
+import { useLongPress } from './useLongPress';
+import { useMaskGesture, type MaskAdjust } from './useMaskGesture';
 import { useTwoFingerGesture } from './useTwoFingerGesture';
 import { useWheelGesture } from './useWheelGesture';
+import { formatAngle } from './snapping';
 import type { NodeTransform, Point } from './gestureMath';
 import { useProjectStore } from '@/store/projectStore';
 import { useSelectionStore } from '@/store/selectionStore';
-import type { BrushSettings } from '@/store/toolStore';
-import type { Layer, Project } from '@/layers/types';
+import { useSettingsStore } from '@/store/settingsStore';
+import { useToolStore, type BrushSettings } from '@/store/toolStore';
+import type { Layer, PhotoLayer, Project } from '@/layers/types';
 
 /**
  * 이미 파괴된 Konva 노드인지 본다.
@@ -30,6 +37,8 @@ interface EditorStageProps {
   project: Project;
   /** 더블탭으로 편집을 요청한 레이어. 어떤 편집 화면을 띄울지는 UI 쪽이 정한다. */
   onRequestEdit: (layer: Layer) => void;
+  /** 템플릿의 사진 자리를 눌렀다. 파일 고르기는 UI 쪽 일이다. */
+  onRequestSlot: (slotId: string) => void;
   /** 그리기 도구가 켜져 있으면 붓 설정이 온다. null이면 평소의 선택/이동 모드다. */
   brush: BrushSettings | null;
   onStrokeEnd: (points: readonly Point[], brush: BrushSettings) => void;
@@ -40,6 +49,7 @@ interface EditorStageProps {
 export default function EditorStage({
   project,
   onRequestEdit,
+  onRequestSlot,
   brush,
   onStrokeEnd,
   onStageReady,
@@ -53,10 +63,23 @@ export default function EditorStage({
   const [konvaLayer, setKonvaLayer] = useState<Konva.Layer | null>(null);
   const [transformer, setTransformer] = useState<Konva.Transformer | null>(null);
   const [previewLine, setPreviewLine] = useState<Konva.Line | null>(null);
+  /** 돌리는 중에만 뜨는 각도. null이면 아무것도 그리지 않는다. */
+  const [angle, setAngle] = useState<number | null>(null);
 
   const updateLayerTransform = useProjectStore((state) => state.updateLayerTransform);
+  const updatePhotoLayer = useProjectStore((state) => state.updatePhotoLayer);
   const selectedId = useSelectionStore((state) => state.selectedId);
   const select = useSelectionStore((state) => state.select);
+  const grid = useSettingsStore((state) => state.grid);
+  const maskEdit = useToolStore((state) => state.maskEdit);
+  const openMaskEdit = useToolStore((state) => state.openMaskEdit);
+
+  /** 도형 안에서 맞추는 중인 사진. 그 동안에는 캔버스의 다른 조작이 전부 멈춘다. */
+  const maskLayer = useMemo((): PhotoLayer | null => {
+    if (!maskEdit) return null;
+    const found = project.layers.find((layer) => layer.id === maskEdit);
+    return found && found.type === 'photo' && found.mask ? found : null;
+  }, [maskEdit, project.layers]);
 
   const size = useStageSize(containerRef, project.ratio);
 
@@ -97,31 +120,37 @@ export default function EditorStage({
   // 그리는 중에는 붙이지 않는다. 획을 긋는 손이 핸들에 걸리면 그리기가 끊긴다.
   useEffect(() => {
     if (!isLive(transformer) || !transformer) return;
-    const node = selectedId && !brush ? nodesRef.current.get(selectedId) : undefined;
+    const node = selectedId && !brush && !maskLayer ? nodesRef.current.get(selectedId) : undefined;
     transformer.nodes(node ? [node] : []);
     transformer.getLayer()?.batchDraw();
-  }, [transformer, selectedId, layers, brush]);
+  }, [transformer, selectedId, layers, brush, maskLayer]);
 
+  // 사진을 맞추는 동안에는 요소 제스처가 멈춰야 한다. 대상이 없으면 훅들이 스스로 쉰다.
   const getTargetNode = useCallback(
-    () => (selectedId ? (nodesRef.current.get(selectedId) ?? null) : null),
-    [selectedId],
+    () => (selectedId && !maskLayer ? (nodesRef.current.get(selectedId) ?? null) : null),
+    [selectedId, maskLayer],
   );
 
   const commitSelected = useCallback(
     (transform: NodeTransform) => {
+      // 손을 뗐으면 각도 표시도 사라져야 한다. 남아 있으면 그림을 가린다.
+      setAngle(null);
       if (selectedId) updateLayerTransform(selectedId, transform);
     },
     [selectedId, updateLayerTransform],
   );
 
-  const refreshTransformer = useCallback(() => {
+  /** 제스처 도중 매 프레임. Transformer 핸들을 따라오게 하고 지금 각도를 띄운다. */
+  const handleGestureUpdate = useCallback(() => {
     if (isLive(transformer)) transformer?.forceUpdate();
-  }, [transformer]);
+    const node = getTargetNode();
+    if (node) setAngle(node.rotation());
+  }, [transformer, getTargetNode]);
 
   useTwoFingerGesture({
     stage,
     getTargetNode,
-    onUpdate: refreshTransformer,
+    onUpdate: handleGestureUpdate,
     onCommit: commitSelected,
   });
 
@@ -129,8 +158,61 @@ export default function EditorStage({
   useWheelGesture({
     stage,
     getTargetNode,
-    onUpdate: refreshTransformer,
+    onUpdate: handleGestureUpdate,
     onCommit: commitSelected,
+  });
+
+  /**
+   * 회전 핸들로 돌리는 동안의 각도.
+   * Transformer는 자기 이벤트로만 알려 주므로 노드의 onTransform과 별개로 받아야
+   * "지금 어느 앵커를 잡고 있는지"를 볼 수 있다.
+   */
+  useEffect(() => {
+    if (!transformer) return;
+
+    const onTransform = () => {
+      const node = transformer.nodes()[0];
+      if (node && transformer.getActiveAnchor() === 'rotater') setAngle(node.rotation());
+    };
+    const onEnd = () => setAngle(null);
+
+    transformer.on('transform', onTransform);
+    transformer.on('transformend', onEnd);
+
+    return () => {
+      transformer.off('transform', onTransform);
+      transformer.off('transformend', onEnd);
+    };
+  }, [transformer]);
+
+  /** 자른 사진을 꾹 누르면 도형 안에서 사진만 맞추는 모드로 들어간다. */
+  useLongPress({
+    konvaLayer,
+    onLongPress: (layerId) => {
+      if (brush || maskEdit) return;
+      const target = project.layers.find((item) => item.id === layerId);
+      if (target?.type === 'photo' && target.mask) openMaskEdit(layerId);
+    },
+  });
+
+  useMaskGesture({
+    stage,
+    layer: maskLayer,
+    getImageNode: () => {
+      const group = maskLayer ? nodesRef.current.get(maskLayer.id) : null;
+      return group?.findOne<Konva.Image>('Image') ?? null;
+    },
+    onCommit: (adjust: MaskAdjust) => {
+      if (maskLayer) updatePhotoLayer(maskLayer.id, adjust);
+    },
+  });
+
+  // 끌 때 캔버스와 다른 요소에 붙인다. 안내선은 아래에서 별도 레이어로 그린다.
+  const guides = useDragSnap({
+    konvaLayer,
+    stage,
+    canvasWidth: size?.logicalWidth ?? 0,
+    canvasHeight: size?.logicalHeight ?? 0,
   });
 
   useBrushDrawing({
@@ -143,8 +225,8 @@ export default function EditorStage({
   });
 
   const handleStagePointerDown = (event: Konva.KonvaEventObject<PointerEvent>) => {
-    // 그리는 중에 배경을 눌렀다고 선택을 건드릴 필요가 없다
-    if (brush) return;
+    // 그리는 중이거나 사진을 맞추는 중에는 선택을 건드릴 필요가 없다
+    if (brush || maskEdit) return;
     // 레이어를 눌렀으면 그 레이어가 스스로 선택된다. 배경이나 빈 곳일 때만 해제한다.
     const target = event.target;
     if (target === target.getStage() || target.name() === BACKGROUND_NAME) {
@@ -155,7 +237,7 @@ export default function EditorStage({
   return (
     <div
       ref={containerRef}
-      className="canvas-surface flex min-h-0 flex-1 items-center justify-center overflow-hidden"
+      className="canvas-surface relative flex min-h-0 flex-1 items-center justify-center overflow-hidden"
     >
       {size && (
         <Stage
@@ -173,6 +255,21 @@ export default function EditorStage({
               width={size.logicalWidth}
               height={size.logicalHeight}
             />
+
+            {/*
+              카드는 배경 바로 위에 깔린다.
+              요소가 아니라 캔버스의 한 겹이라, 스티커와 글자는 언제나 카드 위에 얹힌다.
+            */}
+            {project.template && (
+              <TemplateContent
+                template={project.template}
+                canvasWidth={size.logicalWidth}
+                canvasHeight={size.logicalHeight}
+                onReady={handleContentReady}
+                onRequestSlot={onRequestSlot}
+              />
+            )}
+
             {layers.map((layer) => (
               <LayerNode
                 key={layer.id}
@@ -182,9 +279,31 @@ export default function EditorStage({
                 registerNode={registerNode}
                 onContentReady={handleContentReady}
                 onRequestEdit={onRequestEdit}
+                locked={maskEdit !== null}
               />
             ))}
             <SelectionTransformer onRef={setTransformer} />
+          </KonvaLayer>
+
+          {/*
+            스냅 안내선.
+            요소들과 같은 레이어에 두면 선 하나 때문에 사진까지 전부 다시 그려진다.
+            손을 떼면 사라지므로 내보내기에는 찍히지 않는다.
+          */}
+          <KonvaLayer listening={false}>
+            {guides.map((guide) => (
+              <Line
+                key={`${guide.axis}-${guide.at}`}
+                points={
+                  guide.axis === 'x'
+                    ? [guide.at, 0, guide.at, size.logicalHeight]
+                    : [0, guide.at, size.logicalWidth, guide.at]
+                }
+                stroke="#ff5376"
+                strokeWidth={1.5 / size.scale}
+                dash={[10 / size.scale, 8 / size.scale]}
+              />
+            ))}
           </KonvaLayer>
 
           {/*
@@ -203,6 +322,27 @@ export default function EditorStage({
             </KonvaLayer>
           )}
         </Stage>
+      )}
+
+      {/*
+        보조선. 스테이지와 같은 자리에 겹쳐 둔다.
+        캔버스가 아니라 위에 얹은 그림이라 결과물에는 찍히지 않는다.
+      */}
+      {size && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <GridOverlay kind={grid} width={size.width} height={size.height} />
+        </div>
+      )}
+
+      {/*
+        돌리는 동안 뜨는 각도.
+        캔버스가 아니라 그 위에 띄우는 HTML이다. 캔버스에 그리면 내보내기에 찍히고,
+        확대 배율에 따라 글자 크기가 같이 변해서 읽기 어려워진다.
+      */}
+      {angle !== null && (
+        <span className="pointer-events-none absolute top-3 rounded-full bg-black/70 px-3 py-1 text-label-md tabular-nums text-white">
+          {formatAngle(angle)}
+        </span>
       )}
     </div>
   );

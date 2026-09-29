@@ -1,5 +1,6 @@
 import { Transformer } from 'react-konva';
 import type Konva from 'konva';
+import { ROTATION_SNAPS } from './snapping';
 
 /** 손가락으로 잡을 수 있는 최소 크기. 마우스 기준(10px 남짓)으로 두면 폰에서 못 잡는다. */
 const ANCHOR_SIZE = 22;
@@ -26,6 +27,9 @@ export default function SelectionTransformer({ onRef }: SelectionTransformerProp
       anchorStrokeWidth={STROKE_WIDTH}
       borderStrokeWidth={STROKE_WIDTH}
       rotateAnchorOffset={ROTATE_OFFSET}
+      // 45도마다 붙는다. 손으로 정확히 90도를 맞추는 것은 사실상 불가능하다.
+      rotationSnaps={[...ROTATION_SNAPS]}
+      rotationSnapTolerance={6}
       // 선택 표시 색은 디자인 시스템의 주 색(피치핑크)이다.
       // 사진 위 어떤 색과도 겹치지 않아 경계가 또렷하게 보인다.
       borderStroke="#ff5376"

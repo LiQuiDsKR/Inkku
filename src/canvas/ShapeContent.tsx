@@ -30,7 +30,7 @@ export default function ShapeContent({ layer, onReady }: ShapeContentProps) {
   };
 
   return (
-    <Group scaleX={layer.flipX ? -1 : 1}>
+    <Group>
       {layer.shape === 'rect' && (
         <Rect
           {...common}

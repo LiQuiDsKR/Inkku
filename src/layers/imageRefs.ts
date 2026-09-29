@@ -14,6 +14,11 @@ export function collectImageIds(project: Project): string[] {
     if (layer.type === 'photo' || layer.type === 'drawing') ids.add(layer.imageId);
   }
 
+  // 템플릿 슬롯에 넣은 사진도 참조다. 빠뜨리면 편집을 끝낸 뒤 카드의 사진만 사라진다.
+  if (project.template) {
+    for (const imageId of Object.values(project.template.slots)) ids.add(imageId);
+  }
+
   // 배경으로 쓰는 사진도 참조다. 레이어를 지웠다고 배경까지 깨지면 안 된다.
   if (project.background.type === 'photoBlur') ids.add(project.background.imageId);
 

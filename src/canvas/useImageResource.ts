@@ -10,6 +10,13 @@ export function useImageResource(resource: ImageResource, key: string): HTMLImag
   const [image, setImage] = useState<HTMLImageElement | null>(() => resource.peek(key));
 
   useEffect(() => {
+    // 키가 비어 있으면 아직 고르지 않은 자리다(템플릿의 빈 사진 슬롯).
+    // 빈 키로 DB를 두드리면 매번 "찾지 못했다" 오류만 쌓인다.
+    if (!key) {
+      setImage(null);
+      return;
+    }
+
     const cached = resource.peek(key);
     if (cached) {
       setImage(cached);

@@ -9,6 +9,7 @@ import {
   type NodeTransform,
   type Point,
 } from './gestureMath';
+import { snapRotation } from './snapping';
 import { watchDebug } from '@/utils/debugLog';
 
 interface GestureSession {
@@ -127,9 +128,17 @@ export function useTwoFingerGesture(options: TwoFingerGestureOptions): void {
       session.accumRotation += normalizeAngle(currentAngle - session.lastAngle);
       session.lastAngle = currentAngle;
 
+      /*
+       * 45도 눈금에 붙인다.
+       * 붙인 각도를 applyPinch에 다시 넣는 이유는, 회전이 위치 계산에도 쓰이기 때문이다.
+       * 돌린 뒤에 각도만 고치면 잡고 있는 지점이 손끝에서 미끄러진다.
+       */
+      const rawDegree = session.start.rotation + (session.accumRotation * 180) / Math.PI;
+      const snapped = ((snapRotation(rawDegree) - session.start.rotation) * Math.PI) / 180;
+
       const next = applyPinch(session.start, {
         scaleFactor: session.startDistance > 0 ? distance(a, b) / session.startDistance : 1,
-        rotation: session.accumRotation,
+        rotation: snapped,
         from: session.startCenter,
         to: midpoint(a, b),
       });

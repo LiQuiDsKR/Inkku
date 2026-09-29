@@ -33,7 +33,6 @@ interface LayerContextBarProps {
 export default function LayerContextBar({ layer }: LayerContextBarProps) {
   const reorderLayer = useProjectStore((state) => state.reorderLayer);
   const duplicateLayer = useProjectStore((state) => state.duplicateLayer);
-  const toggleFlipX = useProjectStore((state) => state.toggleFlipX);
   const removeLayer = useProjectStore((state) => state.removeLayer);
   const setLayerOpacity = useProjectStore((state) => state.setLayerOpacity);
   const select = useSelectionStore((state) => state.select);
@@ -111,12 +110,14 @@ export default function LayerContextBar({ layer }: LayerContextBarProps) {
           <span className="h-4 w-px bg-surface-highest" />
 
           <div className="flex items-center gap-0.5">
-            {/* 보정은 사진에만 있다. 다른 타입에 눌러도 할 일이 없는 버튼을 띄우지 않는다 */}
+            {/* 보정과 자르기는 사진에만 있다. 다른 타입에 눌러도 할 일이 없는 버튼을 띄우지 않는다 */}
             {layer.type === 'photo' && (
-              <ContextButton icon="adjust" label="사진 보정" onClick={() => openPanel('photo')} />
+              <>
+                <ContextButton icon="crop" label="모양 자르기" onClick={() => openPanel('photo')} />
+                <ContextButton icon="adjust" label="사진 보정" onClick={() => openPanel('photo')} />
+              </>
             )}
             <ContextButton icon="copy" label="복제" onClick={handleDuplicate} />
-            <ContextButton icon="flip" label="좌우반전" onClick={() => toggleFlipX(layer.id)} />
             <ContextButton icon="trash" label="삭제" onClick={handleDelete} danger />
           </div>
         </div>

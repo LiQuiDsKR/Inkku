@@ -235,6 +235,18 @@ body {
 }
 
 /*
+ * 켜고 끄기 상자.
+ * 기본 체크박스는 폰에서 13px밖에 안 돼서 손가락으로 누르기 어렵다.
+ * accent-color로 색만 맞추고 크기를 키운다.
+ */
+.neo-check {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  accent-color: var(--color-primary-container);
+}
+
+/*
  * 에셋 목록의 칸 배경.
  *
  * 스티커와 꾸밈선은 배경이 투명하고 흰색이나 검은색 하나로 그려진 것이 많다.

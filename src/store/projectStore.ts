@@ -4,20 +4,24 @@ import { getRatioSize } from '@/layers/ratio';
 import {
   duplicateLayerById,
   patchBaseLayer,
+  patchParticleLayer,
   patchPhotoLayer,
   patchShapeLayer,
   patchTextLayer,
   removeLayerById,
 } from '@/layers/mutations';
 import { nextZIndex, reorderLayers, type ReorderCommand } from '@/layers/order';
+import { extractLegacyTemplate } from '@/layers/projectTemplate';
 import { applySnapshot, isSameLayerList, takeSnapshot } from '@/layers/snapshot';
 import { useHistoryStore } from './historyStore';
 import type {
   BaseLayer,
   Background,
   Layer,
+  ParticleLayer,
   PhotoLayer,
   Project,
+  ProjectTemplate,
   Ratio,
   ShapeLayer,
   TextLayer,
@@ -33,6 +37,8 @@ export type LayerTransform = Pick<BaseLayer, 'x' | 'y' | 'scaleX' | 'scaleY' | '
 export type TextPatch = Partial<Omit<TextLayer, 'id' | 'type'>>;
 export type ShapePatch = Partial<Omit<ShapeLayer, 'id' | 'type'>>;
 export type PhotoPatch = Partial<Omit<PhotoLayer, 'id' | 'type'>>;
+export type ParticlePatch = Partial<Omit<ParticleLayer, 'id' | 'type'>>;
+export type TemplatePatch = Partial<Omit<ProjectTemplate, 'templateId'>>;
 
 const DEFAULT_BACKGROUND: Background = { type: 'solid', color: '#ffffff' };
 
@@ -44,17 +50,26 @@ interface ProjectState {
   closeProject: () => void;
   addLayers: (layers: readonly Layer[]) => void;
   setBackground: (background: Background) => void;
+  /** 카드를 깔거나(스펙 교체) 걷어 낸다(null). 배경을 바꾸는 것과 같은 층위의 조작이다. */
+  setTemplate: (template: ProjectTemplate | null) => void;
+  /**
+   * 깔아 둔 카드의 변형, 글, 사진 슬롯.
+   * 글자 입력은 한 글자마다 들어오므로 투명도 슬라이더와 같은 이유로 기록을 끌 수 있어야 한다.
+   */
+  updateTemplate: (patch: TemplatePatch, record?: boolean) => void;
   updateLayerTransform: (id: string, patch: Partial<LayerTransform>) => void;
   /**
    * 슬라이더처럼 연속으로 값이 바뀌는 조작은 첫 변경만 기록한다.
    * 매 프레임 기록하면 한 번 드래그에 히스토리가 수십 단계 쌓여 실행취소가 쓸모없어진다.
    */
   setLayerOpacity: (id: string, opacity: number, record?: boolean) => void;
-  toggleFlipX: (id: string) => void;
   updateTextLayer: (id: string, patch: TextPatch) => void;
   updateShapeLayer: (id: string, patch: ShapePatch) => void;
-  updatePhotoLayer: (id: string, patch: PhotoPatch) => void;
-  reorderLayer: (id: string, command: ReorderCommand) => void;
+  updateParticleLayer: (id: string, patch: ParticlePatch) => void;
+  /** 자르기 슬라이더처럼 연속으로 바뀌는 값은 첫 변경만 기록한다. */
+  updatePhotoLayer: (id: string, patch: PhotoPatch, record?: boolean) => void;
+  /** 선택으로 인한 자동 올리기는 히스토리에 남기지 않는다. 그때만 record를 끈다. */
+  reorderLayer: (id: string, command: ReorderCommand, record?: boolean) => void;
   /** 복제본을 바로 선택할 수 있도록 새 id를 돌려준다. */
   duplicateLayer: (id: string) => string | null;
   removeLayer: (id: string) => void;
@@ -92,6 +107,7 @@ export const useProjectStore = create<ProjectState>((set, get) => {
           id: createId(),
           ratio,
           background: DEFAULT_BACKGROUND,
+          template: null,
           layers: [],
           createdAt: now,
           updatedAt: now,
@@ -102,7 +118,16 @@ export const useProjectStore = create<ProjectState>((set, get) => {
     openProject: (project) => {
       // 저장된 작업물에는 히스토리가 없다. 이전 작업의 기록이 남아 있으면 남의 상태로 되돌아간다.
       useHistoryStore.getState().reset();
-      set({ project });
+
+      // 카드를 레이어로 저장하던 시절의 작업물을 지금 구조로 옮긴다
+      const migrated = extractLegacyTemplate(project.layers);
+      set({
+        project: {
+          ...project,
+          template: project.template ?? migrated.template,
+          layers: migrated.layers,
+        },
+      });
     },
 
     closeProject: () => {
@@ -115,6 +140,26 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       if (!project) return;
       useHistoryStore.getState().record(takeSnapshot(project));
       set({ project: { ...project, background, updatedAt: Date.now() } });
+    },
+
+    setTemplate: (template) => {
+      const project = get().project;
+      if (!project) return;
+      useHistoryStore.getState().record(takeSnapshot(project));
+      set({ project: { ...project, template, updatedAt: Date.now() } });
+    },
+
+    updateTemplate: (patch, record = true) => {
+      const project = get().project;
+      if (!project?.template) return;
+      if (record) useHistoryStore.getState().record(takeSnapshot(project));
+      set({
+        project: {
+          ...project,
+          template: { ...project.template, ...patch },
+          updatedAt: Date.now(),
+        },
+      });
     },
 
     addLayers: (layers) => {
@@ -135,14 +180,6 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       applyLayers(patchBaseLayer(project.layers, id, { opacity }), record);
     },
 
-    toggleFlipX: (id) => {
-      const project = get().project;
-      if (!project) return;
-      const target = project.layers.find((layer) => layer.id === id);
-      if (!target) return;
-      applyLayers(patchBaseLayer(project.layers, id, { flipX: !target.flipX }));
-    },
-
     updateTextLayer: (id, patch) => {
       const project = get().project;
       if (!project) return;
@@ -155,16 +192,22 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       applyLayers(patchShapeLayer(project.layers, id, patch));
     },
 
-    updatePhotoLayer: (id, patch) => {
+    updateParticleLayer: (id, patch) => {
       const project = get().project;
       if (!project) return;
-      applyLayers(patchPhotoLayer(project.layers, id, patch));
+      applyLayers(patchParticleLayer(project.layers, id, patch));
     },
 
-    reorderLayer: (id, command) => {
+    updatePhotoLayer: (id, patch, record = true) => {
       const project = get().project;
       if (!project) return;
-      applyLayers(reorderLayers(project.layers, id, command));
+      applyLayers(patchPhotoLayer(project.layers, id, patch), record);
+    },
+
+    reorderLayer: (id, command, record = true) => {
+      const project = get().project;
+      if (!project) return;
+      applyLayers(reorderLayers(project.layers, id, command), record);
     },
 
     duplicateLayer: (id) => {

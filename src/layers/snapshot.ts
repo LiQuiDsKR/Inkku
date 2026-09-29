@@ -1,4 +1,4 @@
-import type { Background, Layer, Project } from './types';
+import type { Background, Layer, Project, ProjectTemplate } from './types';
 
 /**
  * 실행취소용 스냅샷.
@@ -11,17 +11,24 @@ import type { Background, Layer, Project } from './types';
  */
 export interface ProjectSnapshot {
   background: Background;
+  /** 카드의 글과 사진도 되돌릴 수 있어야 한다. 레이어가 아니라고 실행취소에서 빠지면 놀란다. */
+  template: ProjectTemplate | null;
   layers: readonly Layer[];
 }
 
 export function takeSnapshot(project: Project): ProjectSnapshot {
-  return { background: project.background, layers: project.layers };
+  return {
+    background: project.background,
+    template: project.template,
+    layers: project.layers,
+  };
 }
 
 export function applySnapshot(project: Project, snapshot: ProjectSnapshot): Project {
   return {
     ...project,
     background: snapshot.background,
+    template: snapshot.template,
     layers: [...snapshot.layers],
     updatedAt: Date.now(),
   };

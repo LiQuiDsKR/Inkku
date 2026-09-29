@@ -1,3 +1,4 @@
+import { findParticleShape } from './particles';
 import type { Layer } from './types';
 
 /**
@@ -13,6 +14,7 @@ const KIND_LABEL: Record<Layer['type'], string> = {
   drawing: '낙서',
   shape: '도형',
   presetLine: '꾸밈선',
+  particle: '파티클',
 };
 
 const SHAPE_LABEL: Record<string, string> = {
@@ -48,6 +50,8 @@ export function describeLayer(layer: Layer): LayerDescription {
     case 'sticker':
     case 'presetLine':
       return { kind, detail: layer.assetId };
+    case 'particle':
+      return { kind, detail: findParticleShape(layer.kind).label };
     default:
       return { kind, detail: '' };
   }

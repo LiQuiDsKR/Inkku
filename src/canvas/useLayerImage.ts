@@ -24,3 +24,8 @@ const photoResource = createImageResource(async (imageId) => {
 export function useLayerImage(imageId: string): HTMLImageElement | null {
   return useImageResource(photoResource, imageId);
 }
+
+/** 아직 사진을 안 넣은 템플릿 슬롯처럼 비어 있을 수 있는 자리. 빈 id로는 DB를 읽지 않는다. */
+export function useOptionalLayerImage(imageId: string | null): HTMLImageElement | null {
+  return useImageResource(photoResource, imageId ?? '');
+}

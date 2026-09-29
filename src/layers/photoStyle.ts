@@ -1,4 +1,4 @@
-import type { PhotoLayer } from './types';
+import type { PhotoMask } from './types';
 
 /**
  * 사진 보정 프리셋.
@@ -100,20 +100,15 @@ export function findFilterPreset(id: string): FilterPreset {
   return FILTER_PRESETS.find((preset) => preset.id === id) ?? NO_FILTER;
 }
 
-export type BorderStyle = NonNullable<PhotoLayer['border']>['style'];
-
-export const BORDER_STYLES: readonly { style: BorderStyle; label: string }[] = [
-  { style: 'none', label: '없음' },
-  { style: 'plain', label: '흰 테두리' },
-  { style: 'polaroid', label: '폴라로이드' },
+/**
+ * 고를 수 있는 자르기 모양.
+ * 도형 목록과 이름을 맞춘다. 같은 하트를 도형에서는 "하트", 사진에서는 다른 말로 부르면 헷갈린다.
+ */
+export const PHOTO_MASKS: readonly { mask: PhotoMask; label: string }[] = [
+  { mask: 'rounded', label: '둥근모서리' },
+  { mask: 'circle', label: '원' },
+  { mask: 'star', label: '별' },
+  { mask: 'heart', label: '하트' },
+  { mask: 'triangle', label: '삼각형' },
+  { mask: 'diamond', label: '마름모' },
 ];
-
-/** 테두리 두께는 사진 짧은 변에 비례한다. 고정값으로 두면 작은 사진에서 테두리가 사진을 잡아먹는다. */
-export const BORDER_RATIO = 0.035;
-
-/** 폴라로이드는 아래쪽만 넓다. 글씨를 적는 공간이라 실제 사진도 이 비율에 가깝다. */
-export const POLAROID_BOTTOM_RATIO = 0.16;
-
-export function defaultBorder(style: BorderStyle): NonNullable<PhotoLayer['border']> {
-  return { style, color: '#ffffff', width: BORDER_RATIO };
-}

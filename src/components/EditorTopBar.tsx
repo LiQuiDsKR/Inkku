@@ -3,8 +3,17 @@ import SaveStatusChip from './SaveStatusChip';
 import { useCanRedo, useCanUndo } from '@/store/historyStore';
 import { useProjectStore } from '@/store/projectStore';
 import { useSelectionStore } from '@/store/selectionStore';
+import { useSettingsStore, type GridKind } from '@/store/settingsStore';
 import { useToolStore } from '@/store/toolStore';
 import type { IconName } from './icons/paths';
+
+/** 보조선 버튼에 그릴 아이콘과 읽어 줄 이름. 눌렀을 때 무엇이 되는지 버튼이 스스로 보여 준다. */
+const GRID_FACE: Record<GridKind, { icon: IconName; label: string }> = {
+  none: { icon: 'grid', label: '보조선 없음' },
+  '2x2': { icon: 'grid2', label: '보조선 2칸' },
+  '3x3': { icon: 'grid3', label: '보조선 3칸' },
+  '4x4': { icon: 'grid4', label: '보조선 4칸' },
+};
 
 interface EditorTopBarProps {
   onBack: () => void;
@@ -18,6 +27,8 @@ export default function EditorTopBar({ onBack, onExport, exporting }: EditorTopB
   const clearSelection = useSelectionStore((state) => state.clear);
   const panel = useToolStore((state) => state.panel);
   const togglePanel = useToolStore((state) => state.togglePanel);
+  const grid = useSettingsStore((state) => state.grid);
+  const cycleGrid = useSettingsStore((state) => state.cycleGrid);
   const canUndo = useCanUndo();
   const canRedo = useCanRedo();
 
@@ -46,6 +57,19 @@ export default function EditorTopBar({ onBack, onExport, exporting }: EditorTopB
       </div>
 
       <div className="flex shrink-0 items-center gap-1.5">
+        <button
+          type="button"
+          onClick={cycleGrid}
+          aria-label={GRID_FACE[grid].label}
+          title={GRID_FACE[grid].label}
+          className={`flex h-9 w-9 items-center justify-center rounded-full transition-transform active:scale-90 ${
+            grid === 'none'
+              ? 'bg-surface-high text-on-surface-variant'
+              : 'bg-tertiary-fixed text-on-tertiary-fixed'
+          }`}
+        >
+          <Icon name={GRID_FACE[grid].icon} size={18} />
+        </button>
         <button
           type="button"
           onClick={() => togglePanel('layers')}

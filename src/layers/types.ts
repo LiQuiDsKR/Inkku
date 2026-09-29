@@ -6,9 +6,20 @@
  * 이렇게 해야 이동/회전/삭제/순서변경 로직을 타입마다 다시 만들지 않는다.
  */
 
+// 타입만 가져온다. 값이 오가지 않으므로 서로 참조해도 실행 시점에 순환이 생기지 않는다.
+import type { ParticleKind } from './particles';
+import type { FrameStyle } from './photoFrame';
+
 export type Ratio = '4:5' | '1:1' | '9:16' | '3:4';
 
-export type LayerType = 'photo' | 'sticker' | 'text' | 'drawing' | 'shape' | 'presetLine';
+export type LayerType =
+  | 'photo'
+  | 'sticker'
+  | 'text'
+  | 'drawing'
+  | 'shape'
+  | 'presetLine'
+  | 'particle';
 
 export interface BaseLayer {
   id: string;
@@ -20,12 +31,6 @@ export interface BaseLayer {
   rotation: number; // degree
   opacity: number; // 0~1
   zIndex: number;
-  /**
-   * 좌우반전. scaleX의 부호로 표현하지 않는다.
-   * 제스처 계산이 음수 배율을 만나면 회전축이 뒤집혀 손가락과 반대로 돈다.
-   * 모든 타입이 뒤집을 수 있어야 하므로 공통 속성으로 둔다.
-   */
-  flipX?: boolean;
 }
 
 /**
@@ -33,14 +38,34 @@ export interface BaseLayer {
  * 히스토리 스냅샷이 레이어 구조를 통째로 복사하기 때문에,
  * 이미지가 들어가면 30단계 히스토리가 수백 MB가 된다. 실제 픽셀은 IndexedDB에 둔다.
  */
+/** 사진을 잘라 낼 도형. 없으면 사각형 그대로 둔다. */
+export type PhotoMask = 'rounded' | 'circle' | 'star' | 'heart' | 'triangle' | 'diamond';
+
 export interface PhotoLayer extends BaseLayer {
   type: 'photo';
   imageId: string;
   naturalWidth: number;
   naturalHeight: number;
   crop?: { x: number; y: number; width: number; height: number };
-  border?: { style: 'none' | 'plain' | 'polaroid'; color: string; width: number };
+  /** 프레임. 생김새는 `layers/photoFrame.ts`의 프리셋이 정하고, 여기에는 고른 것만 담는다. */
+  border?: { style: FrameStyle; color: string };
   filter?: { preset: string; intensity: number };
+  /**
+   * 도형 자르기.
+   * 테두리와 함께 쓰지 않는다. 하트 둘레에 네모난 액자를 두르면 둘 다 망가진다.
+   */
+  mask?: PhotoMask;
+  /**
+   * 도형 안에서 사진을 키운 정도. 1이면 도형을 꽉 채우는 최소 크기다.
+   * 1보다 작게 두지 않는다. 도형 안에 빈 자리가 생긴다.
+   */
+  maskZoom?: number;
+  /**
+   * 도형 안에서 사진을 민 정도. 각 축 -1~1이고 0이 가운데다.
+   * 픽셀이 아니라 비율로 두는 이유는, 사진을 키우면 밀 수 있는 여유도 함께 늘어나기 때문이다.
+   * 픽셀로 저장하면 배율을 바꿀 때마다 위치가 튄다.
+   */
+  maskOffset?: { x: number; y: number };
 }
 
 export interface StickerLayer extends BaseLayer {
@@ -100,13 +125,48 @@ export interface PresetLineLayer extends BaseLayer {
   naturalHeight: number;
 }
 
+/**
+ * 반짝이나 꽃잎처럼 여러 개가 흩뿌려진 한 벌.
+ *
+ * 흩뿌린 자리를 좌표로 저장하지 않고 seed만 둔다. 같은 seed는 언제나 같은 배치를 만들기 때문에
+ * 결과는 같으면서 레이어 하나가 점 목록으로 불어나지 않는다(`layers/particles.ts`).
+ */
+export interface ParticleLayer extends BaseLayer {
+  type: 'particle';
+  kind: ParticleKind;
+  seed: number;
+  count: number;
+  color: string;
+}
+
 export type Layer =
   | PhotoLayer
   | StickerLayer
   | TextLayer
   | DrawingLayer
   | ShapeLayer
-  | PresetLineLayer;
+  | PresetLineLayer
+  | ParticleLayer;
+
+/**
+ * 지도 카드, 블로그 글머리, 뮤직 플레이어처럼 미리 짜인 한 벌.
+ *
+ * 레이어가 아니다. 카드는 배경과 마찬가지로 캔버스 자체의 성격을 정하는 한 겹이라
+ * 손으로 옮기거나 돌리거나 순서를 바꾸는 대상이 아니다. 한 작업물에 하나만 깔린다.
+ *
+ * 생김새(어디에 무엇을 그리는가)는 src/templates의 스펙이 갖는다.
+ * 여기에는 "어떤 스펙을, 어떤 변형으로, 어떤 값을 채워" 그릴지만 둔다.
+ * 그래야 카드 디자인을 고쳐도 저장된 작업물이 새 디자인으로 다시 그려진다.
+ */
+export interface ProjectTemplate {
+  templateId: string;
+  /** 화이트/다크 같은 색 변형. 스펙에서 사라졌으면 첫 변형으로 떨어진다. */
+  variantId: string;
+  /** 필드 id에 대응하는 사용자 입력값. */
+  fields: Record<string, string>;
+  /** 슬롯 id에 대응하는 IndexedDB 이미지 id. 아직 안 채운 슬롯은 키 자체가 없다. */
+  slots: Record<string, string>;
+}
 
 export type Background =
   | { type: 'solid'; color: string }
@@ -118,6 +178,8 @@ export interface Project {
   id: string;
   ratio: Ratio;
   background: Background;
+  /** 깔아 둔 템플릿 카드. 배경과 같은 층위라 레이어 목록이 아니라 여기에 둔다. */
+  template: ProjectTemplate | null;
   layers: Layer[];
   createdAt: number;
   updatedAt: number;

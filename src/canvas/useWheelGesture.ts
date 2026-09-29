@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type Konva from 'konva';
 import { applyPinch, type NodeTransform, type Point } from './gestureMath';
+import { snapRotation } from './snapping';
 import { watchDebug } from '@/utils/debugLog';
 
 /** 휠 한 칸(deltaY 100) 기준 약 14% 확대축소. 너무 크면 미세 조정이 안 된다. */
@@ -86,9 +87,16 @@ export function useWheelGesture(options: WheelGestureOptions): void {
       // shift나 alt를 누르면 회전. 트랙패드 핀치는 ctrl+휠로 오므로 확대축소로 둔다.
       const rotating = event.shiftKey || event.altKey;
 
-      const next = applyPinch(readTransform(node), {
+      const current = readTransform(node);
+      // 눈금 근처에서는 붙인다. 두 손가락 회전과 같은 규칙이라야 결과가 헷갈리지 않는다.
+      const turned = current.rotation + (delta / 100) * ROTATE_PER_NOTCH;
+      const rotation = rotating
+        ? ((snapRotation(turned) - current.rotation) * Math.PI) / 180
+        : 0;
+
+      const next = applyPinch(current, {
         scaleFactor: rotating ? 1 : Math.exp(-delta * ZOOM_SENSITIVITY),
-        rotation: rotating ? ((delta / 100) * ROTATE_PER_NOTCH * Math.PI) / 180 : 0,
+        rotation,
         from: pivot,
         to: pivot,
       });
