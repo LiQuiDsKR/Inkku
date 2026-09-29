@@ -87,6 +87,22 @@ export function patchParticleLayer(
   );
 }
 
+/**
+ * 색을 입힐 수 있는 에셋(한 가지 색으로 그린 낙서)의 색만 바꾼다.
+ * 색이 없는 에셋(이모지, 말풍선)은 원래 색이 곧 그림이라 건드리지 않는다.
+ * 바뀐 것이 없으면 같은 객체를 돌려줘서 히스토리에 빈 단계가 남지 않게 한다.
+ */
+export function patchAssetTint(layers: readonly Layer[], id: string, tint: string): Layer[] {
+  return layers.map((layer) =>
+    layer.id === id &&
+    (layer.type === 'sticker' || layer.type === 'presetLine') &&
+    layer.tint !== undefined &&
+    layer.tint !== tint
+      ? { ...layer, tint }
+      : layer,
+  );
+}
+
 export function removeLayerById(layers: readonly Layer[], id: string): Layer[] {
   return layers.filter((layer) => layer.id !== id);
 }

@@ -7,8 +7,9 @@
  */
 
 // 타입만 가져온다. 값이 오가지 않으므로 서로 참조해도 실행 시점에 순환이 생기지 않는다.
-import type { ParticleKind } from './particles';
+import type { ParticleKind } from './particleCatalog';
 import type { FrameStyle } from './photoFrame';
+import type { ShapeKind } from './shapeCatalog';
 
 export type Ratio = '4:5' | '1:1' | '9:16' | '3:4';
 
@@ -78,6 +79,11 @@ export interface StickerLayer extends BaseLayer {
    */
   naturalWidth: number;
   naturalHeight: number;
+  /**
+   * 입힌 색. 한 가지 색으로 그린 에셋(낙서)만 갖는다.
+   * 원본 SVG의 currentColor를 이 색으로 바꿔 그린다. 없으면 원본 색 그대로다.
+   */
+  tint?: string;
 }
 
 export type TextAlign = 'left' | 'center' | 'right';
@@ -111,7 +117,7 @@ export interface DrawingLayer extends BaseLayer {
 
 export interface ShapeLayer extends BaseLayer {
   type: 'shape';
-  shape: 'rect' | 'circle' | 'triangle' | 'star' | 'heart' | 'arrow';
+  shape: ShapeKind;
   fill?: string;
   stroke?: { color: string; width: number };
 }
@@ -123,6 +129,8 @@ export interface PresetLineLayer extends BaseLayer {
   assetUrl: string;
   naturalWidth: number;
   naturalHeight: number;
+  /** 스티커와 같다. 구분선도 한 가지 색이면 색을 입힐 수 있다. */
+  tint?: string;
 }
 
 /**
@@ -137,6 +145,11 @@ export interface ParticleLayer extends BaseLayer {
   seed: number;
   count: number;
   color: string;
+  /**
+   * 흩뿌린 영역의 가로/세로 비율. 캔버스 비율을 따라 넣을 때 정한다.
+   * 없으면 정사각형이다. 이 값이 생기기 전에 저장한 파티클이 예전 배치 그대로 그려져야 한다.
+   */
+  aspect?: number;
 }
 
 export type Layer =

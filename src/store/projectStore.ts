@@ -1,31 +1,13 @@
 import { create } from 'zustand';
 import { createId } from '@/utils/id';
 import { getRatioSize } from '@/layers/ratio';
-import {
-  duplicateLayerById,
-  patchBaseLayer,
-  patchParticleLayer,
-  patchPhotoLayer,
-  patchShapeLayer,
-  patchTextLayer,
-  removeLayerById,
-} from '@/layers/mutations';
+import { duplicateLayerById, patchBaseLayer, removeLayerById } from '@/layers/mutations';
 import { nextZIndex, reorderLayers, type ReorderCommand } from '@/layers/order';
 import { extractLegacyTemplate } from '@/layers/projectTemplate';
 import { applySnapshot, isSameLayerList, takeSnapshot } from '@/layers/snapshot';
 import { useHistoryStore } from './historyStore';
-import type {
-  BaseLayer,
-  Background,
-  Layer,
-  ParticleLayer,
-  PhotoLayer,
-  Project,
-  ProjectTemplate,
-  Ratio,
-  ShapeLayer,
-  TextLayer,
-} from '@/layers/types';
+import { createLayerPatchActions, type LayerPatchActions } from './layerPatchActions';
+import type { BaseLayer, Background, Layer, Project, ProjectTemplate, Ratio } from '@/layers/types';
 
 /**
  * 이동/확대/회전만 담은 부분 타입.
@@ -34,15 +16,11 @@ import type {
  */
 export type LayerTransform = Pick<BaseLayer, 'x' | 'y' | 'scaleX' | 'scaleY' | 'rotation'>;
 
-export type TextPatch = Partial<Omit<TextLayer, 'id' | 'type'>>;
-export type ShapePatch = Partial<Omit<ShapeLayer, 'id' | 'type'>>;
-export type PhotoPatch = Partial<Omit<PhotoLayer, 'id' | 'type'>>;
-export type ParticlePatch = Partial<Omit<ParticleLayer, 'id' | 'type'>>;
 export type TemplatePatch = Partial<Omit<ProjectTemplate, 'templateId'>>;
 
 const DEFAULT_BACKGROUND: Background = { type: 'solid', color: '#ffffff' };
 
-interface ProjectState {
+interface ProjectState extends LayerPatchActions {
   project: Project | null;
   createProject: (ratio: Ratio) => void;
   /** 저장해 둔 작업물을 이어서 연다. */
@@ -63,11 +41,6 @@ interface ProjectState {
    * 매 프레임 기록하면 한 번 드래그에 히스토리가 수십 단계 쌓여 실행취소가 쓸모없어진다.
    */
   setLayerOpacity: (id: string, opacity: number, record?: boolean) => void;
-  updateTextLayer: (id: string, patch: TextPatch) => void;
-  updateShapeLayer: (id: string, patch: ShapePatch) => void;
-  updateParticleLayer: (id: string, patch: ParticlePatch) => void;
-  /** 자르기 슬라이더처럼 연속으로 바뀌는 값은 첫 변경만 기록한다. */
-  updatePhotoLayer: (id: string, patch: PhotoPatch, record?: boolean) => void;
   /** 선택으로 인한 자동 올리기는 히스토리에 남기지 않는다. 그때만 record를 끈다. */
   reorderLayer: (id: string, command: ReorderCommand, record?: boolean) => void;
   /** 복제본을 바로 선택할 수 있도록 새 id를 돌려준다. */
@@ -97,6 +70,8 @@ export const useProjectStore = create<ProjectState>((set, get) => {
 
   return {
     project: null,
+
+    ...createLayerPatchActions(() => get().project, applyLayers),
 
     createProject: (ratio) => {
       const now = Date.now();
@@ -178,30 +153,6 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       const project = get().project;
       if (!project) return;
       applyLayers(patchBaseLayer(project.layers, id, { opacity }), record);
-    },
-
-    updateTextLayer: (id, patch) => {
-      const project = get().project;
-      if (!project) return;
-      applyLayers(patchTextLayer(project.layers, id, patch));
-    },
-
-    updateShapeLayer: (id, patch) => {
-      const project = get().project;
-      if (!project) return;
-      applyLayers(patchShapeLayer(project.layers, id, patch));
-    },
-
-    updateParticleLayer: (id, patch) => {
-      const project = get().project;
-      if (!project) return;
-      applyLayers(patchParticleLayer(project.layers, id, patch));
-    },
-
-    updatePhotoLayer: (id, patch, record = true) => {
-      const project = get().project;
-      if (!project) return;
-      applyLayers(patchPhotoLayer(project.layers, id, patch), record);
     },
 
     reorderLayer: (id, command, record = true) => {

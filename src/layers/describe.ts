@@ -1,4 +1,5 @@
-import { findParticleShape } from './particles';
+import { findParticleShape } from './particleCatalog';
+import { findShape } from './shapeCatalog';
 import type { Layer } from './types';
 
 /**
@@ -17,21 +18,17 @@ const KIND_LABEL: Record<Layer['type'], string> = {
   particle: '파티클',
 };
 
-const SHAPE_LABEL: Record<string, string> = {
-  rect: '사각형',
-  circle: '원',
-  triangle: '삼각형',
-  star: '별',
-  heart: '하트',
-  arrow: '화살표',
-};
-
 /** 목록 한 줄에 들어갈 길이. 넘치면 잘라서 뒤에 점을 붙인다. */
 const MAX_DETAIL = 14;
 
 function clip(value: string): string {
   const single = value.replace(/\s+/g, ' ').trim();
   return single.length > MAX_DETAIL ? `${single.slice(0, MAX_DETAIL)}...` : single;
+}
+
+/** 'noto/grinning-face' 같은 id에서 사람이 읽을 부분만. 팩 이름과 하이픈은 목록에서 잡음이다. */
+function assetName(assetId: string): string {
+  return (assetId.split('/').pop() ?? assetId).replace(/^oc-\d+$/, '그림').replace(/-/g, ' ');
 }
 
 export interface LayerDescription {
@@ -46,10 +43,10 @@ export function describeLayer(layer: Layer): LayerDescription {
     case 'text':
       return { kind, detail: clip(layer.content) };
     case 'shape':
-      return { kind, detail: SHAPE_LABEL[layer.shape] ?? layer.shape };
+      return { kind, detail: findShape(layer.shape).label };
     case 'sticker':
     case 'presetLine':
-      return { kind, detail: layer.assetId };
+      return { kind, detail: clip(assetName(layer.assetId)) };
     case 'particle':
       return { kind, detail: findParticleShape(layer.kind).label };
     default:

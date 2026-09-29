@@ -16,7 +16,7 @@ interface AssetContentProps {
 }
 
 export default function AssetContent({ layer, onReady }: AssetContentProps) {
-  const image = useAssetImage(layer.assetUrl);
+  const image = useAssetImage(layer.assetUrl, layer.tint);
 
   useEffect(() => {
     if (image) onReady();
@@ -31,7 +31,8 @@ export default function AssetContent({ layer, onReady }: AssetContentProps) {
       height={layer.naturalHeight}
       // 오프셋을 절반으로 두면 그룹 원점이 한가운데가 된다. 회전축이 중심이어야 손맛이 자연스럽다.
       offsetX={layer.naturalWidth / 2}
-      offsetY={layer.naturalHeight / 2}
+      offsetY={layer.naturalHeight / 2}
+
     />
   );
 }

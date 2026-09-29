@@ -1,4 +1,6 @@
 import { createId } from '@/utils/id';
+import { findParticleShape, type ParticleKind, type ParticleLayout, type ParticleShape } from './particleCatalog';
+import type { ParticleGlyph } from './particleGlyphs';
 import type { ParticleLayer } from './types';
 
 /**
@@ -12,94 +14,36 @@ import type { ParticleLayer } from './types';
  * 수십 개의 점 목록이 되고, 실행취소 스냅샷도 그만큼 무거워진다.
  */
 
-export type ParticleKind =
-  | 'sparkle'
-  | 'star'
-  | 'heart'
-  | 'bubble'
-  | 'snow'
-  | 'petal'
-  | 'confetti'
-  | 'note';
-
-export interface ParticleShape {
-  kind: ParticleKind;
-  label: string;
-  /** 24x24 좌표계의 경로. 아이콘과 같은 규격이라 눈대중이 서로 맞는다. */
-  path: string;
-  /** 선으로 그릴지. 비눗방울과 음표는 채우면 덩어리가 되어 무엇인지 읽히지 않는다. */
-  stroke?: boolean;
-  /** 한 벌에 뿌릴 개수. 종류마다 어울리는 밀도가 다르다. */
-  count: number;
-}
-
-export const PARTICLE_SHAPES: readonly ParticleShape[] = [
-  {
-    kind: 'sparkle',
-    label: '반짝이',
-    path: 'M12 1c.7 5.6 4.7 9.6 10.3 10.3-5.6.7-9.6 4.7-10.3 10.3-.7-5.6-4.7-9.6-10.3-10.3C7.3 10.6 11.3 6.6 12 1z',
-    count: 14,
-  },
-  {
-    kind: 'star',
-    label: '별가루',
-    path: 'M12 1 14.7 8.28 22.46 8.6 16.37 13.42 18.46 20.9 12 16.6 5.54 20.9 7.63 13.42 1.54 8.6 9.3 8.28Z',
-    count: 12,
-  },
-  {
-    kind: 'heart',
-    label: '하트비',
-    path: 'M12 20.6C12 20.6 2.25 14.6 2.25 8.6 2.25 5.25 4.88 3 7.88 3c1.87 0 3.37.94 4.12 2.44C12.75 3.94 14.25 3 16.13 3 19.13 3 21.75 5.25 21.75 8.6c0 6-9.75 12-9.75 12z',
-    count: 11,
-  },
-  {
-    kind: 'bubble',
-    label: '방울',
-    path: 'M12 2.6a9.4 9.4 0 1 1 0 18.8 9.4 9.4 0 0 1 0-18.8z M8 7.6a4.6 4.6 0 0 0-1.7 2.6',
-    stroke: true,
-    count: 13,
-  },
-  {
-    kind: 'snow',
-    label: '눈',
-    path: 'M12 1.5v21 M2.9 6.75l18.2 10.5 M2.9 17.25l18.2-10.5 M12 5.4 9.6 3 M12 5.4 14.4 3 M12 18.6l-2.4 2.4 M12 18.6l2.4 2.4',
-    stroke: true,
-    count: 16,
-  },
-  {
-    kind: 'petal',
-    label: '꽃잎',
-    path: 'M12 1.8c-4.2 5.4-6.3 8.7-6.3 11.7a6.3 6.3 0 0 0 12.6 0c0-3-2.1-6.3-6.3-11.7z',
-    count: 12,
-  },
-  {
-    kind: 'confetti',
-    label: '색종이',
-    path: 'M3.4 8.6h17.2a2.6 2.6 0 0 1 2.6 2.6v1.6a2.6 2.6 0 0 1-2.6 2.6H3.4a2.6 2.6 0 0 1-2.6-2.6v-1.6a2.6 2.6 0 0 1 2.6-2.6z',
-    count: 18,
-  },
-  {
-    kind: 'note',
-    label: '음표',
-    path: 'M9.5 17.4V4.2l10-2.2v13.2 M9.5 17.4a3 3 0 1 1-6 0 3 3 0 0 1 6 0z M19.5 15.2a3 3 0 1 1-6 0 3 3 0 0 1 6 0z',
-    stroke: true,
-    count: 10,
-  },
-];
-
-export function findParticleShape(kind: ParticleKind): ParticleShape {
-  // 목록에서 사라진 종류를 참조하는 예전 작업물도 열려야 한다
-  return PARTICLE_SHAPES.find((shape) => shape.kind === kind) ?? (PARTICLE_SHAPES[0] as ParticleShape);
-}
-
-/** 파티클 한 벌이 차지하는 기준 크기. 도형(256)보다 크다. 여러 개를 흩뿌릴 자리가 필요하다. */
+/** 파티클 한 벌이 차지하는 영역의 긴 변. 도형(256)보다 크다. 여러 개를 흩뿌릴 자리가 필요하다. */
 export const PARTICLE_BASE_SIZE = 512;
 
-/** 새 파티클이 캔버스 가로폭에서 차지할 비율. 배경처럼 넓게 깔리는 것이 자연스럽다. */
-export const PARTICLE_FILL_RATIO = 0.72;
+/** 새 파티클이 캔버스에서 차지할 비율. 테두리는 캔버스 끝까지 둘러야 가운데가 빈다. */
+const LAYOUT_FILL: Record<ParticleLayout, number> = { scatter: 0.72, frame: 1, burst: 0.85 };
 
-/** 파티클 하나의 그림이 그려지는 좌표계 크기. */
-const SHAPE_BOX = 24;
+/** 선으로 그리는 조각의 두께(24 좌표계 기준). 조각이 커져도 선의 인상은 같아야 한다. */
+export const GLYPH_STROKE_WIDTH = 1.7;
+
+/** 조각 하나의 그림이 그려지는 좌표계 크기. */
+const GLYPH_BOX = 24;
+
+const DEFAULT_SIZE: readonly [number, number] = [0.55, 1.5];
+const DEFAULT_OPACITY: readonly [number, number] = [0.5, 1];
+
+export interface ParticleArea {
+  width: number;
+  height: number;
+}
+
+/**
+ * 흩뿌리는 영역. 긴 변이 기준 크기이고 캔버스와 같은 비율이다.
+ * 예전 작업물에는 비율이 없어서 정사각형으로 둔다. 그래야 예전 배치가 그대로 그려진다.
+ */
+export function particleArea(aspect: number | undefined): ParticleArea {
+  const ratio = aspect && aspect > 0 ? aspect : 1;
+  return ratio >= 1
+    ? { width: PARTICLE_BASE_SIZE, height: PARTICLE_BASE_SIZE / ratio }
+    : { width: PARTICLE_BASE_SIZE * ratio, height: PARTICLE_BASE_SIZE };
+}
 
 export interface ParticleDot {
   x: number;
@@ -108,6 +52,9 @@ export interface ParticleDot {
   size: number;
   rotation: number;
   opacity: number;
+  glyph: ParticleGlyph;
+  /** 팔레트가 있는 한 벌이면 이 조각의 색. 없으면 레이어의 색을 쓴다. */
+  tint: string | null;
 }
 
 /**
@@ -125,49 +72,127 @@ function randomFrom(seed: number): () => number {
   };
 }
 
+interface Spot {
+  x: number;
+  y: number;
+  /** 조각이 향할 기본 각도(도). 터지는 배치에서는 바깥 방향이다. */
+  heading: number;
+}
+
+type Placer = (index: number, random: () => number) => Spot;
+
 /**
- * 흩뿌린 자리를 만든다.
- *
  * 완전한 난수로 뿌리면 한쪽에 뭉치고 다른 쪽이 비어서 "흩뿌렸다"기보다 "쏟았다"에 가까워진다.
  * 칸을 나눠 한 칸에 하나씩 두고 칸 안에서만 흔든다.
  */
-export function scatterParticles(
-  seed: number,
-  count: number,
-  width: number,
-  height: number,
-): ParticleDot[] {
-  const random = randomFrom(seed);
+function scatterPlacer(count: number, width: number, height: number): Placer {
   const columns = Math.max(1, Math.round(Math.sqrt((count * width) / height)));
   const rows = Math.max(1, Math.ceil(count / columns));
-
   const cellWidth = width / columns;
   const cellHeight = height / rows;
-  const base = Math.min(width, height) * 0.16;
+
+  return (index, random) => ({
+    // 칸 가운데에서 절반 칸만큼만 흔든다. 더 흔들면 옆 칸과 겹친다.
+    x: ((index % columns) + 0.5) * cellWidth + (random() - 0.5) * cellWidth * 0.8,
+    y: (Math.floor(index / columns) + 0.5) * cellHeight + (random() - 0.5) * cellHeight * 0.8,
+    heading: 0,
+  });
+}
+
+/** 가장자리 둘레를 같은 간격으로 나눠 두고 조금씩 흔든다. 가운데는 사진 자리라 비워 둔다. */
+function framePlacer(count: number, width: number, height: number): Placer {
+  const inset = Math.min(width, height) * 0.07;
+  const innerWidth = width - inset * 2;
+  const innerHeight = height - inset * 2;
+  const perimeter = (innerWidth + innerHeight) * 2;
+
+  const pointAt = (distance: number): [number, number] => {
+    const d = ((distance % perimeter) + perimeter) % perimeter;
+    if (d < innerWidth) return [inset + d, inset];
+    if (d < innerWidth + innerHeight) return [width - inset, inset + d - innerWidth];
+    if (d < innerWidth * 2 + innerHeight) {
+      return [width - inset - (d - innerWidth - innerHeight), height - inset];
+    }
+    return [inset, height - inset - (d - innerWidth * 2 - innerHeight)];
+  };
+
+  return (index, random) => {
+    const [x, y] = pointAt(((index + 0.5 + (random() - 0.5) * 0.7) / count) * perimeter);
+    return {
+      x: x + (random() - 0.5) * inset * 1.2,
+      y: y + (random() - 0.5) * inset * 1.2,
+      heading: 0,
+    };
+  };
+}
+
+/** 한가운데에서 바깥으로. 가까운 쪽이 성기게 보이지 않도록 반지름을 제곱근으로 뽑는다. */
+function burstPlacer(count: number, width: number, height: number): Placer {
+  const reach = (Math.min(width, height) / 2) * 0.92;
+
+  return (index, random) => {
+    const theta = ((index + (random() - 0.5) * 0.6) / count) * Math.PI * 2;
+    const radius = reach * (0.25 + 0.75 * Math.sqrt(random()));
+    return {
+      x: width / 2 + Math.cos(theta) * radius,
+      y: height / 2 + Math.sin(theta) * radius,
+      // 조각은 위를 보고 그려져 있다. 90도를 더해야 바깥을 향한다
+      heading: (theta * 180) / Math.PI + 90,
+    };
+  };
+}
+
+const PLACERS: Record<ParticleLayout, typeof scatterPlacer> = {
+  scatter: scatterPlacer,
+  frame: framePlacer,
+  burst: burstPlacer,
+};
+
+function pick<T>(items: readonly T[], roll: number): T | null {
+  return items[Math.floor(roll * items.length)] ?? items[0] ?? null;
+}
+
+/** 흩뿌린 자리를 만든다. */
+export function scatterParticles(
+  shape: ParticleShape,
+  seed: number,
+  count: number,
+  area: ParticleArea,
+): ParticleDot[] {
+  // 자리와 크기는 예전과 같은 순서로 뽑는다. 순서가 바뀌면 저장된 파티클의 배치가 달라진다.
+  // 조각과 색은 새로 생긴 값이라 따로 뽑는다.
+  const random = randomFrom(seed);
+  const extra = randomFrom(seed ^ 0x5bd1e995);
+
+  const place = PLACERS[shape.layout ?? 'scatter'](count, area.width, area.height);
+  // 넓이의 기하평균을 쓴다. 정사각형이면 예전 값(짧은 변)과 같고, 길쭉해도 조각이 작아지지 않는다.
+  const base = Math.sqrt(area.width * area.height) * 0.16;
+  const [sizeMin, sizeMax] = shape.size ?? DEFAULT_SIZE;
+  const [opacityMin, opacityMax] = shape.opacity ?? DEFAULT_OPACITY;
+  const spin = shape.spin ?? 180;
+  const angle = shape.angle ?? 0;
 
   const dots: ParticleDot[] = [];
-
   for (let index = 0; index < count; index += 1) {
-    const column = index % columns;
-    const row = Math.floor(index / columns);
+    const spot = place(index, random);
+    const size = base * (sizeMin + random() * (sizeMax - sizeMin));
+    const roll = random();
+    const rotation = spin >= 180 ? roll * 360 : angle + spot.heading + (roll - 0.5) * 2 * spin;
+    // 전부 같은 진하기면 도장을 찍은 것처럼 보인다. 흐린 것이 섞여야 뿌려진 느낌이 난다.
+    const opacity = opacityMin + random() * (opacityMax - opacityMin);
 
-    dots.push({
-      // 칸 가운데에서 절반 칸만큼만 흔든다. 더 흔들면 옆 칸과 겹친다.
-      x: (column + 0.5) * cellWidth + (random() - 0.5) * cellWidth * 0.8,
-      y: (row + 0.5) * cellHeight + (random() - 0.5) * cellHeight * 0.8,
-      size: base * (0.55 + random() * 0.95),
-      rotation: random() * 360,
-      // 전부 같은 진하기면 도장을 찍은 것처럼 보인다. 흐린 것이 섞여야 뿌려진 느낌이 난다.
-      opacity: 0.5 + random() * 0.5,
-      });
+    const glyph = pick(shape.glyphs, extra());
+    const tint = shape.palette ? pick(shape.palette, extra()) : null;
+    if (!glyph) continue;
+
+    dots.push({ x: spot.x, y: spot.y, size, rotation, opacity, glyph, tint });
   }
-
   return dots;
 }
 
 /** 경로(24 좌표계)를 원하는 크기로 그릴 때의 배율. */
 export function dotScale(size: number): number {
-  return size / SHAPE_BOX;
+  return size / GLYPH_BOX;
 }
 
 export interface CreateParticleLayerParams {
@@ -180,11 +205,12 @@ export interface CreateParticleLayerParams {
 
 export function createParticleLayer(params: CreateParticleLayerParams): ParticleLayer {
   const { kind, color, canvasWidth, canvasHeight, zIndex } = params;
+  const shape = findParticleShape(kind);
+  const aspect = canvasWidth / canvasHeight;
+  const area = particleArea(aspect);
+  const fill = LAYOUT_FILL[shape.layout ?? 'scatter'];
 
-  const scale = Math.min(
-    (canvasWidth * PARTICLE_FILL_RATIO) / PARTICLE_BASE_SIZE,
-    (canvasHeight * PARTICLE_FILL_RATIO) / PARTICLE_BASE_SIZE,
-  );
+  const scale = Math.min((canvasWidth * fill) / area.width, (canvasHeight * fill) / area.height);
 
   return {
     id: createId(),
@@ -201,6 +227,7 @@ export function createParticleLayer(params: CreateParticleLayerParams): Particle
     color,
     // 넣을 때마다 다른 배치가 나온다. 두 번 넣어 겹치면 밀도가 올라가는 것도 이 때문이다.
     seed: Math.floor(Math.random() * 100000) + 1,
-    count: findParticleShape(kind).count,
+    count: shape.count,
+    aspect,
   };
 }

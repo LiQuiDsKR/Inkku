@@ -1,6 +1,7 @@
 import { createId } from '@/utils/id';
 import { findFont } from '@/fonts/catalog';
-import { SHAPE_BASE_SIZE, SHAPE_FILL_RATIO, type ShapeKind } from './shapeStyle';
+import type { ShapeKind } from './shapeCatalog';
+import { SHAPE_BASE_SIZE, SHAPE_FILL_RATIO } from './shapeStyle';
 import { defaultTextShadow, defaultTextStroke } from './textStyle';
 import type { TextDraft } from './textDraft';
 import type {
@@ -73,6 +74,8 @@ export interface CreateStickerLayerParams {
   canvasHeight: number;
   zIndex: number;
   cascadeIndex?: number;
+  /** 한 가지 색 에셋에 입힐 색. 색이 박혀 있는 에셋이면 비워 둔다. */
+  tint?: string;
 }
 
 export function createStickerLayer(params: CreateStickerLayerParams): StickerLayer {
@@ -102,6 +105,8 @@ export function createStickerLayer(params: CreateStickerLayerParams): StickerLay
     assetUrl,
     naturalWidth,
     naturalHeight,
+    // 색이 박힌 에셋에는 색을 두지 않는다. 색이 있는지가 곧 색을 입힐 수 있는지다
+    ...(params.tint ? { tint: params.tint } : {}),
   };
 }
 
@@ -182,16 +187,7 @@ export function createShapeLayer(params: CreateShapeLayerParams): ShapeLayer {
   };
 }
 
-export interface CreatePresetLineLayerParams {
-  assetId: string;
-  assetUrl: string;
-  naturalWidth: number;
-  naturalHeight: number;
-  canvasWidth: number;
-  canvasHeight: number;
-  zIndex: number;
-  cascadeIndex?: number;
-}
+export type CreatePresetLineLayerParams = CreateStickerLayerParams;
 
 export function createPresetLineLayer(params: CreatePresetLineLayerParams): PresetLineLayer {
   const { assetId, assetUrl, naturalWidth, naturalHeight, canvasWidth, canvasHeight, zIndex } =
@@ -217,5 +213,6 @@ export function createPresetLineLayer(params: CreatePresetLineLayerParams): Pres
     assetUrl,
     naturalWidth,
     naturalHeight,
+    ...(params.tint ? { tint: params.tint } : {}),
   };
 }
