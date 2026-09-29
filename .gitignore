@@ -16,3 +16,6 @@ yarn-error.log*
 
 # vite-plugin-pwa 생성물 (Phase 5에서 추가)
 dev-dist
+
+# 에셋 가져오기 스크립트의 내려받기 캐시
+scripts/assets/.cache

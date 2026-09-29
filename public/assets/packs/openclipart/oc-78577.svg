@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svg="http://www.w3.org/2000/svg" xmlns:ns1="http://sozi.baierouge.fr" width="512" height="125" viewBox="0 0 882.94 215.48"><defs
+      id="defs5735"
+    ><linearGradient
+        id="linearGradient3605"
+        y2="190.59"
+        gradientUnits="userSpaceOnUse"
+        x2="438.49"
+        gradientTransform="translate(6,-4)"
+        y1="441.7"
+        x1="439.73"
+       
+      ><stop
+          id="stop3601"
+          style="stop-color:#0054d3"
+          offset="0"
+      /><stop
+          id="stop3603"
+          style="stop-color:#2ae2ff"
+          offset="1"
+      /></linearGradient
+    ><linearGradient
+        id="linearGradient3613"
+        y2="299.05"
+        gradientUnits="userSpaceOnUse"
+        x2="100.19"
+        gradientTransform="translate(6,-4)"
+        y1="503"
+        x1="100.19"
+       
+      ><stop
+          id="stop3609"
+          style="stop-color:#0055d4"
+          offset="0"
+      /><stop
+          id="stop3611"
+          style="stop-color:#2ae3ff"
+          offset="1"
+      /></linearGradient
+    ><linearGradient
+        id="linearGradient3621"
+        y2="288.44"
+        gradientUnits="userSpaceOnUse"
+        x2="780.23"
+        gradientTransform="translate(6,-4)"
+        y1="490.03"
+        x1="782.78"
+       
+      ><stop
+          id="stop3617"
+          style="stop-color:#0055d4"
+          offset="0"
+      /><stop
+          id="stop3619"
+          style="stop-color:#2be4ff"
+          offset="1"
+      /></linearGradient
+    ><linearGradient
+        id="linearGradient3629"
+        y2="393.16"
+        gradientUnits="userSpaceOnUse"
+        x2="197.51"
+        gradientTransform="translate(6,-4)"
+        y1="393.16"
+        x1="109.5"
+       
+      ><stop
+          id="stop3625"
+          style="stop-color:#0044aa"
+          offset="0"
+      /><stop
+          id="stop3627"
+          style="stop-color:#1975ff;stop-opacity:.97297"
+          offset="1"
+      /></linearGradient
+    ><linearGradient
+        id="linearGradient3637"
+        y2="388.3"
+        gradientUnits="userSpaceOnUse"
+        x2="-770.92"
+        gradientTransform="translate(-6,-4)"
+        y1="399.26"
+        x1="-656.64"
+       
+      ><stop
+          id="stop3633"
+          style="stop-color:#1975ff"
+          offset="0"
+      /><stop
+          id="stop3635"
+          style="stop-color:#0044aa;stop-opacity:.99099"
+          offset="1"
+      /></linearGradient
+    ></defs
+  ><g
+      id="layer1"
+     
+     
+      transform="translate(-3.7393 -231.63)"
+    ><rect
+        id="rect6289"
+        style="stroke-linejoin:round;fill-rule:evenodd;stroke:#ffffff;stroke-linecap:round;stroke-width:1.5;fill:url(#linearGradient3637)"
+        transform="scale(-1,1)"
+        height="70.361"
+        width="86.51"
+        y="349.12"
+        x="-776.17"
+    /><path
+        id="path6291"
+       
+        style="stroke-linejoin:round;fill-rule:evenodd;stroke:#88cadc;stroke-linecap:round;stroke-width:1.5;fill:url(#linearGradient3621)"
+        d="m836.46 390.99 44.758 45.63c-0.4129 0.0343-0.8255 0.0627-1.2382 0.0627h-129.8s-63.684 4.747-59.448-19.527c4.2357-24.274 49.251-26.376 58.061-38.484 8.8101-12.108 3.0727-31.899 3.0727-31.899l130.07 0.10333v-0.00001l-45.473 44.115z"
+    /><rect
+        id="rect6283"
+        style="stroke-linejoin:round;fill-rule:evenodd;stroke:#ffffff;stroke-linecap:round;stroke-width:1.5;fill:url(#linearGradient3629)"
+        height="70.361"
+        width="86.51"
+        y="353.98"
+        x="116.25"
+    /><path
+        id="rect5743"
+       
+        style="stroke-linejoin:round;fill-rule:evenodd;stroke:#87c9dc;stroke-linecap:round;stroke-width:1.5;fill:url(#linearGradient3613)"
+        d="m55.963 395.86-44.758 45.63c0.41294 0.0343 0.82552 0.0627 1.2382 0.0627h129.8s64.821 6.8989 59.448-19.527c-5.4146-26.632-28.138-30.068-52.321-39.46-12.978-10.441-11.706-30.089-11.706-30.089l-127.18-0.73027v-0.00001l45.473 44.115z"
+    /><path
+        id="rect5751"
+       
+        style="stroke-linejoin:round;fill-rule:evenodd;stroke:#88cadc;stroke-linecap:round;stroke-width:1.5;fill:url(#linearGradient3605)"
+        d="m178 286.69c31.389-16.038 186.58-47.306 282.32-47.306 95.737 0 179.66 4.0713 261.11 50.967 27.671 15.931 55.685 95.581 8.9116 95.454-46.773-0.12711-108.82-34.922-241.32-34.777-132.5 0.1447-247.08 38.417-314.84 37.556-67.765-0.86081-27.569-85.857 3.8203-101.89z"
+    /></g
+  ></svg
+>

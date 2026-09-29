@@ -1,0 +1,9 @@
+Openclipart
+원본: https://openclipart.org
+이 폴더의 SVG는 원본에서 편집기 흔적을 걷어 내고, 그림 둘레의 빈 페이지를 잘라 크기를 맞춘 것이다.
+파일 이름의 숫자가 Openclipart의 작품 번호다(https://openclipart.org/detail/<번호>).
+
+Openclipart의 모든 그림은 Creative Commons Zero 1.0 (CC0 1.0 Universal)으로 공개되어 있다.
+저작자 표시 없이 상업적 용도를 포함해 자유롭게 쓸 수 있다.
+https://openclipart.org/share
+https://creativecommons.org/publicdomain/zero/1.0/legalcode

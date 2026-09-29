@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svg="http://www.w3.org/2000/svg" xmlns:ns1="http://sozi.baierouge.fr" width="512" height="225" viewBox="0 0 820 360"><defs
+    ><style
+        type="text/css"
+      >#hearts {stroke:black;stroke-width:2px;}
+      .heart1 {fill:#ff0000;}
+      .heart2 {fill:#dd0000;}
+      .heart3 {fill:#ffb0c0;}</style
+    ><symbol
+        id="Heart"
+        viewBox="0 0 280 270"
+      ><path
+          d="m140 58c30-60 110-60 130 0 30 100-110 150-130 210m0-210c-30-60-110-60-130 0-30 100 110 150 130 210"
+      /></symbol
+    ></defs
+  ><g
+      id="hearts"
+      transform="translate(0) scale(1)"
+    ><g
+        class="heart1"
+        transform="translate(135,90) rotate(180,140,135)"
+      ><use
+          y="0"
+          x="0"
+          xlink:href="#Heart"
+          width="280"
+          height="270"
+      /></g
+    ><g
+        class="heart1"
+        transform="translate(405,90) rotate(180,140,135)"
+      ><use
+          y="0"
+          x="0"
+          xlink:href="#Heart"
+          width="280"
+          height="270"
+      /></g
+    ><g
+        class="heart2"
+        transform="translate(0)"
+      ><use
+          y="0"
+          x="0"
+          xlink:href="#Heart"
+          width="280"
+          height="270"
+      /></g
+    ><g
+        class="heart3"
+        transform="translate(270)"
+      ><use
+          y="0"
+          x="0"
+          xlink:href="#Heart"
+          width="280"
+          height="270"
+      /></g
+    ><g
+        class="heart2"
+        transform="translate(540)"
+      ><use
+          y="0"
+          x="0"
+          xlink:href="#Heart"
+          width="280"
+          height="270"
+      /></g
+    ></g
+  ></svg
+>

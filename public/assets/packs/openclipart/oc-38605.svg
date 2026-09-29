@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:ns1="http://sozi.baierouge.fr" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="436" viewBox="0 0 150 127.63"><defs
+      id="defs3886"
+    ><filter
+        id="filter3925"
+        width="1.2182"
+        y="-.13332"
+        x="-.10910"
+        height="1.2666"
+        color-interpolation-filters="sRGB"
+       
+      ><feGaussianBlur
+          id="feGaussianBlur3927"
+          stdDeviation="1.4546875"
+         
+      /></filter
+    ></defs
+  ><g
+      id="layer1"
+     
+     
+      transform="translate(-270.71 -413.43)"
+    ><g
+        id="g3938"
+        transform="matrix(3.8479 0 0 3.8479 -1177.6 -344.71)"
+      ><path
+          id="path3897-9"
+          style="filter:url(#filter3925);fill:#7a7a7a"
+          d="m381.88 200.52c-1.108 0-2 0.8229-2 1.8438v16.812c0 1.0208 0.892 1.8438 2 1.8438h1.1875c-0.44149 1.9459-1.3931 3.8212-2.3125 5.6875 2.3645-1.6274 4.148-3.4 5.6875-5.6875h0.0937 23.344c1.108 0 2-0.8229 2-1.8438v-16.812c0-1.0208-0.892-1.8438-2-1.8438h-28z"
+      /><g
+          id="g3935"
+        ><path
+            id="path3897"
+            style="stroke-linejoin:round;stroke:#000000;stroke-linecap:round;stroke-width:.25988;fill:#ffffff"
+            d="m380.62 198.38c-1.108 0-2 0.8229-2 1.8438v16.812c0 1.0208 0.892 1.8438 2 1.8438h1.1875c-0.44149 1.9459-1.3931 3.8212-2.3125 5.6875 2.3645-1.6274 4.148-3.4 5.6875-5.6875h0.0937 23.344c1.108 0 2-0.8229 2-1.8438v-16.812c0-1.0208-0.892-1.8438-2-1.8438h-28z"
+        /></g
+      ></g
+    ></g
+  ></svg
+>

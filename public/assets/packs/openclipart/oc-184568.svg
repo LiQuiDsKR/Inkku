@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svg="http://www.w3.org/2000/svg" xmlns:ns1="http://sozi.baierouge.fr" width="512" height="512" viewBox="0 0 280 280"><defs
+    ><style
+        type="text/css"
+      >#doublehearts {stroke:black;stroke-width:1px;}
+      #heart1 {fill:#ee155c;}
+      #heart2 {fill:#f26eaa;}</style
+    ><symbol
+        id="Heart"
+        viewBox="0 0 280 270"
+      ><path
+          d="m140 58c30-60 110-60 130 0 30 100-110 150-130 210m0-210c-30-60-110-60-130 0-30 100 110 150 130 210"
+      /></symbol
+    ></defs
+  ><g
+      transform="translate(0) scale(1)"
+    ><g
+        id="doublehearts"
+        transform="translate(-3)"
+      ><use
+          id="heart1"
+          xlink:href="#Heart"
+          height="270"
+          width="280"
+          y="0"
+          x="0"
+      /><use
+          id="heart2"
+          xlink:href="#Heart"
+          transform="translate(185 165) scale(.35)"
+          height="270"
+          width="280"
+          y="0"
+          x="0"
+      /></g
+    ></g
+  ></svg
+>

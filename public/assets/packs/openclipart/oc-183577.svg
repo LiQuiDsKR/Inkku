@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:ns1="http://sozi.baierouge.fr" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="512" viewBox="0 0 410 410"><defs
+    ><style
+        type="text/css"
+      >#flower {stroke:black;stroke-width:4px;}
+      #step1 {fill:#fff99b;}
+      #step2 {fill:#ed008c;}
+      #step3 {fill:#a3d49d;}</style
+    ></defs
+  ><g
+      transform="translate(0) scale(1)"
+    ><g
+        id="flower"
+        transform="translate(-170,-270) rotate(-65,375,475)"
+      ><g
+          id="step3"
+        ><ellipse
+            cy="370"
+            cx="320"
+            rx="65"
+            ry="90"
+            transform="rotate(65,320,370)"
+        /><g
+            transform="rotate(90,375,475)"
+          ><ellipse
+              cy="370"
+              cx="320"
+              rx="65"
+              ry="90"
+              transform="rotate(65,320,370)"
+          /></g
+        ><g
+            transform="rotate(180,375,475)"
+          ><ellipse
+              cy="370"
+              cx="320"
+              rx="65"
+              ry="90"
+              transform="rotate(65,320,370)"
+          /></g
+        ><g
+            transform="rotate(270,375,475)"
+          ><ellipse
+              cy="370"
+              cx="320"
+              rx="65"
+              ry="90"
+              transform="rotate(65,320,370)"
+          /></g
+        ></g
+      ><g
+          id="step2"
+        ><ellipse
+            cy="375"
+            cx="375"
+            rx="50"
+            ry="100"
+            transform="rotate(20,375,475)"
+        /><ellipse
+            cy="375"
+            cx="375"
+            rx="50"
+            ry="100"
+            transform="rotate(200,375,475)"
+        /><ellipse
+            cy="375"
+            cx="375"
+            rx="50"
+            ry="100"
+            transform="rotate(110,375,475)"
+        /><ellipse
+            cy="375"
+            cx="375"
+            rx="50"
+            ry="100"
+            transform="rotate(290,375,475)"
+        /></g
+      ><g
+          id="step1"
+        ><circle
+            cy="475"
+            cx="375"
+            r="50"
+        /></g
+      ></g
+    ></g
+  ></svg
+>

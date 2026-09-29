@@ -1,0 +1,12 @@
+Doodle Icons (Khushmeen Sidhu)
+원본: https://github.com/theJian/doodle-icons (icons/)
+이 폴더의 SVG는 원본의 검정을 currentColor로 바꾸고 크기를 맞춘 것이다.
+
+CC0 1.0 Universal (Public Domain Dedication)
+
+The icons in the "icons/" directory were designed by Khushmeen Sidhu
+(https://khushmeen.com/icons.html) as part of the Doodle Icons project,
+and are dedicated to the public domain under CC0. No copyright is
+claimed, and you may use them for any purpose without attribution.
+
+Full legal text: https://creativecommons.org/publicdomain/zero/1.0/legalcode

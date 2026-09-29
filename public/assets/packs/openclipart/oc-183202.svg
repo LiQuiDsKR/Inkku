@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svg="http://www.w3.org/2000/svg" xmlns:ns1="http://sozi.baierouge.fr" width="512" height="410" viewBox="0 0 250 200"><defs
+    ><style
+        type="text/css"
+      >#snail {fill:none;stroke:black;stroke-width:3px;}
+      #shell {fill:#1e58bb;}
+      #body {fill:#0090cc;}</style
+    ><symbol
+        id="Antenea"
+        viewBox="-100 -83 170 180"
+      ><path
+          d="m0 0c-5-10-20-10-25 0-5 30 40 30 40 0-5-40-60-40-60 0-5 60 75 60 85 0 5-70-105-80-110 0-5 90 120 90 135 0 5-100-155-110-160 0"
+      /></symbol
+    ></defs
+  ><g
+      transform="translate(0) scale(1)"
+    ><g
+        id="snail"
+        transform="translate(100,85)"
+      ><path
+          id="body"
+          d="m-71 69l-19 21c5 20 120 30 170-20 70 60 90-120-24-40l-109 21"
+      /><path
+          id="shell"
+          d="m0 0c-5-10-20-10-25 0-5 30 40 30 40 0-5-40-60-40-60 0-5 60 75 60 85 0 5-70-105-80-110 0-5 90 120 90 135 0 5-100-155-110-160 0-2 40 10 60 25 70"
+      /><use
+          y="-70"
+          x="89.93"
+          xlink:href="#Antenea"
+          width="50"
+          height="50"
+      /><path
+          d="m92.65-47l7.35 57"
+      /><use
+          y="-30"
+          x="119.26"
+          xlink:href="#Antenea"
+          width="30"
+          height="30"
+      /><path
+          stroke-width=".5"
+          d="m121-17v29"
+      /><circle
+          cy="30"
+          cx="110"
+          r="8"
+      /><circle
+          cy="32"
+          cx="112"
+          r="6"
+          fill="#fff"
+      /><path
+          d="m125 76c-15-5-15-16-15-20l6-4-15 10"
+      /></g
+    ></g
+  ></svg
+>
