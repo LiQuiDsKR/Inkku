@@ -30,12 +30,12 @@ export const MAP_TEMPLATE: TemplateSpec = {
   height: 782,
 
   fields: [
-    { id: 'place', label: '장소', value: 'Seukku Cafe', maxLength: 22 },
+    { id: 'place', label: '장소', value: '스꾸 카페', maxLength: 22 },
     { id: 'rating', label: '평점', value: '4.5', maxLength: 4 },
     { id: 'reviews', label: '리뷰 수', value: '(1,353)', maxLength: 10 },
-    { id: 'walk', label: '걸리는 시간', value: '2 min', maxLength: 10 },
-    { id: 'status', label: '영업 상태', value: 'Open', maxLength: 10 },
-    { id: 'hours', label: '영업 시간', value: '· Closes 21:00', maxLength: 22 },
+    { id: 'walk', label: '걸리는 시간', value: '2분', maxLength: 10 },
+    { id: 'status', label: '영업 상태', value: '영업 중', maxLength: 10 },
+    { id: 'hours', label: '영업 시간', value: '· 오후 9:00에 영업 종료', maxLength: 22 },
   ],
 
   slots: [
@@ -122,36 +122,30 @@ export const MAP_TEMPLATE: TemplateSpec = {
     { kind: 'text', field: 'hours', x: 118, y: 198, width: 440, size: 25, fill: 'inkMuted' },
 
     // 길찾기 버튼만 색을 채운다. 나머지까지 채우면 어디를 누르라는 화면인지 사라진다
-    { kind: 'rect', x: 28, y: 240, width: 204, height: 66, radius: 33, fill: BLUE },
-    { kind: 'icon', icon: 'navigate', x: 52, y: 256, size: 32, fill: '#ffffff', solid: true },
-    {
-      kind: 'text',
-      text: 'Directions',
-      x: 94,
-      y: 259,
-      size: 26,
-      weight: 600,
-      fill: '#ffffff',
-    },
+    // 한글 라벨은 영문보다 짧아서 세 버튼을 같은 폭으로 나누고 내용을 가운데에 모은다
+    { kind: 'rect', x: 28, y: 240, width: 173, height: 66, radius: 33, fill: BLUE },
+    { kind: 'icon', icon: 'navigate', x: 66, y: 256, size: 32, fill: '#ffffff', solid: true },
+    { kind: 'text', text: '경로', x: 108, y: 259, size: 26, weight: 600, fill: '#ffffff' },
 
-    { kind: 'rect', x: 244, y: 240, width: 152, height: 66, radius: 33, fill: 'chip' },
-    { kind: 'icon', icon: 'navigate', x: 266, y: 257, size: 29, fill: 'onChip', solid: true },
-    { kind: 'text', text: 'Start', x: 302, y: 259, size: 26, weight: 600, fill: 'onChip' },
+    { kind: 'rect', x: 213, y: 240, width: 173, height: 66, radius: 33, fill: 'chip' },
+    { kind: 'icon', icon: 'navigate', x: 252, y: 257, size: 29, fill: 'onChip', solid: true },
+    { kind: 'text', text: '시작', x: 292, y: 259, size: 26, weight: 600, fill: 'onChip' },
 
-    { kind: 'rect', x: 408, y: 240, width: 164, height: 66, radius: 33, fill: 'chip' },
-    { kind: 'icon', icon: 'phone', x: 430, y: 256, size: 29, fill: 'onChip' },
-    { kind: 'text', text: 'Call', x: 468, y: 259, size: 26, weight: 600, fill: 'onChip' },
+    { kind: 'rect', x: 398, y: 240, width: 174, height: 66, radius: 33, fill: 'chip' },
+    { kind: 'icon', icon: 'phone', x: 437, y: 256, size: 29, fill: 'onChip' },
+    { kind: 'text', text: '전화', x: 477, y: 259, size: 26, weight: 600, fill: 'onChip' },
 
     { kind: 'slot', slot: 'photo1', x: 28, y: 326, width: 340, height: 340, radius: 18 },
     { kind: 'slot', slot: 'photo2', x: 380, y: 326, width: 192, height: 164, radius: 18 },
     { kind: 'slot', slot: 'photo3', x: 380, y: 502, width: 192, height: 164, radius: 18 },
 
-    { kind: 'text', text: 'Overview', x: 28, y: 706, size: 23, weight: 600, fill: BLUE },
-    { kind: 'text', text: 'Menu', x: 172, y: 706, size: 23, fill: 'inkMuted' },
-    { kind: 'text', text: 'Reviews', x: 268, y: 706, size: 23, fill: 'inkMuted' },
-    { kind: 'text', text: 'Photos', x: 394, y: 706, size: 23, fill: 'inkMuted' },
-    { kind: 'text', text: 'Updates', x: 500, y: 706, size: 23, fill: 'inkMuted' },
+    { kind: 'text', text: '개요', x: 28, y: 706, size: 23, weight: 600, fill: BLUE },
+    { kind: 'text', text: '메뉴', x: 136, y: 706, size: 23, fill: 'inkMuted' },
+    { kind: 'text', text: '리뷰', x: 244, y: 706, size: 23, fill: 'inkMuted' },
+    { kind: 'text', text: '사진', x: 352, y: 706, size: 23, fill: 'inkMuted' },
+    { kind: 'text', text: '업데이트', x: 460, y: 706, size: 23, fill: 'inkMuted' },
     { kind: 'rect', x: 0, y: 754, width: 600, height: 2, fill: 'divider' },
-    { kind: 'rect', x: 28, y: 750, width: 112, height: 6, radius: 3, fill: BLUE },
+    // 밑줄은 글자 폭에 맞춘다. 영문 시절 폭을 두면 짧은 한글 탭 아래로 선만 삐져나온다
+    { kind: 'rect', x: 20, y: 750, width: 62, height: 6, radius: 3, fill: BLUE },
   ],
 };
