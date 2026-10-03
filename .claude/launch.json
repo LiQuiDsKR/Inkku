@@ -11,6 +11,15 @@
       "port": 5173
     },
     {
+      "name": "inkku-tunnel",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev:tunnel"
+      ],
+      "port": 5173
+    },
+    {
       "name": "inkku-pages-preview",
       "runtimeExecutable": "npm",
       "runtimeArgs": [

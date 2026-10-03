@@ -11,6 +11,7 @@ import { useBrushDrawing } from './useBrushDrawing';
 import { useDragSnap } from './useDragSnap';
 import { useLongPress } from './useLongPress';
 import { useMaskGesture, type MaskAdjust } from './useMaskGesture';
+import { usePixelPicking } from './usePixelPicking';
 import { useTwoFingerGesture } from './useTwoFingerGesture';
 import { useWheelGesture } from './useWheelGesture';
 import { formatAngle } from './snapping';
@@ -184,6 +185,9 @@ export default function EditorStage({
       transformer.off('transformend', onEnd);
     };
   }, [transformer]);
+
+  // 겹친 요소 중 손가락 아래에 실제로 그려진 것을 고른다. 사각형 히트는 맨 위만 잡는다
+  usePixelPicking(stage);
 
   /** 자른 사진을 꾹 누르면 도형 안에서 사진만 맞추는 모드로 들어간다. */
   useLongPress({

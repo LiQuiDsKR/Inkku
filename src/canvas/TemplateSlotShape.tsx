@@ -6,6 +6,9 @@ import { useToolStore } from '@/store/toolStore';
 import { resolveFill } from '@/templates/types';
 import type { TemplatePalette, TemplateSlotPart } from '@/templates/types';
 
+/** 픽셀 판정이 요소 아래에서 사진 자리를 찾을 때 쓰는 표식. */
+export const TEMPLATE_SLOT_NAME = 'template-slot';
+
 /** 빈 자리에 그리는 더하기 표시의 선. 아이콘 경로와 같은 24 좌표계다. */
 const PLUS_PATH = 'M12 5.5v13 M5.5 12h13';
 
@@ -58,7 +61,7 @@ export default function TemplateSlotShape({
      * 카드에서 유일하게 누를 수 있는 곳이다.
      * 카드 자체는 배경처럼 이벤트를 받지 않지만, 사진 자리는 눌러서 채우고 바꿔야 한다.
      */
-    <Group onClick={onTap} onTap={onTap}>
+    <Group name={TEMPLATE_SLOT_NAME} onClick={onTap} onTap={onTap}>
       <Rect
         x={part.x}
         y={part.y}

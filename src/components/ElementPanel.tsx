@@ -151,7 +151,7 @@ export default function ElementPanel({ onClose }: ElementPanelProps) {
   );
 
   return (
-    <PanelSheet title="요소" onClose={onClose}>
+    <PanelSheet title="요소" onClose={onClose} fixedHeight>
       {assetTab ? (
         // 탭마다 그림체와 묶음 선택이 따로다. key로 새로 마운트해 이전 탭의 선택을 끌고 오지 않는다
         <AssetBrowser

@@ -6,6 +6,9 @@
  * 같은 파트 목록을 캔버스(Konva)와 패널 썸네일(SVG)이 각자의 방식으로 그린다.
  */
 
+// 손그림 카드의 파트는 계산이 길어서 따로 둔다. 타입만 오가므로 서로 참조해도 순환이 생기지 않는다
+import type { TemplateCellsPart, TemplateLinesPart } from './handParts';
+
 /** 카드 안에서 색을 값이 아니라 역할로 부른다. 변형(화이트/다크)은 팔레트만 갈아 끼워 만든다. */
 export type TemplateRole =
   | 'card'
@@ -182,7 +185,9 @@ export type TemplatePart =
   | TemplateSlotPart
   | TemplateIconPart
   | TemplateBubblePart
-  | TemplateRowPart;
+  | TemplateRowPart
+  | TemplateLinesPart
+  | TemplateCellsPart;
 
 export interface TemplateField {
   id: string;

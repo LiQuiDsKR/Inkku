@@ -17,12 +17,22 @@ const ALIGN_LABEL: Record<TextAlign, string> = {
 interface TextStyleControlsProps {
   draft: TextDraft;
   onChange: (patch: Partial<TextDraft>) => void;
+  /**
+   * 폰트와 색 두 줄만 보인다. 키보드가 떠 있는 동안 쓴다.
+   * 다섯 줄을 다 두면 키보드 위에 자리가 모자라 줄이 반쯤 잘린 채 걸린다(아이폰은 더 많이 잘린다).
+   * 치는 도중에 바꾸는 것은 폰트와 색이고, 정렬과 크기는 키보드를 내리면 다시 나온다.
+   */
+  compact?: boolean;
 }
 
 /** 모달 본문이 길어져서 스타일 조작만 따로 뺐다. 상태는 전부 부모가 들고 있다. */
-export default function TextStyleControls({ draft, onChange }: TextStyleControlsProps) {
+export default function TextStyleControls({
+  draft,
+  onChange,
+  compact = false,
+}: TextStyleControlsProps) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className={`flex flex-col ${compact ? 'gap-2' : 'gap-4'}`}>
       <div className="scroll-contain no-scrollbar flex gap-2 overflow-x-auto">
         {FONT_OPTIONS.map((font) => (
           <button
@@ -57,6 +67,15 @@ export default function TextStyleControls({ draft, onChange }: TextStyleControls
         ))}
       </div>
 
+      {!compact && <MoreControls draft={draft} onChange={onChange} />}
+    </div>
+  );
+}
+
+/** 정렬, 크기, 외곽선과 그림자. 키보드가 떠 있으면 접히는 줄들이다. */
+function MoreControls({ draft, onChange }: TextStyleControlsProps) {
+  return (
+    <>
       <div className="flex gap-2">
         {(Object.keys(ALIGN_LABEL) as TextAlign[]).map((align) => (
           <button
@@ -112,6 +131,6 @@ export default function TextStyleControls({ draft, onChange }: TextStyleControls
           그림자
         </button>
       </div>
-    </div>
+    </>
   );
 }

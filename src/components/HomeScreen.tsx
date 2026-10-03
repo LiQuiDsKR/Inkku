@@ -7,6 +7,7 @@ import type { Project } from '@/layers/types';
 interface HomeScreenProps {
   onCreate: () => void;
   onResume: () => void;
+  onOpenSettings: () => void;
   /** 저장된 작업물. 없으면 이어서 편집할 것이 없다. */
   saved: Project | null;
 }
@@ -18,7 +19,7 @@ function formatUpdatedAt(timestamp: number): string {
   return sameDay ? `오늘 ${time}` : `${date.toLocaleDateString('ko-KR')} ${time}`;
 }
 
-export default function HomeScreen({ onCreate, onResume, saved }: HomeScreenProps) {
+export default function HomeScreen({ onCreate, onResume, onOpenSettings, saved }: HomeScreenProps) {
   return (
     <div className="safe-top safe-bottom scroll-contain h-full overflow-y-auto px-5 pb-8">
       <header className="flex items-center gap-2 py-5">
@@ -28,6 +29,14 @@ export default function HomeScreen({ onCreate, onResume, saved }: HomeScreenProp
           <p className="text-label-md text-muted">Studio NeoDeco</p>
         </div>
         <FullscreenToggle />
+        <button
+          type="button"
+          onClick={onOpenSettings}
+          aria-label="설정"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-high text-on-surface transition-transform active:scale-90"
+        >
+          <Icon name="settings" size={20} />
+        </button>
       </header>
 
       {/* 첫 화면에서 할 일은 하나뿐이다. 그 하나를 크게 둔다 */}

@@ -39,8 +39,9 @@ export default function ParticleContent({ layer, onReady }: ParticleContentProps
     <Group offsetX={area.width / 2} offsetY={area.height / 2}>
       {/*
         한 벌이 차지하는 사각형 전체를 누를 수 있게 한다. 조각만 눌리게 두면 빈 곳이 대부분이라
-        폰에서는 거의 고를 수 없다. 그 대신 아래에 깔린 사진은 이 사각형 밖이나 레이어 목록에서 고른다.
-        채우기가 투명이라 화면과 결과물에는 아무것도 그려지지 않고 히트 영역에만 들어간다.
+        폰에서는 거의 고를 수 없다. 아래에 사진이 있으면 픽셀 판정(`pixelPick.ts`)이 사진을 먼저 잡고,
+        파티클은 조각 가까이를 눌렀을 때만 잡힌다. 빈 바탕 위에서는 사각형 어디를 눌러도 된다.
+        채우기가 투명이라 화면과 결과물에는 아무것도 그려지지 않고 이벤트를 받는 자리로만 쓴다.
       */}
       <Rect width={area.width} height={area.height} fill="transparent" />
       {dots.map((dot, index) => {

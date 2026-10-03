@@ -2,7 +2,7 @@
  * 감성 텍스트용 폰트 목록.
  *
  * 처음부터 전부 받아 두지 않는다. 한글 웹폰트는 한 벌이 통으로 오기 때문에
- * (조선궁서체는 3.5MB가 넘는다) 아홉 벌을 미리 받으면 폰에서 첫 진입이 멈춘 것처럼 보인다.
+ * (조선궁서체는 3.5MB가 넘는다) 열한 벌을 미리 받으면 폰에서 첫 진입이 멈춘 것처럼 보인다.
  * 고른 시점에 하나씩 받고, 못 받으면 폴백 폰트로 그린다.
  */
 
@@ -85,6 +85,13 @@ export const FONT_OPTIONS: readonly FontOption[] = [
     format: 'woff',
   }),
   webfont({
+    id: 'joseon-gulim',
+    label: '조선굴림체',
+    name: 'ChosunGu',
+    url: `${NOONNU}/noonfonts_20-04@1.0/ChosunGu.woff`,
+    format: 'woff',
+  }),
+  webfont({
     id: 'cafe24-surround',
     label: '카페24 써라운드',
     name: 'Cafe24Ssurround',
@@ -128,6 +135,14 @@ export const FONT_OPTIONS: readonly FontOption[] = [
     // 갈무리는 CSS 안에서 상대 경로로 파일을 가리켜서, 파일만 따로 등록할 수 없다
     stylesheet: 'https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css',
   },
+  webfont({
+    // 초록우산 어린이재단의 아이들 손글씨로 만든 서체 중 가장 굵은 "대한". 그림일기 카드가 쓴다.
+    // 개인/기업 무료, 배포된 파일을 고치지 않고 써야 한다(눈누 font_page/1431 라이선스).
+    id: 'yoon-child',
+    label: '초록우산어린이',
+    name: 'YoonChildfundkoreaDaeHan',
+    url: `${NOONNU}/2408@1.0/YoonChildfundkoreaDaeHan.woff2`,
+  }),
   webfont({
     id: 'joseon-palace',
     label: '조선궁서체',

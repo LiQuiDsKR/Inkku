@@ -1,5 +1,6 @@
 import { BLOG_TEMPLATE } from './blog';
 import { CHAT_TEMPLATE } from './chat';
+import { DIARY_TEMPLATE } from './diary';
 import { MAP_TEMPLATE } from './map';
 import { MUSIC_TEMPLATE } from './music';
 import { POLAROID_TEMPLATE } from './polaroid';
@@ -17,6 +18,7 @@ export const TEMPLATE_SPECS: readonly TemplateSpec[] = [
   MUSIC_TEMPLATE,
   POLAROID_TEMPLATE,
   CHAT_TEMPLATE,
+  DIARY_TEMPLATE,
 ];
 
 /** 스펙에서 사라진 템플릿을 참조하는 예전 작업물도 열려야 한다. 없으면 그리지 않는다. */
@@ -49,7 +51,7 @@ export function collectFontIds(spec: TemplateSpec): string[] {
   const ids = new Set<string>();
 
   for (const part of spec.parts) {
-    if (part.kind === 'text' && part.fontId) ids.add(part.fontId);
+    if ((part.kind === 'text' || part.kind === 'cells') && part.fontId) ids.add(part.fontId);
     // 줄 안의 글도 폰트를 쓴다. 빠뜨리면 그 줄만 폴백 폰트로 굳고 폭도 틀리게 잡힌다
     if (part.kind === 'row') {
       for (const item of part.items) {

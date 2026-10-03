@@ -3,6 +3,7 @@ import DebugOverlay from '@/components/DebugOverlay';
 import EditorScreen from '@/components/EditorScreen';
 import HomeScreen from '@/components/HomeScreen';
 import RatioScreen from '@/components/RatioScreen';
+import SettingsScreen from '@/components/SettingsScreen';
 import { useBackGuard } from '@/components/useBackGuard';
 import { loadLatestProject } from '@/storage/projectRepo';
 import { finishEditing, startAutoSave } from '@/store/autoSave';
@@ -12,10 +13,10 @@ import { useToolStore } from '@/store/toolStore';
 import { logDebug } from '@/utils/debugLog';
 import type { Project, Ratio } from '@/layers/types';
 
-type Screen = 'home' | 'ratio';
+type Screen = 'home' | 'ratio' | 'settings';
 
 /**
- * 화면이 셋뿐이고 딥링크도 필요 없어서 라우터를 두지 않는다.
+ * 화면이 넷뿐이고 딥링크도 필요 없어서 라우터를 두지 않는다.
  * 편집 중이면 프로젝트 존재 여부가 곧 화면 상태다.
  */
 export default function App() {
@@ -89,11 +90,11 @@ export default function App() {
       }
       return true;
     }
-    if (screen === 'ratio') setScreen('home');
+    if (screen !== 'home') setScreen('home');
     return false;
   };
 
-  useBackGuard(project !== null || screen === 'ratio', handleHardwareBack);
+  useBackGuard(project !== null || screen !== 'home', handleHardwareBack);
 
   return (
     <>
@@ -101,8 +102,15 @@ export default function App() {
         <EditorScreen onExit={handleExitEditor} />
       ) : screen === 'ratio' ? (
         <RatioScreen onSelect={handleSelectRatio} onBack={() => setScreen('home')} />
+      ) : screen === 'settings' ? (
+        <SettingsScreen onBack={() => setScreen('home')} />
       ) : (
-        <HomeScreen onCreate={() => setScreen('ratio')} onResume={handleResume} saved={saved} />
+        <HomeScreen
+          onCreate={() => setScreen('ratio')}
+          onResume={handleResume}
+          onOpenSettings={() => setScreen('settings')}
+          saved={saved}
+        />
       )}
       {import.meta.env.DEV && <DebugOverlay />}
     </>

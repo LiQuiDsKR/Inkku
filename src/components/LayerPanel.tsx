@@ -32,8 +32,8 @@ export default function LayerPanel({ onClose }: LayerPanelProps) {
   return (
     <PanelSheet title="레이어" onClose={onClose}>
       {/*
-        순서에 관한 설정이라 순서를 다루는 이 화면에 둔다.
-        설정 화면을 따로 만들면 값 하나를 바꾸러 편집을 빠져나갔다 와야 한다.
+        순서에 관한 설정이라 순서를 다루는 이 화면에도 둔다. 홈의 설정 화면과 같은 값이다.
+        설정 화면에만 두면 값 하나를 바꾸러 편집을 빠져나갔다 와야 한다.
       */}
       <label className="mx-4 mb-3 flex items-center gap-3 rounded-2xl bg-surface-high px-3 py-2.5">
         <input

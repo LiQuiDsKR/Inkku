@@ -136,10 +136,12 @@ export default function TextEditorModal({ target, onClose }: TextEditorModalProp
         조작은 위에 둔다.
         아래에 두면 키보드가 올라오는 순간 통째로 가려서, 색이나 폰트를 바꾸려면
         키보드를 내렸다 올렸다 해야 한다.
-        자리가 모자라면 이 줄이 접혀 스크롤된다. 입력칸이 먼저 사라지면 무엇을 치는지 모른다.
+        키보드가 떠 있으면 폰트와 색 두 줄만 남긴다. 다 두면 키보드 위에 자리가 모자라
+        줄이 반쯤 잘린 채 걸린다. 그래도 넘치는 작은 화면에서는 이 줄이 스크롤된다.
+        입력칸이 먼저 사라지면 무엇을 치는지 모른다.
       */}
       <div className="scroll-contain no-scrollbar min-h-0 overflow-y-auto px-4 pb-2">
-        <TextStyleControls draft={draft} onChange={patch} />
+        <TextStyleControls draft={draft} onChange={patch} compact={viewport.keyboardOpen} />
       </div>
 
       {/*

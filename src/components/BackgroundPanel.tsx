@@ -38,7 +38,7 @@ export default function BackgroundPanel({ onClose }: BackgroundPanelProps) {
   });
 
   return (
-    <PanelSheet title="배경" onClose={onClose}>
+    <PanelSheet title="배경" onClose={onClose} fixedHeight>
       <div className="scroll-contain no-scrollbar flex gap-2 overflow-x-auto px-4 pb-2">
         {TABS.map((item) => (
           <button

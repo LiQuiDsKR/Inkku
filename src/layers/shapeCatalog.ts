@@ -13,6 +13,8 @@ import { HEART_PATH, SHAPE_BASE_SIZE } from './shapeStyle';
  */
 
 export const SHAPE_KIND_IDS = [
+  // 각진 사각형이 맨 앞이다. 띠, 가리개, 색 상자처럼 가장 흔하게 쓰는 모양이다
+  'square',
   'rect',
   'circle',
   'triangle',
@@ -139,7 +141,10 @@ interface ShapeDef {
 
 /** Record로 두어 SHAPE_KIND_IDS에 새 이름을 넣고 모양을 빠뜨리면 타입 단계에서 걸린다. */
 const SHAPES: Record<ShapeKind, ShapeDef> = {
-  rect: { label: '사각형', path: roundRect(0, 0, 256, 256, 20.48) },
+  // 시계 방향으로 돈다. 다른 도형과 같은 방향이어야 겹쳐 그려도 구멍이 생기지 않는다
+  square: { label: '사각형', path: 'M0 0H256V256H0Z' },
+  // id는 rect로 둔다. 저장된 도형 레이어가 이 id로 둥근 모양을 가리킨다
+  rect: { label: '둥근 사각형', path: roundRect(0, 0, 256, 256, 20.48) },
   circle: { label: '원', path: circle(C, C, 128) },
   triangle: { label: '삼각형', path: polygon(radialPoints(3, () => 128)) },
   star: { label: '별', path: polygon(radialPoints(10, (i) => (i % 2 ? 56.32 : 128))) },
