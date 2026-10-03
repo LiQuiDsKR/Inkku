@@ -1,3 +1,5 @@
+import { STICKER_DIR } from './stickerCategories';
+
 /**
  * 에셋 팩 불러오기.
  *
@@ -13,6 +15,11 @@ export interface AssetPackItem {
   /** 선언 크기. 긴 변이 512로 맞춰져 있다. 레이어의 naturalWidth/Height가 된다. */
   width: number;
   height: number;
+  /**
+   * 팩 폴더 안의 파일 경로. 직접 넣은 스티커처럼 분류 폴더에 원래 이름 그대로 놓인 그림이 갖는다.
+   * 없으면 가져오기 스크립트의 규칙(`<id>.svg`)을 따른다.
+   */
+  file?: string;
 }
 
 export interface AssetPackGroup {
@@ -30,21 +37,32 @@ export interface AssetPack {
   items: readonly AssetPackItem[];
 }
 
+/**
+ * 직접 넣은 스티커 묶음. 가져오기 스크립트의 팩과 달리 public/assets/stickers에 분류 폴더째로 놓이고,
+ * 목록은 빌드가 폴더를 읽어 만든다(scripts/vite/stickerIndex.ts).
+ */
+export const LOCAL_STICKER_PACK = 'sticker';
+
 /** BASE_URL을 붙여야 서브 경로에 배포해도 경로가 깨지지 않는다. */
 function packBaseUrl(packId: string): string {
-  return `${import.meta.env.BASE_URL}assets/packs/${packId}`;
+  const dir = packId === LOCAL_STICKER_PACK ? STICKER_DIR : `assets/packs/${packId}`;
+  return `${import.meta.env.BASE_URL}${dir}`;
 }
 
 /**
  * 에셋 하나의 주소. 레이어에 그대로 저장된다.
  * 파일 이름을 바꾸면 저장된 작업물의 스티커가 사라지므로 가져오기 스크립트는 이름을 바꾸지 않는다.
+ * 직접 넣은 스티커는 파일 이름을 손으로 짓기 때문에 띄어쓰기가 섞여도 깨지지 않게 마디마다 인코딩한다.
  */
-export function packAssetUrl(packId: string, itemId: string): string {
-  return `${packBaseUrl(packId)}/${itemId}.svg`;
+export function packAssetUrl(packId: string, item: AssetPackItem): string {
+  const file = item.file
+    ? item.file.split('/').map(encodeURIComponent).join('/')
+    : `${encodeURIComponent(item.id)}.svg`;
+  return `${packBaseUrl(packId)}/${file}`;
 }
 
 /** public 폴더 아래 에셋이 사는 자리. 배포 경로 앞부분을 떼어 낼 기준이다. */
-const PUBLIC_ASSET_PATH = /(?:^|\/)((?:assets\/packs|mock-assets)\/.+)$/;
+const PUBLIC_ASSET_PATH = /(?:^|\/)((?:assets\/packs|assets\/stickers|mock-assets)\/.+)$/;
 
 /**
  * 저장된 에셋 주소를 지금의 배포 경로에 맞춘다.
@@ -73,7 +91,8 @@ function isItem(value: unknown): value is AssetPackItem {
     typeof value.label === 'string' &&
     typeof value.group === 'string' &&
     typeof value.width === 'number' &&
-    typeof value.height === 'number'
+    typeof value.height === 'number' &&
+    (value.file === undefined || typeof value.file === 'string')
   );
 }
 

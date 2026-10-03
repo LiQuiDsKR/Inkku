@@ -27,9 +27,16 @@ function clip(value: string): string {
   return single.length > MAX_DETAIL ? `${single.slice(0, MAX_DETAIL)}...` : single;
 }
 
-/** 'noto/grinning-face' 같은 id에서 사람이 읽을 부분만. 팩 이름과 하이픈은 목록에서 잡음이다. */
+/**
+ * 'noto/grinning-face' 같은 id에서 사람이 읽을 부분만. 팩 이름과 하이픈은 목록에서 잡음이다.
+ * 직접 넣은 스티커는 이름 끝에 크기와 해시가 붙어 있어서('-400_00be2007d8') 떼고, 숫자만 남으면 '그림'이라 부른다.
+ */
 function assetName(assetId: string): string {
-  return (assetId.split('/').pop() ?? assetId).replace(/^oc-\d+$/, '그림').replace(/-/g, ' ');
+  const name = (assetId.split('/').pop() ?? assetId)
+    .replace(/-\d+_[0-9a-f]{6,}$/i, '')
+    .replace(/^oc-\d+$/, '그림')
+    .replace(/-/g, ' ');
+  return /^[\d\s]+$/.test(name) ? '그림' : name;
 }
 
 export interface LayerDescription {

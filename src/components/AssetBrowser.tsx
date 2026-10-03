@@ -100,7 +100,7 @@ export default function AssetBrowser({ tab, header, color, onColor, onPick }: As
           {items.map((item) => (
             <AssetTile
               key={item.id}
-              url={packAssetUrl(pack.id, item.id)}
+              url={packAssetUrl(pack.id, item)}
               label={item.label}
               wide={isLine}
               tint={pack.tintable ? color : null}

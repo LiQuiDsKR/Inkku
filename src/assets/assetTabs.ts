@@ -20,9 +20,19 @@ export interface AssetTab {
   /** 꾸밈선은 레이어 타입이 다르고 처음 놓이는 크기(가로로 길게)도 다르다. */
   placeAs: 'sticker' | 'line';
   sources: readonly AssetSource[];
+  /** 문구 스티커 바로 뒤, 도형보다 앞에 선다. 가장 자주 붙일 것이라 앞자리를 준다. */
+  lead?: boolean;
 }
 
 export const ASSET_TABS: readonly AssetTab[] = [
+  {
+    // 직접 고른 스티커. 분류 폴더가 묶음 칩이 된다(public/assets/stickers, 이름은 stickerCategories)
+    id: 'sticker',
+    label: '스티커',
+    placeAs: 'sticker',
+    lead: true,
+    sources: [{ packId: 'sticker', label: '스티커' }],
+  },
   {
     id: 'emoji',
     label: '이모지',

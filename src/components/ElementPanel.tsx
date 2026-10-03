@@ -82,7 +82,7 @@ export default function ElementPanel({ onClose }: ElementPanelProps) {
       ...place,
       // 팩 이름을 앞에 붙인다. 다른 팩에 같은 이름의 그림이 있다(noto와 fluent의 heart)
       assetId: `${pack.id}/${item.id}`,
-      assetUrl: packAssetUrl(pack.id, item.id),
+      assetUrl: packAssetUrl(pack.id, item),
       naturalWidth: item.width,
       naturalHeight: item.height,
       tint: pack.tintable ? color : undefined,
@@ -123,6 +123,15 @@ export default function ElementPanel({ onClose }: ElementPanelProps) {
     setAssetTint(selectedId, next);
   };
 
+  const assetChip = (item: (typeof ASSET_TABS)[number]) => (
+    <TabChip
+      key={item.id}
+      label={item.label}
+      active={item.id === tabId}
+      onClick={() => setTabId(item.id)}
+    />
+  );
+
   const tabRow = (
     <div className="scroll-contain no-scrollbar flex gap-2 overflow-x-auto px-4 pb-2">
       <TabChip
@@ -130,20 +139,14 @@ export default function ElementPanel({ onClose }: ElementPanelProps) {
         active={tabId === PHRASE_TAB_ID}
         onClick={() => setTabId(PHRASE_TAB_ID)}
       />
+      {ASSET_TABS.filter((item) => item.lead).map(assetChip)}
       <TabChip label="도형" active={tabId === SHAPE_TAB_ID} onClick={() => setTabId(SHAPE_TAB_ID)} />
       <TabChip
         label="파티클"
         active={tabId === PARTICLE_TAB_ID}
         onClick={() => setTabId(PARTICLE_TAB_ID)}
       />
-      {ASSET_TABS.map((item) => (
-        <TabChip
-          key={item.id}
-          label={item.label}
-          active={item.id === tabId}
-          onClick={() => setTabId(item.id)}
-        />
-      ))}
+      {ASSET_TABS.filter((item) => !item.lead).map(assetChip)}
     </div>
   );
 

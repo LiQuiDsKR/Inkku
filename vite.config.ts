@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { stickerIndexPlugin } from './scripts/vite/stickerIndex';
 
 /**
  * `npm run dev:tunnel`이 넘기는 --mode tunnel로 터널 접속 여부를 판단한다.
@@ -18,7 +19,8 @@ export default defineConfig(({ mode }) => {
      * 코드의 에셋 주소는 전부 import.meta.env.BASE_URL을 앞에 붙여서 이 값 하나만 바꾸면 된다.
      */
     base: process.env.BASE_PATH ?? '/',
-    plugins: [react(), tailwindcss()],
+    // 직접 넣은 스티커 폴더의 목록(assets/stickers/index.json)을 만든다
+    plugins: [react(), tailwindcss(), stickerIndexPlugin()],
     resolve: {
       alias: {
         // fileURLToPath를 쓰지 않으면 윈도우에서 "/D:/..." 형태가 되어 경로 해석이 깨진다
