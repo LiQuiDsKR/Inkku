@@ -12,6 +12,12 @@ export default defineConfig(({ mode }) => {
   const isTunnel = mode === 'tunnel';
 
   return {
+    /*
+     * 배포 경로. GitHub Pages는 저장소 이름이 경로가 된다(https://<계정>.github.io/Inkku/).
+     * 배포 워크플로가 BASE_PATH를 넘기고, 개발 서버와 로컬 빌드는 루트에서 돈다.
+     * 코드의 에셋 주소는 전부 import.meta.env.BASE_URL을 앞에 붙여서 이 값 하나만 바꾸면 된다.
+     */
+    base: process.env.BASE_PATH ?? '/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {

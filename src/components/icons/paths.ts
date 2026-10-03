@@ -46,6 +46,10 @@ export const ICON_PATHS = {
   // 템플릿: 머리글과 사진 자리, 글줄이 짜여 있는 카드 한 장
   template: 'M3.5 4.5h17v15h-17z M6.5 8h6v4.5h-6z M15 8.5h3 M15 11.5h3 M6.5 16h11',
   crop: 'M6 2v14a2 2 0 0 0 2 2h14 M2 6h14a2 2 0 0 1 2 2v14',
+  // 전체 화면 켜기와 나가기. 모서리 꺾쇠가 바깥을 보면 넓히고 안을 보면 줄인다
+  expand: 'M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5',
+  shrink: 'M9 4v5H4 M15 4v5h5 M9 20v-5H4 M15 20v-5h5',
+  addBox: 'M4 4h16v16H4z M12 8v8 M8 12h8',
 } as const;
 
 export type IconName = keyof typeof ICON_PATHS;

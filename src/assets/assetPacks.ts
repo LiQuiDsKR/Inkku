@@ -43,6 +43,21 @@ export function packAssetUrl(packId: string, itemId: string): string {
   return `${packBaseUrl(packId)}/${itemId}.svg`;
 }
 
+/** public 폴더 아래 에셋이 사는 자리. 배포 경로 앞부분을 떼어 낼 기준이다. */
+const PUBLIC_ASSET_PATH = /(?:^|\/)((?:assets\/packs|mock-assets)\/.+)$/;
+
+/**
+ * 저장된 에셋 주소를 지금의 배포 경로에 맞춘다.
+ *
+ * 레이어는 만들 때의 주소를 BASE_URL까지 통째로 저장한다. GitHub Pages의 하위 경로(/Inkku/)에서
+ * 나중에 도메인 루트로 옮기면 예전 작업물의 스티커와 무늬 배경이 전부 404가 된다.
+ * public 폴더 아래 부분만 떼어 지금의 BASE_URL에 다시 붙이면 어디로 옮겨도 열린다.
+ */
+export function resolveAssetUrl(url: string): string {
+  const match = PUBLIC_ASSET_PATH.exec(url);
+  return match?.[1] ? `${import.meta.env.BASE_URL}${match[1]}` : url;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }

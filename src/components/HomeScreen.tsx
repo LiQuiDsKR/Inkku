@@ -1,5 +1,7 @@
+import { FullscreenToggle, InstallCard } from './AppModeControls';
 import Icon from './icons/Icon';
 import ProjectThumbnail from './ProjectThumbnail';
+import { resumeFullscreen } from '@/utils/appMode';
 import type { Project } from '@/layers/types';
 
 interface HomeScreenProps {
@@ -21,10 +23,11 @@ export default function HomeScreen({ onCreate, onResume, saved }: HomeScreenProp
     <div className="safe-top safe-bottom scroll-contain h-full overflow-y-auto px-5 pb-8">
       <header className="flex items-center gap-2 py-5">
         <Icon name="sparkle" size={22} className="text-primary" />
-        <div className="flex flex-col">
+        <div className="flex flex-1 flex-col">
           <h1 className="text-headline-lg text-on-surface">Inkku</h1>
           <p className="text-label-md text-muted">Studio NeoDeco</p>
         </div>
+        <FullscreenToggle />
       </header>
 
       {/* 첫 화면에서 할 일은 하나뿐이다. 그 하나를 크게 둔다 */}
@@ -39,7 +42,11 @@ export default function HomeScreen({ onCreate, onResume, saved }: HomeScreenProp
         </p>
         <button
           type="button"
-          onClick={onCreate}
+          // 켜 두었던 전체 화면이 뒤로가기로 풀려 있으면 이 누름에 다시 켠다(사용자 동작이 있어야 켤 수 있다)
+          onClick={() => {
+            resumeFullscreen();
+            onCreate();
+          }}
           className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-primary-container py-4 text-title-md text-on-primary-container shadow-[0_8px_24px_-8px_rgba(255,83,118,0.8)] transition-transform active:scale-[0.98]"
         >
           <Icon name="sparkle" size={18} />
@@ -47,6 +54,8 @@ export default function HomeScreen({ onCreate, onResume, saved }: HomeScreenProp
           <Icon name="next" size={16} />
         </button>
       </section>
+
+      <InstallCard />
 
       <section className="mt-7">
         <div className="flex items-center justify-between">
@@ -83,7 +92,10 @@ export default function HomeScreen({ onCreate, onResume, saved }: HomeScreenProp
               </div>
               <button
                 type="button"
-                onClick={onResume}
+                onClick={() => {
+                  resumeFullscreen();
+                  onResume();
+                }}
                 className="flex shrink-0 items-center gap-1.5 rounded-full bg-surface-bright px-4 py-2.5 text-label-lg text-on-surface transition-transform active:scale-95"
               >
                 <Icon name="draw" size={16} className="text-primary" />

@@ -3,6 +3,7 @@ import DebugOverlay from '@/components/DebugOverlay';
 import EditorScreen from '@/components/EditorScreen';
 import HomeScreen from '@/components/HomeScreen';
 import RatioScreen from '@/components/RatioScreen';
+import { useBackGuard } from '@/components/useBackGuard';
 import { loadLatestProject } from '@/storage/projectRepo';
 import { finishEditing, startAutoSave } from '@/store/autoSave';
 import { useProjectStore } from '@/store/projectStore';
@@ -69,6 +70,30 @@ export default function App() {
 
     void finishEditing(closing);
   };
+
+  /**
+   * 뒤로가기 한 번에 한 겹씩 걷는다. 편집 화면 위의 창, 패널, 선택 순서로 닫고
+   * 더 닫을 것이 없을 때 편집을 끝낸다. 작업물은 자동 저장되어 있어서 묻지 않고 나간다.
+   */
+  const handleHardwareBack = (): boolean => {
+    if (useProjectStore.getState().project) {
+      const tool = useToolStore.getState();
+      if (tool.stickerEditor) tool.closeStickerEditor();
+      else if (tool.textEditor) tool.closeTextEditor();
+      else if (tool.maskEdit) tool.closeMaskEdit();
+      else if (tool.panel) tool.closePanel();
+      else if (useSelectionStore.getState().selectedId) clearSelection();
+      else {
+        handleExitEditor();
+        return false;
+      }
+      return true;
+    }
+    if (screen === 'ratio') setScreen('home');
+    return false;
+  };
+
+  useBackGuard(project !== null || screen === 'ratio', handleHardwareBack);
 
   return (
     <>

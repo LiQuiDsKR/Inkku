@@ -1,0 +1,57 @@
+# GitHub Pages 배포.
+#
+# main에 올라올 때마다 빌드해서 Pages에 올린다. 손으로 빌드해 dist를 커밋하지 않는다.
+# 빌드 결과를 저장소에 넣으면 에셋 팩(수천 개 SVG)이 커밋마다 바뀐 것처럼 보이고 기록이 지저분해진다.
+#
+# 처음 한 번은 저장소 Settings > Pages > Source를 "GitHub Actions"로 바꿔야 한다.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # 코드를 바꾸지 않고 다시 배포하고 싶을 때 Actions 탭에서 손으로 돌린다
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 연달아 푸시하면 앞의 배포를 취소하고 마지막 것만 올린다
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Pages 주소는 https://<계정>.github.io/<저장소>/ 라서 저장소 이름이 경로가 된다
+      - run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

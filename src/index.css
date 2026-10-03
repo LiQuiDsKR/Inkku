@@ -100,6 +100,48 @@ body,
 }
 
 /*
+ * 앱 높이는 지금 실제로 보이는 화면 높이(dvh)에 맞춘다.
+ * 100%나 100vh는 모바일 브라우저에서 주소창이 숨었을 때의 높이라, 주소창이 보이는 동안
+ * 아래 툴바가 화면 밖으로 밀려나고 페이지가 위아래로 밀린다. 그 밀림이 가장 웹 페이지 같은 순간이다.
+ * 전체 화면이나 홈 화면 실행으로 바뀌면 dvh도 따라 커지고, 캔버스는 ResizeObserver로 다시 맞춘다.
+ */
+@supports (height: 100dvh) {
+  html,
+  body,
+  #root {
+    height: 100dvh;
+  }
+}
+
+/*
+ * 웹 페이지 티를 지운다.
+ * - 두 번 눌러 확대를 끈다. touch-action은 상속되지 않고 스크롤 영역에서 끊기므로 모든 요소에 건다.
+ *   캔버스는 .canvas-surface의 none이 더 구체적이라 그대로 남는다.
+ * - 꾹 눌렀을 때 글자가 잡히고 돋보기와 메뉴가 뜨는 것을 막는다. 입력칸은 다시 연다.
+ */
+* {
+  touch-action: manipulation;
+}
+
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input,
+textarea,
+[contenteditable='true'] {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
+img {
+  -webkit-user-drag: none;
+}
+
+/*
  * overscroll-behavior는 overflow와 달리 body에서 뷰포트로 전파되지 않는다(CSS 명세의 예외).
  * body에만 걸면 안드로이드 크롬의 당겨서 새로고침과 iOS 바운스가 그대로 남으므로
  * 반드시 루트 요소에 건다.
