@@ -5,6 +5,7 @@ import StickerEditStage from './StickerEditStage';
 import { StickerFontRow, StickerPresetRow } from './StickerPickRows';
 import StickerShapeTab from './StickerShapeTab';
 import TabChip from './TabChip';
+import { useVisualViewport } from './useVisualViewport';
 import { getRatioSize } from '@/layers/ratio';
 import {
   createTextStickerLayer,
@@ -70,6 +71,7 @@ export default function TextStickerEditor({ target, onClose }: TextStickerEditor
   const [draft, setDraft] = useState<StickerDraft>(() => initialDraft(target));
   const [tab, setTab] = useState<EditorTab>('style');
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const viewport = useVisualViewport();
 
   // 도형을 없앴다가 다시 고르면 전에 쓰던 색과 흐림이 돌아와야 한다
   const lastPlate = useRef<StickerPlate | null>(draft.style.plate ?? null);
@@ -137,7 +139,16 @@ export default function TextStickerEditor({ target, onClose }: TextStickerEditor
   const shapeProps = { style: draft.style, fallbackPlate: lastPlate.current, onChange: setStyle };
 
   return (
-    <div className="safe-top safe-bottom fixed inset-0 z-50 flex flex-col bg-black/60 backdrop-blur-[2px]">
+    /*
+     * 창을 키보드 위 영역에 맞춘다. 화면 전체로 두면 스티커가 키보드 뒤 공간까지 셈에 넣어
+     * 가운데가 키보드에 가려진다. 키보드가 뜨면 아래 안전 여백(홈 막대 자리)도 필요 없다.
+     */
+    <div
+      className={`safe-top fixed inset-x-0 z-50 flex flex-col bg-black/60 backdrop-blur-[2px] ${
+        viewport.keyboardOpen ? '' : 'safe-bottom'
+      }`}
+      style={{ top: viewport.top, height: viewport.height }}
+    >
       <header className="flex shrink-0 items-center justify-between px-3 py-2">
         <button
           type="button"
@@ -168,13 +179,19 @@ export default function TextStickerEditor({ target, onClose }: TextStickerEditor
         ))}
       </div>
 
-      {/* 탭마다 높이가 다르면 바꿀 때마다 스티커가 위아래로 튄다. 높이를 고정한다 */}
-      <div className="h-[184px] shrink-0 overflow-y-auto pt-1">
-        {tab === 'style' && <StickerPresetRow {...tabProps} />}
-        {tab === 'font' && <StickerFontRow {...tabProps} />}
-        {tab === 'color' && <StickerColorTab {...shapeProps} />}
-        {tab === 'shape' && <StickerShapeTab {...shapeProps} />}
-      </div>
+      {/*
+        탭마다 높이가 다르면 바꿀 때마다 스티커가 위아래로 튄다. 높이를 고정한다.
+        치는 동안에는 접는다. 폰에서 키보드와 이 줄이 함께 있으면 스티커 자리가 100px 남짓이라
+        문구가 손톱만 하게 줄어든다. 탭을 누르면 키보드가 내려가면서 다시 펼쳐진다.
+      */}
+      {!viewport.keyboardOpen && (
+        <div className="h-[184px] shrink-0 overflow-y-auto pt-1">
+          {tab === 'style' && <StickerPresetRow {...tabProps} />}
+          {tab === 'font' && <StickerFontRow {...tabProps} />}
+          {tab === 'color' && <StickerColorTab {...shapeProps} />}
+          {tab === 'shape' && <StickerShapeTab {...shapeProps} />}
+        </div>
+      )}
 
       <StickerEditStage
         text={draft.text}

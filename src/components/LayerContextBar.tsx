@@ -95,6 +95,16 @@ export default function LayerContextBar({ layer }: LayerContextBarProps) {
             onBlur={endOpacityDrag}
             className="neo-slider flex-1"
           />
+          {/* 바가 그림 아래쪽을 가린다. 빈 곳을 찾아 누르지 않아도 바로 걷을 수 있게 한다 */}
+          <button
+            type="button"
+            onClick={clearSelection}
+            aria-label="선택 해제"
+            title="선택 해제"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-high text-on-surface-variant transition-transform active:scale-90"
+          >
+            <Icon name="close" size={16} />
+          </button>
         </div>
 
         <div className="flex items-center justify-between gap-1">
@@ -130,7 +140,7 @@ export default function LayerContextBar({ layer }: LayerContextBarProps) {
             {layer.type === 'text' && (
               <ContextButton
                 icon="draw"
-                label="글자 편집"
+                label="텍스트 편집"
                 onClick={() => openTextEditor({ mode: 'edit', layerId: layer.id })}
               />
             )}

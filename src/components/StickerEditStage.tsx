@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
+import { useLayoutEffect, useMemo, useRef, type RefObject } from 'react';
 import { useElementSize } from './useElementSize';
 import { drawTextSticker } from '@/canvas/drawTextSticker';
 import { findFont } from '@/fonts/catalog';
@@ -18,38 +18,6 @@ interface StickerEditStageProps {
 }
 
 /**
- * 키보드 위로 보이는 높이. iOS는 키보드가 떠도 화면 높이가 줄지 않고 그 위를 덮는다.
- * 그대로 가운데에 두면 스티커가 키보드 뒤에 숨는다.
- */
-function useVisibleHeight(ref: RefObject<HTMLElement | null>, deps: unknown): number | null {
-  const [height, setHeight] = useState<number | null>(null);
-
-  useEffect(() => {
-    const viewport = window.visualViewport;
-    const measure = () => {
-      const element = ref.current;
-      if (!element) return;
-      const rect = element.getBoundingClientRect();
-      const top = viewport ? viewport.offsetTop : 0;
-      const bottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
-      setHeight(Math.max(0, Math.min(rect.bottom, bottom) - Math.max(rect.top, top)));
-    };
-
-    measure();
-    viewport?.addEventListener('resize', measure);
-    viewport?.addEventListener('scroll', measure);
-    window.addEventListener('resize', measure);
-    return () => {
-      viewport?.removeEventListener('resize', measure);
-      viewport?.removeEventListener('scroll', measure);
-      window.removeEventListener('resize', measure);
-    };
-  }, [ref, deps]);
-
-  return height;
-}
-
-/**
  * 편집 화면 가운데의 스티커. 보이는 그림은 캔버스에 붙을 것과 같은 함수로 그린다.
  *
  * 입력칸은 그 위에 투명하게 겹친다. 글자 모달처럼 입력칸 자체를 미리보기로 쓰면 CSS 글자 테두리가
@@ -60,7 +28,6 @@ export default function StickerEditStage({ text, style, onText, inputRef }: Stic
   const areaRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const area = useElementSize(areaRef);
-  const visible = useVisibleHeight(areaRef, area);
 
   const fontToken = useFontReady(style.fontId, text);
   const layout = useMemo(
@@ -71,7 +38,8 @@ export default function StickerEditStage({ text, style, onText, inputRef }: Stic
   const font = findFont(style.fontId);
 
   const box = layout.visualBounds;
-  const viewHeight = Math.min(area?.height ?? 0, visible ?? Number.POSITIVE_INFINITY);
+  // 편집 창이 키보드 위 영역에 맞춰져 있어서 칸 높이가 곧 보이는 높이다
+  const viewHeight = area?.height ?? 0;
   const scale = area
     ? Math.max(
         0.04,

@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import Icon from './icons/Icon';
 import TextStyleControls from './TextStyleControls';
+import { useVisualViewport } from './useVisualViewport';
 import { createTextLayer } from '@/layers/factory';
 import { getRatioSize } from '@/layers/ratio';
 import { createTextDraft, draftFromLayer, draftToPatch, type TextDraft } from '@/layers/textDraft';
@@ -47,6 +48,7 @@ export default function TextEditorModal({ target, onClose }: TextEditorModalProp
   const select = useSelectionStore((state) => state.select);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const viewport = useVisualViewport();
 
   // 모달이 열릴 때의 값만 필요하다. 편집 중 스토어 변화를 구독하면 입력이 되돌아간다.
   const [draft, setDraft] = useState<TextDraft>(() => {
@@ -102,7 +104,16 @@ export default function TextEditorModal({ target, onClose }: TextEditorModalProp
   const shadow = draft.shadow ? defaultTextShadow(draft.fontSize) : null;
 
   return (
-    <div className="safe-top safe-bottom fixed inset-0 z-50 flex flex-col bg-black/60 backdrop-blur-[2px]">
+    /*
+     * 창을 키보드 위 영역에 맞춘다. 화면 전체로 두면 조작 줄 아래에 놓인 입력칸이
+     * 통째로 키보드 뒤에 들어가서, 치는 글이 안 보인다.
+     */
+    <div
+      className={`safe-top fixed inset-x-0 z-50 flex flex-col bg-black/60 backdrop-blur-[2px] ${
+        viewport.keyboardOpen ? '' : 'safe-bottom'
+      }`}
+      style={{ top: viewport.top, height: viewport.height }}
+    >
       <header className="flex shrink-0 items-center justify-between px-3 py-2">
         <button
           type="button"
@@ -125,8 +136,9 @@ export default function TextEditorModal({ target, onClose }: TextEditorModalProp
         조작은 위에 둔다.
         아래에 두면 키보드가 올라오는 순간 통째로 가려서, 색이나 폰트를 바꾸려면
         키보드를 내렸다 올렸다 해야 한다.
+        자리가 모자라면 이 줄이 접혀 스크롤된다. 입력칸이 먼저 사라지면 무엇을 치는지 모른다.
       */}
-      <div className="shrink-0 px-4 pb-2">
+      <div className="scroll-contain no-scrollbar min-h-0 overflow-y-auto px-4 pb-2">
         <TextStyleControls draft={draft} onChange={patch} />
       </div>
 
@@ -135,7 +147,7 @@ export default function TextEditorModal({ target, onClose }: TextEditorModalProp
         조작을 만지다가 키보드가 내려갔을 때 다시 칠 곳을 찾아 헤매지 않게 한다.
       */}
       <div
-        className="scroll-contain flex min-h-0 flex-1 justify-center overflow-y-auto px-5 pt-6"
+        className="scroll-contain flex min-h-[40%] flex-1 justify-center overflow-y-auto px-5 pt-4"
         onPointerDown={(event) => {
           if (event.target === event.currentTarget) inputRef.current?.focus();
         }}
@@ -146,8 +158,9 @@ export default function TextEditorModal({ target, onClose }: TextEditorModalProp
           onChange={(event) => patch({ content: event.currentTarget.value })}
           rows={1}
           autoFocus
-          placeholder="글자 입력"
-          className="h-auto w-full resize-none overflow-hidden bg-transparent outline-none placeholder:text-white/35"
+          placeholder="텍스트 입력"
+          // self-start: 늘어나는 칸 안에서 높이를 늘이면 scrollHeight가 칸 높이가 되어 줄 수만큼 줄지 않는다
+          className="h-auto w-full self-start resize-none overflow-hidden bg-transparent outline-none placeholder:text-white/35"
           style={{
             fontFamily: findFont(draft.fontId).family,
             fontSize: draft.fontSize * PREVIEW_SCALE,

@@ -30,7 +30,7 @@ export default function EditorToolbar() {
         onClick={() => togglePanel('element')}
       />
       {/* 글자는 패널이 아니라 전체 모달이다. 입력 중에는 캔버스를 볼 필요가 없고, 키보드가 화면 절반을 먹는다 */}
-      <ToolButton label="글자" icon="text" onClick={() => openTextEditor({ mode: 'create' })} />
+      <ToolButton label="텍스트" icon="text" onClick={() => openTextEditor({ mode: 'create' })} />
       <ToolButton label="그리기" icon="draw" active={panel === 'draw'} onClick={handleDraw} />
       <ToolButton
         label="템플릿"

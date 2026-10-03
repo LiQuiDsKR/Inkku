@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Group, Path } from 'react-konva';
+import { Group, Path, Rect } from 'react-konva';
 import { findParticleShape } from '@/layers/particleCatalog';
 import {
   GLYPH_STROKE_WIDTH,
@@ -37,6 +37,12 @@ export default function ParticleContent({ layer, onReady }: ParticleContentProps
   return (
     // 원점을 한 벌의 한가운데로 옮긴다. 회전축이 가운데여야 다른 요소와 손맛이 같다.
     <Group offsetX={area.width / 2} offsetY={area.height / 2}>
+      {/*
+        한 벌이 차지하는 사각형 전체를 누를 수 있게 한다. 조각만 눌리게 두면 빈 곳이 대부분이라
+        폰에서는 거의 고를 수 없다. 그 대신 아래에 깔린 사진은 이 사각형 밖이나 레이어 목록에서 고른다.
+        채우기가 투명이라 화면과 결과물에는 아무것도 그려지지 않고 히트 영역에만 들어간다.
+      */}
+      <Rect width={area.width} height={area.height} fill="transparent" />
       {dots.map((dot, index) => {
         const scale = dotScale(dot.size);
         const color = dot.tint ?? layer.color;
@@ -59,12 +65,8 @@ export default function ParticleContent({ layer, onReady }: ParticleContentProps
             strokeWidth={stroke ? GLYPH_STROKE_WIDTH : 0}
             lineCap="round"
             lineJoin="round"
-            /*
-             * 조각 하나하나만 눌린다. 뒤에 보이지 않는 사각형을 깔면 고르기는 쉬워지지만
-             * 파티클이 캔버스의 절반을 덮고 있어서 아래에 있는 사진을 영영 못 누르게 된다.
-             * 대신 선으로 그리는 조각은 히트 영역을 넉넉히 준다. 실선 두께로는 손가락이 못 맞춘다.
-             */
-            hitStrokeWidth={stroke ? 10 : undefined}
+            // 히트 영역은 뒤의 사각형이 맡는다. 조각마다 히트를 그릴 필요가 없다
+            listening={false}
           />
         );
       })}

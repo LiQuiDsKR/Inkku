@@ -238,6 +238,14 @@ export default function EditorStage({
     <div
       ref={containerRef}
       className="canvas-surface relative flex min-h-0 flex-1 items-center justify-center overflow-hidden"
+      /*
+       * 캔버스 바깥의 어두운 여백도 빈 곳이다. 사진이 캔버스를 꽉 채우면 캔버스 안에는
+       * 누를 빈 곳이 없어서, 여기서 풀어 주지 않으면 선택을 풀 길이 없다.
+       */
+      onPointerDown={(event) => {
+        if (event.target !== event.currentTarget || brush || maskEdit) return;
+        select(null);
+      }}
     >
       {size && (
         <Stage

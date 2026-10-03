@@ -11,7 +11,7 @@ import type { Layer } from './types';
 const KIND_LABEL: Record<Layer['type'], string> = {
   photo: '사진',
   sticker: '스티커',
-  text: '글자',
+  text: '텍스트',
   drawing: '낙서',
   shape: '도형',
   presetLine: '꾸밈선',

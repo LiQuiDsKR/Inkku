@@ -92,8 +92,9 @@ export default function EditorTopBar({ onBack, onExport, exporting }: EditorTopB
               : 'bg-primary-container text-on-primary-container shadow-md'
           }`}
         >
-          완료
-          <Icon name="check" size={16} />
+          {/* "완료"라고 쓰면 지금 고친 요소 하나를 확정하는 버튼으로 읽힌다. 실제로는 결과물을 굽는다 */}
+          <Icon name="share" size={16} />
+          내보내기
         </button>
       </div>
     </header>
