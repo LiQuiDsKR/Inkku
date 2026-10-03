@@ -4,6 +4,7 @@ import ColorRow from './ColorRow';
 import PanelSheet from './PanelSheet';
 import ParticleGrid from './ParticleGrid';
 import ShapeGrid from './ShapeGrid';
+import StickerPresetGrid from './StickerPresetGrid';
 import TabChip from './TabChip';
 import { packAssetUrl } from '@/assets/assetPacks';
 import { ASSET_TABS } from '@/assets/assetTabs';
@@ -15,6 +16,7 @@ import type { ShapeKind } from '@/layers/shapeCatalog';
 import { SHAPE_COLORS } from '@/layers/shapeStyle';
 import { useProjectStore } from '@/store/projectStore';
 import { useSelectionStore } from '@/store/selectionStore';
+import { useToolStore } from '@/store/toolStore';
 
 /** 같은 자리에 계속 쌓이지 않도록 어긋내는 최대 단계. 넘어가면 다시 0부터 돈다. */
 const CASCADE_CYCLE = 5;
@@ -22,19 +24,22 @@ const CASCADE_CYCLE = 5;
 /** 도형과 파티클은 에셋이 아니라 벡터라 에셋 탭 목록에 없다. 칩 줄에서만 같은 줄에 선다. */
 const SHAPE_TAB_ID = 'shape';
 const PARTICLE_TAB_ID = 'particle';
+/** 문구 스티커도 에셋이 아니다. 글자와 도형을 그때그때 그린다. */
+const PHRASE_TAB_ID = 'phrase';
 
 interface ElementPanelProps {
   onClose: () => void;
 }
 
 /**
- * 도형, 파티클, 이모지, 말풍선, 꾸밈, 꾸밈선, 낙서를 한 패널에서 고른다.
+ * 문구 스티커, 도형, 파티클, 이모지, 말풍선, 꾸밈, 꾸밈선, 낙서를 한 패널에서 고른다.
  *
  * 툴바에서 나누면 칸이 모자란다(하단 툴바는 여섯 칸이 한계다).
  * 쓰는 사람 입장에서도 "붙일 것"이라는 하나의 목적이라, 고르는 곳이 나뉠 이유가 없다.
  */
 export default function ElementPanel({ onClose }: ElementPanelProps) {
-  const [tabId, setTabId] = useState(SHAPE_TAB_ID);
+  // 문구 스티커가 맨 앞이다. 이 앱에서 가장 자주 붙이는 것이 사진 위의 짧은 말이다.
+  const [tabId, setTabId] = useState(PHRASE_TAB_ID);
   const [color, setColor] = useState<string>(SHAPE_COLORS[0] ?? '#ffffff');
   // 몇 번째로 붙였는지 세는 값. 화면에 그릴 필요가 없어 상태 대신 ref로 둔다.
   const addedCount = useRef(0);
@@ -47,6 +52,7 @@ export default function ElementPanel({ onClose }: ElementPanelProps) {
   const setAssetTint = useProjectStore((state) => state.setAssetTint);
   const selectedId = useSelectionStore((state) => state.selectedId);
   const select = useSelectionStore((state) => state.select);
+  const openStickerEditor = useToolStore((state) => state.openStickerEditor);
 
   const assetTab = ASSET_TABS.find((item) => item.id === tabId) ?? null;
 
@@ -119,6 +125,11 @@ export default function ElementPanel({ onClose }: ElementPanelProps) {
 
   const tabRow = (
     <div className="scroll-contain no-scrollbar flex gap-2 overflow-x-auto px-4 pb-2">
+      <TabChip
+        label="문구 스티커"
+        active={tabId === PHRASE_TAB_ID}
+        onClick={() => setTabId(PHRASE_TAB_ID)}
+      />
       <TabChip label="도형" active={tabId === SHAPE_TAB_ID} onClick={() => setTabId(SHAPE_TAB_ID)} />
       <TabChip
         label="파티클"
@@ -148,6 +159,12 @@ export default function ElementPanel({ onClose }: ElementPanelProps) {
           onColor={handleColor}
           onPick={handlePickAsset}
         />
+      ) : tabId === PHRASE_TAB_ID ? (
+        // 문구 스티커는 색을 편집 화면에서 고른다. 여기서는 색 줄이 할 일이 없다
+        <>
+          <div className="sticky top-0 z-10 bg-surface-container">{tabRow}</div>
+          <StickerPresetGrid onPick={(presetId) => openStickerEditor({ mode: 'create', presetId })} />
+        </>
       ) : (
         <>
           <div className="sticky top-0 z-10 bg-surface-container">

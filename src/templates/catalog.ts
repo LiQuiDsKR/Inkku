@@ -47,8 +47,16 @@ export function defaultFields(spec: TemplateSpec): Record<string, string> {
  */
 export function collectFontIds(spec: TemplateSpec): string[] {
   const ids = new Set<string>();
+
   for (const part of spec.parts) {
     if (part.kind === 'text' && part.fontId) ids.add(part.fontId);
+    // 줄 안의 글도 폰트를 쓴다. 빠뜨리면 그 줄만 폴백 폰트로 굳고 폭도 틀리게 잡힌다
+    if (part.kind === 'row') {
+      for (const item of part.items) {
+        if (item.kind === 'text' && item.fontId) ids.add(item.fontId);
+      }
+    }
   }
+
   return [...ids];
 }

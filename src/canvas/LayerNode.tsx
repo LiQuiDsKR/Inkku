@@ -6,6 +6,7 @@ import ParticleContent from './ParticleContent';
 import PhotoContent from './PhotoContent';
 import ShapeContent from './ShapeContent';
 import TextContent from './TextContent';
+import TextStickerContent from './TextStickerContent';
 import { LAYER_NODE_NAME } from './useDragSnap';
 import type { NodeTransform } from './gestureMath';
 import type { Layer } from '@/layers/types';
@@ -17,7 +18,7 @@ interface LayerNodeProps {
   registerNode: (id: string, node: Konva.Group | null) => void;
   /** 비동기로 그려지는 내용(사진, 스티커, 폰트)이 준비된 시점. Transformer 재계산에 쓴다. */
   onContentReady: () => void;
-  /** 더블탭. 텍스트는 다시 편집, 나머지는 아직 할 일이 없다. */
+  /** 더블탭. 글자와 문구 스티커는 다시 편집, 사진은 보정 패널을 연다. */
   onRequestEdit: (layer: Layer) => void;
   /**
    * 잠긴 상태(사진 맞추기 중).
@@ -60,6 +61,8 @@ function LayerContent({ layer, onReady }: LayerContentProps) {
       return <DrawingContent layer={layer} onReady={onReady} />;
     case 'particle':
       return <ParticleContent layer={layer} onReady={onReady} />;
+    case 'textSticker':
+      return <TextStickerContent layer={layer} onReady={onReady} />;
     default:
       // 유니온이 늘어나면 여기서 걸린다. 새 타입은 반드시 위 스위치에 한 줄을 더한다.
       return null;

@@ -4,8 +4,17 @@ import {
   patchPhotoLayer,
   patchShapeLayer,
   patchTextLayer,
+  patchTextStickerLayer,
 } from '@/layers/mutations';
-import type { Layer, ParticleLayer, PhotoLayer, Project, ShapeLayer, TextLayer } from '@/layers/types';
+import type {
+  Layer,
+  ParticleLayer,
+  PhotoLayer,
+  Project,
+  ShapeLayer,
+  TextLayer,
+  TextStickerLayer,
+} from '@/layers/types';
 
 /**
  * 레이어 타입별 속성 수정.
@@ -18,11 +27,14 @@ export type TextPatch = Partial<Omit<TextLayer, 'id' | 'type'>>;
 export type ShapePatch = Partial<Omit<ShapeLayer, 'id' | 'type'>>;
 export type PhotoPatch = Partial<Omit<PhotoLayer, 'id' | 'type'>>;
 export type ParticlePatch = Partial<Omit<ParticleLayer, 'id' | 'type'>>;
+export type TextStickerPatch = Partial<Omit<TextStickerLayer, 'id' | 'type'>>;
 
 export interface LayerPatchActions {
   updateTextLayer: (id: string, patch: TextPatch) => void;
   updateShapeLayer: (id: string, patch: ShapePatch) => void;
   updateParticleLayer: (id: string, patch: ParticlePatch) => void;
+  /** 편집 화면에서 완료를 눌렀을 때 한 번만 부른다. 고르는 동안은 화면 안의 초안만 바뀐다. */
+  updateTextStickerLayer: (id: string, patch: TextStickerPatch) => void;
   /** 자르기 슬라이더처럼 연속으로 바뀌는 값은 첫 변경만 기록한다. */
   updatePhotoLayer: (id: string, patch: PhotoPatch, record?: boolean) => void;
   /** 색을 입힐 수 있는 에셋의 색. 색이 없는 에셋이면 아무 일도 하지 않는다. */
@@ -45,6 +57,7 @@ export function createLayerPatchActions(
     updateTextLayer: (id, patch) => run((layers) => patchTextLayer(layers, id, patch)),
     updateShapeLayer: (id, patch) => run((layers) => patchShapeLayer(layers, id, patch)),
     updateParticleLayer: (id, patch) => run((layers) => patchParticleLayer(layers, id, patch)),
+    updateTextStickerLayer: (id, patch) => run((layers) => patchTextStickerLayer(layers, id, patch)),
     updatePhotoLayer: (id, patch, record = true) =>
       run((layers) => patchPhotoLayer(layers, id, patch), record),
     setAssetTint: (id, tint) => run((layers) => patchAssetTint(layers, id, tint)),

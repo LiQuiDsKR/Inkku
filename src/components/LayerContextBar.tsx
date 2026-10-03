@@ -38,6 +38,8 @@ export default function LayerContextBar({ layer }: LayerContextBarProps) {
   const select = useSelectionStore((state) => state.select);
   const clearSelection = useSelectionStore((state) => state.clear);
   const openPanel = useToolStore((state) => state.openPanel);
+  const openTextEditor = useToolStore((state) => state.openTextEditor);
+  const openStickerEditor = useToolStore((state) => state.openStickerEditor);
 
   /**
    * 슬라이더를 끄는 동안은 첫 변경만 히스토리에 남긴다.
@@ -116,6 +118,21 @@ export default function LayerContextBar({ layer }: LayerContextBarProps) {
                 <ContextButton icon="crop" label="모양 자르기" onClick={() => openPanel('photo')} />
                 <ContextButton icon="adjust" label="사진 보정" onClick={() => openPanel('photo')} />
               </>
+            )}
+            {/* 더블탭으로도 열리지만 알려 주지 않으면 아무도 두 번 눌러 보지 않는다 */}
+            {layer.type === 'textSticker' && (
+              <ContextButton
+                icon="draw"
+                label="문구 편집"
+                onClick={() => openStickerEditor({ mode: 'edit', layerId: layer.id })}
+              />
+            )}
+            {layer.type === 'text' && (
+              <ContextButton
+                icon="draw"
+                label="글자 편집"
+                onClick={() => openTextEditor({ mode: 'edit', layerId: layer.id })}
+              />
             )}
             <ContextButton icon="copy" label="복제" onClick={handleDuplicate} />
             <ContextButton icon="trash" label="삭제" onClick={handleDelete} danger />

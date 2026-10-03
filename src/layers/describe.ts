@@ -16,6 +16,7 @@ const KIND_LABEL: Record<Layer['type'], string> = {
   shape: '도형',
   presetLine: '꾸밈선',
   particle: '파티클',
+  textSticker: '문구 스티커',
 };
 
 /** 목록 한 줄에 들어갈 길이. 넘치면 잘라서 뒤에 점을 붙인다. */
@@ -42,6 +43,8 @@ export function describeLayer(layer: Layer): LayerDescription {
   switch (layer.type) {
     case 'text':
       return { kind, detail: clip(layer.content) };
+    case 'textSticker':
+      return { kind, detail: clip(layer.text) };
     case 'shape':
       return { kind, detail: findShape(layer.shape).label };
     case 'sticker':

@@ -132,12 +132,57 @@ export interface TemplateBubblePart {
   timeSize?: number;
 }
 
+/**
+ * 가로로 이어 붙는 한 줄.
+ *
+ * 항목마다 좌표를 적어 두면 "영업 중"이 "또 가고 싶은 곳"이 되는 순간 다음 글과 겹친다.
+ * 글자 폭을 재서 왼쪽부터 차례로 놓고, 앞이 길어지면 뒤가 그만큼 밀려나게 한다.
+ * 값이 빈 항목은 자리도 간격도 차지하지 않는다.
+ */
+export interface TemplateRowPart {
+  kind: 'row';
+  x: number;
+  y: number;
+  /** 항목 사이 기본 간격. 항목이 자기 gap을 적으면 그쪽이 이긴다. */
+  gap: number;
+  /** 줄 전체가 넘지 못하는 폭. 넘치면 가장 긴 글을 말줄임으로 줄여 카드 밖으로 못 나가게 한다. */
+  maxWidth: number;
+  /** x가 줄의 어느 쪽인지. right면 오른쪽 끝이 고정이고 왼쪽으로 자란다. */
+  align?: 'left' | 'center' | 'right';
+  items: readonly TemplateRowItem[];
+}
+
+export interface TemplateRowTextItem {
+  kind: 'text';
+  /** 고정 문구. field가 있으면 그쪽 값이 이긴다. */
+  text?: string;
+  field?: string;
+  size: number;
+  weight?: number;
+  fill: TemplateFill;
+  fontId?: string;
+  /** 앞에 둘 간격. 줄의 기본 간격 대신 쓴다. */
+  gap?: number;
+}
+
+export interface TemplateRowIconItem {
+  kind: 'icon';
+  icon: string;
+  size: number;
+  fill: TemplateFill;
+  solid?: boolean;
+  gap?: number;
+}
+
+export type TemplateRowItem = TemplateRowTextItem | TemplateRowIconItem;
+
 export type TemplatePart =
   | TemplateRectPart
   | TemplateTextPart
   | TemplateSlotPart
   | TemplateIconPart
-  | TemplateBubblePart;
+  | TemplateBubblePart
+  | TemplateRowPart;
 
 export interface TemplateField {
   id: string;

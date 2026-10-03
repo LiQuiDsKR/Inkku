@@ -24,7 +24,11 @@ export interface TextStyle {
   weight?: number;
 }
 
-function fontSpec(style: TextStyle): string {
+/**
+ * 캔버스 font 문자열. 문구 스티커는 잴 때와 그릴 때 이 문자열을 같이 쓴다.
+ * 굵기 하나만 달라도 폭이 달라져서 배경 도형이 글자보다 짧아진다.
+ */
+export function fontSpec(style: TextStyle): string {
   return `${style.weight ?? 400} ${style.size}px ${style.family}`;
 }
 
@@ -34,6 +38,29 @@ export function measureTextWidth(text: string, style: TextStyle): number {
   if (!ctx) return text.length * style.size * 0.55;
   ctx.font = fontSpec(style);
   return ctx.measureText(text).width;
+}
+
+/** 말줄임에 쓰는 꼬리. 세 점을 한 글자로 쓰면 폭 계산이 글꼴마다 달라진다. */
+const ELLIPSIS = '...';
+
+/**
+ * 폭 안에 들어가도록 뒤를 자르고 말줄임을 붙인다.
+ *
+ * 한 줄로 두는 항목이 길어졌을 때 쓴다. 자르지 않으면 옆 항목을 밀어내다가
+ * 결국 카드 밖으로 나간다. 한 글자씩 줄이는 이유는 한글과 영문의 폭이 달라서
+ * 글자 수로 어림하면 맞지 않기 때문이다.
+ */
+export function ellipsize(text: string, style: TextStyle, maxWidth: number): string {
+  if (measureTextWidth(text, style) <= maxWidth) return text;
+
+  const chars = [...text];
+  while (chars.length > 0) {
+    chars.pop();
+    const candidate = `${chars.join('').trimEnd()}${ELLIPSIS}`;
+    if (measureTextWidth(candidate, style) <= maxWidth) return candidate;
+  }
+
+  return ELLIPSIS;
 }
 
 /**

@@ -8,6 +8,7 @@ import { CARD_FONT_FAMILY, useTemplateFonts, useTemplateTextFonts } from '@/font
 import { layoutBubble } from '@/templates/bubble';
 import { findTemplate, findVariant } from '@/templates/catalog';
 import { findIconPath } from '@/templates/icons';
+import { layoutRow } from '@/templates/row';
 import { fieldValue, partText, resolveFill } from '@/templates/types';
 import type { ProjectTemplate } from '@/layers/types';
 import type {
@@ -17,6 +18,7 @@ import type {
   TemplatePart,
   TemplateRadius,
   TemplateRectPart,
+  TemplateRowPart,
   TemplateSpec,
   TemplateTextPart,
 } from '@/templates/types';
@@ -153,28 +155,101 @@ function BubblePart({ part, spec, fields, palette }: BubblePartProps) {
   );
 }
 
-function IconPart({ part, palette }: { part: TemplateIconPart; palette: TemplatePalette }) {
-  const path = findIconPath(part.icon);
+interface IconGlyphProps {
+  icon: string;
+  x: number;
+  y: number;
+  size: number;
+  color: string;
+  solid?: boolean;
+}
+
+/** 아이콘 하나. 좌표가 스펙에서 오든 줄 계산에서 오든 그리는 방법은 같다. */
+function IconGlyph({ icon, x, y, size, color, solid }: IconGlyphProps) {
+  const path = findIconPath(icon);
   // 스펙의 오타 하나로 카드 전체가 죽지 않게 한다
   if (!path) return null;
 
-  const scale = part.size / 24;
-  const color = resolveFill(part.fill, palette);
+  const scale = size / 24;
 
   return (
     <Path
-      x={part.x}
-      y={part.y}
+      x={x}
+      y={y}
       scaleX={scale}
       scaleY={scale}
       data={path}
-      fill={part.solid ? color : undefined}
-      stroke={part.solid ? undefined : color}
-      strokeWidth={part.solid ? 0 : ICON_STROKE}
+      fill={solid ? color : undefined}
+      stroke={solid ? undefined : color}
+      strokeWidth={solid ? 0 : ICON_STROKE}
       lineCap="round"
       lineJoin="round"
       listening={false}
     />
+  );
+}
+
+function IconPart({ part, palette }: { part: TemplateIconPart; palette: TemplatePalette }) {
+  return (
+    <IconGlyph
+      icon={part.icon}
+      x={part.x}
+      y={part.y}
+      size={part.size}
+      color={resolveFill(part.fill, palette)}
+      solid={part.solid}
+    />
+  );
+}
+
+interface RowPartProps {
+  part: TemplateRowPart;
+  spec: TemplateSpec;
+  fields: Readonly<Record<string, string>>;
+  palette: TemplatePalette;
+}
+
+/**
+ * 가로로 이어 붙는 한 줄.
+ *
+ * 자리를 스펙이 아니라 글자 폭에서 구한다. 앞 글이 길어지면 뒤가 밀려나므로
+ * 사용자가 무엇을 적어 넣어도 두 글이 겹치지 않는다.
+ */
+function RowPart({ part, spec, fields, palette }: RowPartProps) {
+  const layout = layoutRow(part, spec, fields, (fontId) =>
+    fontId ? findFont(fontId).family : CARD_FONT_FAMILY,
+  );
+
+  return (
+    <>
+      {layout.items.map((box, index) =>
+        box.item.kind === 'icon' ? (
+          <IconGlyph
+            key={index}
+            icon={box.item.icon}
+            x={box.x}
+            y={box.y}
+            size={box.item.size}
+            color={resolveFill(box.item.fill, palette)}
+            solid={box.item.solid}
+          />
+        ) : (
+          <Text
+            key={index}
+            x={box.x}
+            y={box.y}
+            text={box.text}
+            fontSize={box.item.size}
+            fontStyle={box.item.weight ? String(box.item.weight) : undefined}
+            fontFamily={box.item.fontId ? findFont(box.item.fontId).family : CARD_FONT_FAMILY}
+            fill={resolveFill(box.item.fill, palette)}
+            lineHeight={1.2}
+            wrap="none"
+            listening={false}
+          />
+        ),
+      )}
+    </>
   );
 }
 
@@ -241,6 +316,16 @@ export default function TemplateContent({
           case 'bubble':
             return (
               <BubblePart
+                key={index}
+                part={part}
+                spec={spec}
+                fields={template.fields}
+                palette={palette}
+              />
+            );
+          case 'row':
+            return (
+              <RowPart
                 key={index}
                 part={part}
                 spec={spec}

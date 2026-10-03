@@ -1,6 +1,14 @@
 import { createId } from '@/utils/id';
 import { nextZIndex } from './order';
-import type { BaseLayer, Layer, ParticleLayer, PhotoLayer, ShapeLayer, TextLayer } from './types';
+import type {
+  BaseLayer,
+  Layer,
+  ParticleLayer,
+  PhotoLayer,
+  ShapeLayer,
+  TextLayer,
+  TextStickerLayer,
+} from './types';
 
 /**
  * 레이어 배열을 다루는 순수 함수 모음.
@@ -84,6 +92,17 @@ export function patchParticleLayer(
 ): Layer[] {
   return layers.map((layer) =>
     layer.id === id && layer.type === 'particle' ? { ...layer, ...patch } : layer,
+  );
+}
+
+/** 문구 스티커 전용 패치(문구, 생김새). 대상이 문구 스티커가 아니면 아무것도 하지 않는다. */
+export function patchTextStickerLayer(
+  layers: readonly Layer[],
+  id: string,
+  patch: Partial<Omit<TextStickerLayer, 'id' | 'type'>>,
+): Layer[] {
+  return layers.map((layer) =>
+    layer.id === id && layer.type === 'textSticker' ? { ...layer, ...patch } : layer,
   );
 }
 

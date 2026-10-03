@@ -10,6 +10,7 @@
 import type { ParticleKind } from './particleCatalog';
 import type { FrameStyle } from './photoFrame';
 import type { ShapeKind } from './shapeCatalog';
+import type { TextStickerStyle } from './textSticker';
 
 export type Ratio = '4:5' | '1:1' | '9:16' | '3:4';
 
@@ -20,7 +21,8 @@ export type LayerType =
   | 'drawing'
   | 'shape'
   | 'presetLine'
-  | 'particle';
+  | 'particle'
+  | 'textSticker';
 
 export interface BaseLayer {
   id: string;
@@ -152,6 +154,21 @@ export interface ParticleLayer extends BaseLayer {
   aspect?: number;
 }
 
+/**
+ * 문구 스티커. 글자에 테두리와 배경 도형을 입혀 스티커 한 장으로 만든 것.
+ *
+ * 글자 레이어와 따로 두는 이유는 크기를 다루는 방식이 달라서다. 글자는 fontSize로 키우고
+ * 테두리 두께를 따로 고르지만, 스티커는 배율로 키우고 테두리와 흐림이 같은 비율로 따라온다.
+ * 생김새는 값 그대로 담는다(`style`). 프리셋을 고른 뒤에도 하나하나 고칠 수 있어서
+ * 프리셋 id만 담으면 고친 것이 사라진다.
+ */
+export interface TextStickerLayer extends BaseLayer {
+  type: 'textSticker';
+  /** 줄바꿈은 사용자가 친 그대로다. 자동으로 줄을 나누지 않는다. */
+  text: string;
+  style: TextStickerStyle;
+}
+
 export type Layer =
   | PhotoLayer
   | StickerLayer
@@ -159,7 +176,8 @@ export type Layer =
   | DrawingLayer
   | ShapeLayer
   | PresetLineLayer
-  | ParticleLayer;
+  | ParticleLayer
+  | TextStickerLayer;
 
 /**
  * 지도 카드, 블로그 글머리, 뮤직 플레이어처럼 미리 짜인 한 벌.

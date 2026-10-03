@@ -13,6 +13,7 @@ import MaskAdjustBar from './MaskAdjustBar';
 import PhotoPanel from './PhotoPanel';
 import TemplatePanel from './TemplatePanel';
 import TextEditorModal from './TextEditorModal';
+import TextStickerEditor from './TextStickerEditor';
 import { useTemplateSlotPicker } from './useTemplateSlotPicker';
 import { useExport } from '@/export/useExport';
 import { commitStroke } from '@/layers/importDrawing';
@@ -44,6 +45,9 @@ export default function EditorScreen({ onExit }: EditorScreenProps) {
   const maskLayer = useLayerById(maskEdit);
   const openTextEditor = useToolStore((state) => state.openTextEditor);
   const closeTextEditor = useToolStore((state) => state.closeTextEditor);
+  const stickerEditor = useToolStore((state) => state.stickerEditor);
+  const openStickerEditor = useToolStore((state) => state.openStickerEditor);
+  const closeStickerEditor = useToolStore((state) => state.closeStickerEditor);
 
   const exporter = useExport(stage, project?.ratio);
   // 캔버스의 더하기 표시를 눌러 카드의 사진 자리를 채우는 통로
@@ -73,9 +77,10 @@ export default function EditorScreen({ onExit }: EditorScreenProps) {
 
   if (!project) return null;
 
-  /** 더블탭 편집. 글자는 입력 모달, 사진은 보정 패널을 연다. */
+  /** 더블탭 편집. 글자는 입력 모달, 문구 스티커는 스티커 편집 화면, 사진은 보정 패널을 연다. */
   const handleRequestEdit = (layer: Layer) => {
     if (layer.type === 'text') openTextEditor({ mode: 'edit', layerId: layer.id });
+    else if (layer.type === 'textSticker') openStickerEditor({ mode: 'edit', layerId: layer.id });
     else if (layer.type === 'photo') openPanel('photo');
   };
 
@@ -118,6 +123,7 @@ export default function EditorScreen({ onExit }: EditorScreenProps) {
       </div>
 
       {textEditor && <TextEditorModal target={textEditor} onClose={closeTextEditor} />}
+      {stickerEditor && <TextStickerEditor target={stickerEditor} onClose={closeStickerEditor} />}
       {exporter.result && <ExportScreen exporter={exporter} />}
 
       {/* 캔버스에서 카드의 사진 자리를 눌렀을 때 열리는 파일 고르기. 패널과 통로를 공유한다 */}

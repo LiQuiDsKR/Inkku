@@ -1,4 +1,4 @@
-import type { TemplateSpec, TemplatePart } from './types';
+import type { TemplateRowItem, TemplateSpec } from './types';
 
 /**
  * 지도 앱의 장소 카드.
@@ -12,15 +12,15 @@ import type { TemplateSpec, TemplatePart } from './types';
 const BLUE = '#1a73e8';
 const GOLD = '#f2b01e';
 
-/** 별 다섯 개. 좌표만 다른 파트라 코드로 펼친다. 데이터에 같은 줄을 다섯 번 쓰지 않는다. */
-const STARS: readonly TemplatePart[] = Array.from({ length: 5 }, (_, index) => ({
+/** 별 다섯 개. 자리는 줄 계산이 잡으므로 생김새만 다섯 번 펼친다. */
+const STARS: readonly TemplateRowItem[] = Array.from({ length: 5 }, (_, index) => ({
   kind: 'icon' as const,
   icon: 'star',
-  x: 74 + index * 25,
-  y: 154,
   size: 23,
   fill: GOLD,
   solid: true,
+  // 별끼리는 거의 붙여 둔다. 평점 뒤에 오는 첫 별만 한 칸 띄운다
+  gap: index === 0 ? 10 : 2,
 }));
 
 export const MAP_TEMPLATE: TemplateSpec = {
@@ -112,14 +112,37 @@ export const MAP_TEMPLATE: TemplateSpec = {
       fill: 'ink',
     },
 
-    { kind: 'text', field: 'rating', x: 28, y: 156, size: 25, fill: 'inkMuted' },
-    ...STARS,
-    { kind: 'text', field: 'reviews', x: 206, y: 156, size: 25, fill: 'inkMuted' },
-    { kind: 'icon', icon: 'walk', x: 306, y: 152, size: 28, fill: 'inkMuted' },
-    { kind: 'text', field: 'walk', x: 338, y: 156, size: 25, fill: 'inkMuted' },
-
-    { kind: 'text', field: 'status', x: 28, y: 198, size: 25, weight: 600, fill: 'accent' },
-    { kind: 'text', field: 'hours', x: 118, y: 198, width: 440, size: 25, fill: 'inkMuted' },
+    /*
+     * 평점 줄과 영업 줄은 좌표를 적지 않는다.
+     * "4.5"가 "5"가 되고 "(1,353)"이 "(매우 만족)"이 되는 순간 다음 글과 겹치기 때문에,
+     * 글자 폭을 재서 차례로 밀어 놓는다.
+     */
+    {
+      kind: 'row',
+      x: 28,
+      y: 152,
+      gap: 8,
+      maxWidth: 544,
+      items: [
+        { kind: 'text', field: 'rating', size: 25, fill: 'inkMuted', gap: 0 },
+        ...STARS,
+        { kind: 'text', field: 'reviews', size: 25, fill: 'inkMuted', gap: 10 },
+        { kind: 'text', text: '·', size: 25, fill: 'inkMuted', gap: 12 },
+        { kind: 'icon', icon: 'walk', size: 28, fill: 'inkMuted', gap: 10 },
+        { kind: 'text', field: 'walk', size: 25, fill: 'inkMuted', gap: 4 },
+      ],
+    },
+    {
+      kind: 'row',
+      x: 28,
+      y: 198,
+      gap: 10,
+      maxWidth: 544,
+      items: [
+        { kind: 'text', field: 'status', size: 25, weight: 600, fill: 'accent' },
+        { kind: 'text', field: 'hours', size: 25, fill: 'inkMuted' },
+      ],
+    },
 
     // 길찾기 버튼만 색을 채운다. 나머지까지 채우면 어디를 누르라는 화면인지 사라진다
     // 한글 라벨은 영문보다 짧아서 세 버튼을 같은 폭으로 나누고 내용을 가운데에 모은다

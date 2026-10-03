@@ -3,6 +3,7 @@ import { CARD_FONT_FAMILY } from '@/fonts/useTemplateFonts';
 import { layoutBubble } from '@/templates/bubble';
 import { findVariant } from '@/templates/catalog';
 import { findIconPath } from '@/templates/icons';
+import { layoutRow } from '@/templates/row';
 import { resolveFill } from '@/templates/types';
 import type {
   TemplatePalette,
@@ -157,27 +158,86 @@ function PreviewPart({ part, spec, palette }: PreviewPartProps) {
         </g>
       );
 
-    case 'icon': {
-      const path = findIconPath(part.icon);
-      if (!path) return null;
-      const color = resolveFill(part.fill, palette);
-      const scale = part.size / 24;
+    case 'icon':
       return (
-        <path
-          d={path}
-          transform={`translate(${part.x} ${part.y}) scale(${scale})`}
-          fill={part.solid ? color : 'none'}
-          stroke={part.solid ? 'none' : color}
-          strokeWidth={part.solid ? 0 : 2.1}
-          strokeLinecap="round"
-          strokeLinejoin="round"
+        <IconGlyph
+          icon={part.icon}
+          x={part.x}
+          y={part.y}
+          size={part.size}
+          color={resolveFill(part.fill, palette)}
+          solid={part.solid}
         />
+      );
+
+    case 'row': {
+      // 캔버스와 같은 계산을 쓴다. 썸네일만 다른 자리에 그리면 고르는 의미가 없다
+      const layout = layoutRow(part, spec, {}, (fontId) =>
+        fontId ? findFont(fontId).family : CARD_FONT_FAMILY,
+      );
+
+      return (
+        <g>
+          {layout.items.map((box, index) =>
+            box.item.kind === 'icon' ? (
+              <IconGlyph
+                key={index}
+                icon={box.item.icon}
+                x={box.x}
+                y={box.y}
+                size={box.item.size}
+                color={resolveFill(box.item.fill, palette)}
+                solid={box.item.solid}
+              />
+            ) : (
+              <text
+                key={index}
+                x={box.x}
+                // SVG의 y는 글자의 밑선이고 캔버스의 y는 윗선이다. 크기의 0.82만큼 내려야 눈높이가 맞는다
+                y={box.y + box.item.size * 0.82}
+                fontSize={box.item.size}
+                fontWeight={box.item.weight ?? 400}
+                fontFamily={box.item.fontId ? findFont(box.item.fontId).family : CARD_FONT_FAMILY}
+                fill={resolveFill(box.item.fill, palette)}
+              >
+                {box.text}
+              </text>
+            ),
+          )}
+        </g>
       );
     }
 
     default:
       return null;
   }
+}
+
+interface IconGlyphProps {
+  icon: string;
+  x: number;
+  y: number;
+  size: number;
+  color: string;
+  solid?: boolean;
+}
+
+/** 아이콘 하나. 좌표가 스펙에서 오든 줄 계산에서 오든 그리는 방법은 같다. */
+function IconGlyph({ icon, x, y, size, color, solid }: IconGlyphProps) {
+  const path = findIconPath(icon);
+  if (!path) return null;
+
+  return (
+    <path
+      d={path}
+      transform={`translate(${x} ${y}) scale(${size / 24})`}
+      fill={solid ? color : 'none'}
+      stroke={solid ? 'none' : color}
+      strokeWidth={solid ? 0 : 2.1}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  );
 }
 
 function PlusMark({ part }: { part: { x: number; y: number; width: number; height: number } }) {
