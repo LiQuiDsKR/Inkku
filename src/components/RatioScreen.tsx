@@ -60,7 +60,7 @@ export default function RatioScreen({ onSelect, onBack }: RatioScreenProps) {
         올릴 곳에 맞춰 고른다. 나중에 바꾸면 배치가 틀어질 수 있다.
       </p>
 
-      <div className="mt-5 grid grid-cols-2 gap-3">
+      <div className="tile-grid mt-5 grid grid-cols-2 gap-3 [--tile-min:11rem] md:max-w-5xl">
         {RATIO_LIST.map((ratio) => {
           const size = getRatioSize(ratio);
           const output = getPixelSize(ratio, EXPORT_LONG_EDGE);

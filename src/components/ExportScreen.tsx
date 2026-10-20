@@ -41,7 +41,7 @@ export default function ExportScreen({ exporter }: ExportScreenProps) {
         <span className="h-9 w-9" />
       </header>
 
-      <div className="scroll-contain min-h-0 flex-1 overflow-y-auto px-5 pb-6">
+      <div className="scroll-contain mx-auto min-h-0 w-full max-w-md flex-1 overflow-y-auto px-5 pb-6">
         <div className="flex items-center gap-2 rounded-full bg-surface-container px-3 py-2">
           <span className="h-1.5 w-1.5 rounded-full bg-secondary shadow-[0_0_8px_rgba(64,226,168,0.8)]" />
           <span className="text-label-lg text-on-surface">렌더링 완료</span>

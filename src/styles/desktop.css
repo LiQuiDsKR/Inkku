@@ -1,0 +1,37 @@
+/*
+ * 넓은 화면(PC)용 손질.
+ *
+ * 화면은 폰 세로 기준으로 짜여 있고 PC에서도 창 폭을 그대로 쓴다. 다만 폭을 따라 늘어나는 것
+ * (가득 찬 버튼, 칸 수가 정해진 그리드)은 모니터에서 수백 픽셀짜리 판이 되어 버튼으로 읽히지 않는다.
+ * 그래서 화면은 넓게 두고 누르는 것의 크기만 붙잡는다. 버튼은 각 컴포넌트의 md:max-w-*가,
+ * 그리드는 아래 .tile-grid가 맡는다.
+ */
+
+/*
+ * 칸 수가 정해진 그리드(grid-cols-4)를 넓은 화면에서는 칸 크기 기준으로 바꾼다.
+ * 칸이 커지는 대신 한 줄에 더 많이 놓인다. 최소 폭은 --tile-min으로 그리드마다 바꾼다.
+ * Tailwind 유틸리티는 레이어 안에 있어서 레이어 밖의 이 규칙이 grid-cols-*를 이긴다.
+ */
+@media (min-width: 768px) {
+  .tile-grid {
+    grid-template-columns: repeat(auto-fill, minmax(var(--tile-min, 5.5rem), 1fr));
+  }
+}
+
+/*
+ * 마우스가 있는 곳(PC)만의 손질.
+ * - Tailwind 4는 버튼 커서를 기본 화살표로 둔다. 누를 수 있는 것인지 손가락 커서로 알려 준다.
+ * - 윈도우의 굵은 회색 스크롤바가 어두운 패널을 가로지르지 않게 가늘고 어둡게 칠한다.
+ */
+@media (pointer: fine) {
+  button:not(:disabled),
+  a[href],
+  label[for] {
+    cursor: pointer;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-surface-bright) transparent;
+  }
+}

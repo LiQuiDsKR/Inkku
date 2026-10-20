@@ -140,7 +140,7 @@ export default function TextEditorModal({ target, onClose }: TextEditorModalProp
         줄이 반쯤 잘린 채 걸린다. 그래도 넘치는 작은 화면에서는 이 줄이 스크롤된다.
         입력칸이 먼저 사라지면 무엇을 치는지 모른다.
       */}
-      <div className="scroll-contain no-scrollbar min-h-0 overflow-y-auto px-4 pb-2">
+      <div className="scroll-contain no-scrollbar mx-auto min-h-0 w-full max-w-lg overflow-y-auto px-4 pb-2">
         <TextStyleControls draft={draft} onChange={patch} compact={viewport.keyboardOpen} />
       </div>
 

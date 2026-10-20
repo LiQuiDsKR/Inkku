@@ -96,7 +96,7 @@ export default function AssetBrowser({ tab, header, color, onColor, onPick }: As
       ) : !pack ? (
         <p className="p-6 text-center text-body-md text-muted">불러오는 중</p>
       ) : (
-        <div className={`grid gap-2 p-4 pt-2 ${isLine ? 'grid-cols-2' : 'grid-cols-4'}`}>
+        <div className={`tile-grid grid gap-2 p-4 pt-2 ${isLine ? 'grid-cols-2 [--tile-min:12rem]' : 'grid-cols-4'}`}>
           {items.map((item) => (
             <AssetTile
               key={item.id}

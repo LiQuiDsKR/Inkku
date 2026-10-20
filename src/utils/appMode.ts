@@ -74,12 +74,6 @@ export function isStandalone(): boolean {
   );
 }
 
-/** 아이폰과 아이패드. 아이패드 사파리는 맥처럼 자신을 소개해서 터치 지점 수로 가려낸다. */
-export function isAppleMobile(): boolean {
-  const ua = navigator.userAgent;
-  return /iPhone|iPad|iPod/.test(ua) || (ua.includes('Macintosh') && navigator.maxTouchPoints > 1);
-}
-
 function isEditable(target: EventTarget | null): boolean {
   return (
     target instanceof HTMLElement &&

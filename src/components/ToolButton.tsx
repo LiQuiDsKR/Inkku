@@ -34,7 +34,7 @@ export default function ToolButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`flex flex-1 flex-col items-center justify-center gap-1 py-1.5 transition-transform active:scale-95 ${
+      className={`flex flex-1 flex-col items-center justify-center gap-1 py-1.5 md:max-w-24 transition-transform active:scale-95 ${
         disabled ? 'opacity-35' : ''
       }`}
     >

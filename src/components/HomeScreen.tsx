@@ -56,7 +56,7 @@ export default function HomeScreen({ onCreate, onResume, onOpenSettings, saved }
             resumeFullscreen();
             onCreate();
           }}
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-primary-container py-4 text-title-md text-on-primary-container shadow-[0_8px_24px_-8px_rgba(255,83,118,0.8)] transition-transform active:scale-[0.98]"
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-primary-container py-4 md:max-w-sm text-title-md text-on-primary-container shadow-[0_8px_24px_-8px_rgba(255,83,118,0.8)] transition-transform active:scale-[0.98]"
         >
           <Icon name="sparkle" size={18} />
           새 사진 꾸미기

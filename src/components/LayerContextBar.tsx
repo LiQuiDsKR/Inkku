@@ -77,7 +77,7 @@ export default function LayerContextBar({ layer }: LayerContextBarProps) {
      * 손으로 맞춰 둔 위치가 매번 움직이는 것처럼 보여서 편집이 어렵다.
      */
     <div className="absolute inset-x-0 bottom-full z-40 px-3 pb-2">
-      <div className="glass-panel flex flex-col gap-2 rounded-3xl px-3 py-2.5">
+      <div className="glass-panel mx-auto flex max-w-lg flex-col gap-2 rounded-3xl px-3 py-2.5">
         <div className="flex items-center gap-2">
           <span className="flex items-center gap-1 text-label-md text-tertiary">
             <Icon name="opacity" size={14} />

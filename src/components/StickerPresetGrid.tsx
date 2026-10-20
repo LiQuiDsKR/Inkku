@@ -17,7 +17,7 @@ export default function StickerPresetGrid({ onPick }: StickerPresetGridProps) {
     <div className="px-4 pb-4">
       <p className="pb-2 text-label-md text-muted">고르면 문구를 바꿔 쓸 수 있다</p>
       {/* 태블릿처럼 넓은 화면에서 세 칸이면 한 칸이 손바닥만 해져 몇 개 보이지 않는다 */}
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+      <div className="tile-grid grid grid-cols-3 gap-2 sm:grid-cols-5 [--tile-min:7rem]">
         {TEXT_STICKER_PRESETS.map((preset) => (
           <button
             key={preset.id}

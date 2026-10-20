@@ -52,6 +52,14 @@ export const ICON_PATHS = {
   expand: 'M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5',
   shrink: 'M9 4v5H4 M15 4v5h5 M9 20v-5H4 M15 20v-5h5',
   addBox: 'M4 4h16v16H4z M12 8v8 M8 12h8',
+  /*
+   * 홈 화면 추가 안내에서 브라우저 버튼을 그대로 그려 보이는 데 쓴다.
+   * 점 세 개는 선 두께만으로는 너무 작아서 반지름 1짜리 원으로 그린다.
+   */
+  moreHoriz: 'M5 11a1 1 0 1 1 0 2 1 1 0 0 1 0-2z M12 11a1 1 0 1 1 0 2 1 1 0 0 1 0-2z M19 11a1 1 0 1 1 0 2 1 1 0 0 1 0-2z',
+  moreVert: 'M12 4a1 1 0 1 1 0 2 1 1 0 0 1 0-2z M12 11a1 1 0 1 1 0 2 1 1 0 0 1 0-2z M12 18a1 1 0 1 1 0 2 1 1 0 0 1 0-2z',
+  menu: 'M4 6h16 M4 12h16 M4 18h16',
+  external: 'M14 4h6v6 M20 4l-9 9 M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5',
 } as const;
 
 export type IconName = keyof typeof ICON_PATHS;

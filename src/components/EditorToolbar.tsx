@@ -20,7 +20,7 @@ export default function EditorToolbar() {
   };
 
   return (
-    <nav className="safe-bottom glass relative z-40 flex shrink-0 items-stretch px-2 pt-1.5">
+    <nav className="safe-bottom glass relative z-40 flex shrink-0 items-stretch justify-center px-2 pt-1.5">
       <PhotoImportButton />
       {/* 스티커, 꾸밈선, 도형은 "붙일 것"이라는 한 목적이라 한 패널에 모았다 */}
       <ToolButton

@@ -19,7 +19,7 @@ interface ShapeGridProps {
  */
 export default function ShapeGrid({ color, onPick }: ShapeGridProps) {
   return (
-    <div className="grid grid-cols-5 gap-2 p-4 pt-2">
+    <div className="tile-grid grid grid-cols-5 gap-2 p-4 pt-2 [--tile-min:4.5rem]">
       {SHAPE_KINDS.map((item) => (
         <button
           key={item.kind}

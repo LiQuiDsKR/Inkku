@@ -36,7 +36,7 @@ export default function TemplateEditor({ template, spec }: TemplateEditorProps) 
   };
 
   return (
-    <div className="px-4 pb-5">
+    <div className="px-4 pb-5 md:max-w-xl">
       <p className="pb-2 text-label-md text-muted">레이아웃</p>
       <div className="scroll-contain no-scrollbar flex gap-2 overflow-x-auto pb-4">
         {spec.variants.map((variant) => (

@@ -34,7 +34,7 @@ export default function MaskAdjustBar({ layer }: MaskAdjustBarProps) {
 
   return (
     <div className="absolute inset-x-0 bottom-full z-40 px-3 pb-2">
-      <div className="glass-panel flex flex-col gap-2 rounded-3xl px-3 py-2.5">
+      <div className="glass-panel mx-auto flex max-w-lg flex-col gap-2 rounded-3xl px-3 py-2.5">
         <p className="text-label-md text-muted">
           끌어서 위치를 맞춘다. 두 손가락으로 크기를 바꾼다.
         </p>

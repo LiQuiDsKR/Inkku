@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+/* 넓은 화면(PC)에서 버튼과 그리드 칸이 늘어나지 않게 하는 손질 */
+@import './styles/desktop.css';
 
 /*
  * 디자인 시스템: Studio NeoDeco (ref/studio_neodeco/DESIGN.md)

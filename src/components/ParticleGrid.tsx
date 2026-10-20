@@ -10,7 +10,7 @@ interface ParticleGridProps {
 /** 파티클 목록. 흩뿌린 모양을 그대로 보여 준다. 이름만으로는 밀도와 크기를 알 수 없다. */
 export default function ParticleGrid({ color, onPick }: ParticleGridProps) {
   return (
-    <div className="grid grid-cols-4 gap-2 p-4 pt-2">
+    <div className="tile-grid grid grid-cols-4 gap-2 p-4 pt-2">
       {PARTICLE_SHAPES.map((item) => (
         <button
           key={item.kind}

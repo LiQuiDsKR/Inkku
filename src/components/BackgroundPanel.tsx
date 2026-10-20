@@ -65,7 +65,7 @@ export default function BackgroundPanel({ onClose }: BackgroundPanelProps) {
         )}
       </div>
 
-      <div className="grid grid-cols-4 gap-2 p-4 pt-2">
+      <div className="tile-grid grid grid-cols-4 gap-2 p-4 pt-2">
         {tab === 'color' &&
           BACKGROUND_COLORS.map((color) => (
             <button
